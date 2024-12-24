@@ -16,7 +16,7 @@ On the Home page, I introduce myself and my passion for creating user-friendly a
 
 Design:
 
-![Home Page](design-personal-website/home-page.png)
+![Home Page](designs/home-page.png)
 
 Highlights:
 
@@ -30,7 +30,7 @@ On the About page, I share my professional journey, from the roles I’ve held t
 
 Design:
 
-![About Page](design-personal-website/about-page.png)
+![About Page](designs/about-page.png)
 
 Key points:
 
@@ -44,7 +44,7 @@ The Projects section is where I highlight the work I’m most proud of. Each pro
 
 Design:
 
-![Projects Page](design-personal-website/project-page.png)
+![Projects Page](designs/project-page.png)
 
 What you’ll find:
 
@@ -58,7 +58,7 @@ I want to make it easy for you to connect with me, which is why I’ve designed 
 
 Design:
 
-![Contact Page](design-personal-website/contact-page.png)
+![Contact Page](designs/contact-page.png)
 
 Ways to connect:
 
