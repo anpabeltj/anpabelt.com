@@ -2,7 +2,7 @@
 
 Welcome to my personal website! Access it at [anpabelt.com](https://anpabelt.com)
 
-UI design on Figma: <https://figma.com/...>
+UI design on Figma: <https://www.figma.com/design/f1F1KJzzDHD9ve07mnpxvT/anpabelt.com?node-id=0-1&t=SZZItoGxZHuU4vqS-1>
 
 This site is designed to showcase my **projects**, **experience**, and provide ways to **connect** with me. Below are the details of the sections on the website. This website consists of several features, such that:
 
@@ -54,7 +54,7 @@ What you’ll find:
 - The technologies I used to bring each project to life.
 - A reflection of my versatility and ability to deliver quality results.
 
-## 📱`Contact
+## 📱 Contact
 
 I want to make it easy for you to connect with me, which is why I’ve designed the Contact section to be simple and straightforward. Whether you prefer sending a message through the form or reaching out via social media, I’m always open to conversations and collaborations.
 
