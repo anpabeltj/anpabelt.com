@@ -54,7 +54,7 @@ What you’ll find:
 - The technologies I used to bring each project to life.
 - A reflection of my versatility and ability to deliver quality results.
 
-## 📱`Contact
+## 📱 Contact
 
 I want to make it easy for you to connect with me, which is why I’ve designed the Contact section to be simple and straightforward. Whether you prefer sending a message through the form or reaching out via social media, I’m always open to conversations and collaborations.
 
