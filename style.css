@@ -1,14 +1,30 @@
 body,
 textarea {
-  font-family: sans-serif;
+  font-family: "DM Sans", serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Lexend Giga", serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+
+p,
+ul,
+ol {
+  font-size: 1.2rem;
 }
 
 main {
   margin: 0 auto;
   max-width: 50rem;
-}
-
-p,
-ul {
-  font-size: 1.2rem;
 }
