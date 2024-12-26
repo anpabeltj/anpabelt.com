@@ -28,3 +28,27 @@ main {
   margin: 0 auto;
   max-width: 50rem;
 }
+
+.navbar-container {
+  display: flex;
+  justify-content: center;
+}
+
+.navbar {
+  background-color: #202020;
+  padding: 1rem 3rem;
+  border-radius: 3rem;
+}
+
+.navbar-list {
+  list-style: none;
+  display: flex;
+  padding: 0;
+  gap: 3rem;
+}
+
+.navbar a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+}
