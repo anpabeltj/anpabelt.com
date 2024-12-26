@@ -1,0 +1,14 @@
+body,
+textarea {
+  font-family: sans-serif;
+}
+
+main {
+  margin: 0 auto;
+  max-width: 50rem;
+}
+
+p,
+ul {
+  font-size: 1.2rem;
+}
