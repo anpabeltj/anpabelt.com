@@ -4,6 +4,7 @@ textarea {
   font-optical-sizing: auto;
   font-weight: 400;
   font-style: normal;
+  margin: 0;
 }
 
 h1,
@@ -32,9 +33,12 @@ main {
 .navbar-container {
   display: flex;
   justify-content: center;
+  position: sticky;
+  top: 0;
 }
 
 .navbar {
+  margin: 1rem;
   background-color: #202020;
   padding: 1rem 3rem;
   border-radius: 3rem;
