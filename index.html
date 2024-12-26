@@ -8,23 +8,34 @@
       name="description"
       content="Anpabelt's website to showcase software engineering and web developer portfolio, including work experience and education."
     />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz@9..40&family=Lexend+Giga:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/style.css" />
   </head>
 
   <body>
     <!-- Navbar -->
-    <header>
-      <h1>Anpabelt Trah Javala</h1>
-      <nav>
-        <ul>
-          <li><a href="/"> Home</a></li>
-          <li><a href="/about"> About</a></li>
-          <li><a href="/projects"> Projects</a></li>
-          <li><a href="/contact"> Contact</a></li>
+    <header class="navbar-container">
+      <nav class="navbar">
+        <ul class="navbar-list">
+          <li><a href="/">Home</a></li>
+          <li><a href="/about">About</a></li>
+          <li><a href="/projects">Projects</a></li>
+          <li><a href="/contact">Contact</a></li>
         </ul>
       </nav>
     </header>
 
     <main>
+      <section class="hero">
+        <h1>Anpabelt Trah Javala</h1>
+      </section>
+
       <section>
         <h1>Hi, I’m Anpabelt 👋🏻</h1>
         <p>
@@ -66,11 +77,11 @@
       </section>
 
       <section>
-        <h3>Featured Projects</h3>
+        <h2>Featured Projects</h2>
         <p>See all projects</p>
 
         <article>
-          <h4>Personal Website</h4>
+          <h3>Personal Website</h3>
           <!-- TODO: Put real design of the website -->
           <img
             src="/assets/images/dummy-image-project.jpg"
