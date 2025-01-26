@@ -5,7 +5,7 @@ textarea {
   font-weight: 400;
   font-style: normal;
   margin: 0;
-  background-color: #0f1411;
+  background-color: hsl(144, 14%, 7%);
   color: #fff;
 }
 
@@ -123,4 +123,16 @@ footer {
 
   /* padding-top: 2rem; */
   align-items: center;
+}
+
+.experience-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.experience-card {
+  padding: 1rem;
+  background-color: hsl(144, 14%, 15%);
+  border-radius: 1rem;
 }
