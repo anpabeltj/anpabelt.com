@@ -51,6 +51,16 @@ ul li a {
   text-decoration: none;
 }
 
+.site-page {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.site-content {
+  flex: 1;
+}
+
 .navbar-container {
   display: flex;
   justify-content: center;
