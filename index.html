@@ -4,42 +4,37 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Anpabelt Trah Javala - Personal Website</title>
-    <meta
-      name="description"
-      content="Anpabelt's website to showcase software engineering and web developer portfolio, including work experience and education."
-    />
+    <meta name="description" content="Anpabelt's website to showcase software engineering and web developer portfolio, including work experience and education." />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz@9..40&family=Lexend+Giga:wght@700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/style.css" />
   </head>
 
   <body>
     <!-- Navbar -->
-    <header>
-      <h1>Anpabelt Trah Javala</h1>
-      <nav>
-        <ul>
-          <li><a href="/"> Home</a></li>
-          <li><a href="/about"> About</a></li>
-          <li><a href="/projects"> Projects</a></li>
-          <li><a href="/contact"> Contact</a></li>
+    <header class="navbar-container">
+      <nav class="navbar">
+        <ul class="navbar-list">
+          <li><a href="/">Home</a></li>
+          <li><a href="/about">About</a></li>
+          <li><a href="/projects">Projects</a></li>
+          <li><a href="/contact">Contact</a></li>
         </ul>
       </nav>
     </header>
 
     <main>
+      <section class="hero">
+        <h1>Anpabelt Trah Javala</h1>
+      </section>
+
       <section>
         <h1>Hi, I’m Anpabelt 👋🏻</h1>
-        <p>
-          Currently learning Universiti Teknologi Petronas (UTP), Malaysia. Also
-          studying with Bearmentor Bootcamp to improve my Software Engineering
-          and Web Development skills, using modern tech stack and solving
-          real-world problems.
-        </p>
+        <p>Currently learning Universiti Teknologi Petronas (UTP), Malaysia.</p>
 
-        <p>
-          In addition to my studies, I’m actively learning web development.The
-          world of web development excites me because it blends creativity with
-          logical problem-solving, constantly presenting new challenges to
-          overcome.
-        </p>
+        <p>In addition to my studies, I’m actively learning web development. The world of web development excites me because it blends creativity with logical problem-solving, constantly presenting new challenges to overcome.</p>
 
         <p>I enjoy diving into these tech stack:</p>
         <ul>
@@ -52,87 +47,94 @@
           <li>Node.js</li>
         </ul>
 
+        <p>I am also exploring data science with Python, where I am fascinated by how data can be transformed into actionable insights and drive impactful decisions.</p>
         <p>
-          I am also exploring data science with Python, where I am fascinated by
-          how data can be transformed into actionable insights and drive
-          impactful decisions.
-        </p>
-        <p>
-          My ultimate goal is to become either a software engineer or an AI
-          engineer. I am passionate about leveraging technology to create
-          innovative solutions and am committed to growing my skills to
-          contribute meaningfully in these fields.
+          My ultimate goal is to become either a software engineer or an AI engineer. I am passionate about leveraging technology to create innovative solutions and am committed to growing my skills to contribute meaningfully in these
+          fields.
         </p>
       </section>
 
       <section>
-        <h3>Featured Projects</h3>
+        <h2>Featured Projects</h2>
         <p>See all projects</p>
 
-        <article>
-          <h4>Personal Website</h4>
-          <!-- TODO: Put real design of the website -->
-          <img
-            src="/assets/images/dummy-image-project.jpg"
-            alt="Personal Website Home Page"
-          />
-          <p>
-            My personal website is designed to showcase my projects, experience,
-          </p>
-          <ul>
-            <li>
-              <a href="https://figma.com">Figma</a>
-            </li>
-            <li>
-              <a href="https://mdn.dev/html">HTML</a>
-            </li>
-            <li>
-              <a href="https://mdn.dev/css">CSS</a>
-            </li>
-            <li>
-              <a href="https://tailwindcss.com">Tailwind CSS</a>
-            </li>
-            <li>
-              <a href="https://mdn.dev/js">JavaScript</a>
-            </li>
-            <li>
-              <a href="https://typescriptlang.org">TypeScript</a>
-            </li>
-            <li>
-              <a href="https://react.dev">React</a>
-            </li>
-          </ul>
-        </article>
+        <div class="article-list">
+          <article class="article-container">
+            <h3>Personal Website</h3>
+            <!-- TODO: Put real design of the website -->
+            <img src="/assets/images/dummy-image-project.jpg" alt="Personal Website Home Page" />
+            <p>My personal website is designed to showcase my projects, experience,</p>
+            <ul>
+              <li>
+                <a href="https://figma.com">Figma</a>
+              </li>
+              <li>
+                <a href="https://mdn.dev/html">HTML</a>
+              </li>
+              <li>
+                <a href="https://mdn.dev/css">CSS</a>
+              </li>
+              <li>
+                <a href="https://tailwindcss.com">Tailwind CSS</a>
+              </li>
+              <li>
+                <a href="https://mdn.dev/js">JavaScript</a>
+              </li>
+              <li>
+                <a href="https://typescriptlang.org">TypeScript</a>
+              </li>
+              <li>
+                <a href="https://react.dev">React</a>
+              </li>
+            </ul>
+          </article>
 
-        <article>
-          <h4>Address Book</h4>
-          <img src="/assets/images/dummy-image-project.jpg" alt="" />
-          <p>
-            Lorem ipsum dolor sit amet, consectetur <br />
-            adipiscing elit, sed do eiusmod tempor <br />
-            incididunt ut labore et dolore magna aliqua. <br />
-            Ut enim ad minim veniam
-          </p>
-          <div>
-            <span>JavaScript</span>
-            <span>TypeScript</span>
-            <span>React</span>
-            <span>Tailwind CSS</span>
-          </div>
-        </article>
+          <article class="article-container">
+            <h4>Address Book</h4>
+            <img src="/assets/images/dummy-image-project.jpg" alt="" />
+            <p>
+              Lorem ipsum dolor sit amet, consectetur <br />
+              adipiscing elit, sed do eiusmod tempor <br />
+              incididunt ut labore et dolore magna aliqua. <br />
+              Ut enim ad minim veniam
+            </p>
+            <ul>
+              <li>
+                <a href="https://figma.com">Figma</a>
+              </li>
+              <li>
+                <a href="https://mdn.dev/html">HTML</a>
+              </li>
+              <li>
+                <a href="https://mdn.dev/css">CSS</a>
+              </li>
+              <li>
+                <a href="https://tailwindcss.com">Tailwind CSS</a>
+              </li>
+              <li>
+                <a href="https://mdn.dev/js">JavaScript</a>
+              </li>
+              <li>
+                <a href="https://typescriptlang.org">TypeScript</a>
+              </li>
+              <li>
+                <a href="https://react.dev">React</a>
+              </li>
+            </ul>
+          </article>
+        </div>
       </section>
     </main>
 
     <footer>
-      <p>Copyright © 2024 Anpabelt. All rights reserved.</p>
-      <ul>
+      <ul class="icon-list">
         <li>
-          <a href="https://github.com/username">
+          <a href="https://github.com/anpabeltj">
             <img src="/assets/favicons/github-icon.svg" alt="github-icon" />
           </a>
         </li>
         <li>
-          <a href="https://t.me/username">
+          <a href="https://t.me/anpabelt">
             <img src="/assets/favicons/telegram-icon.svg" alt="telegram-icon" />
           </a>
         </li>
@@ -142,17 +144,13 @@
           </a>
         </li>
         <li>
-          <a href="https://linkedin.com/in/username">
+          <a href="https://linkedin.com/in/anpabelt">
             <img src="/assets/favicons/linkedin-icon.svg" alt="linkedin-icon" />
           </a>
         </li>
         <!-- TODO: Decide to keep the email or not -->
-        <li>
-          <a href="mailto:info@anpabelt.com">
-            <img src="/assets/favicons/email-icon.svg" alt="email-icon" />
-          </a>
-        </li>
       </ul>
+      <p>Copyright © 2024 Anpabelt. All rights reserved.</p>
     </footer>
   </body>
 </html>
