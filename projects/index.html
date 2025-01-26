@@ -11,10 +11,19 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz@9..40&family=Lexend+Giga:wght@700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/style.css" />
+
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+      @theme {
+        --color-retro-50: hsl(144, 0%, 85%);
+        --color-retro-400: hsl(144, 10%, 55%);
+        --color-retro-900: hsl(144, 0%, 15%);
+        --color-retro-950: hsl(144, 14%, 7%);
+      }
+    </style>
   </head>
   <body>
-    <div class="site-page">
+    <div id="site-page" class="bg-retro-950 text-retro-50">
       <!-- Navbar -->
       <header class="navbar-container">
         <nav class="navbar">
@@ -31,35 +40,115 @@
         <h3>All Projects</h3>
         <p>See full resume</p>
 
-        <table>
-          <thead>
-            <tr>
-              <th>Year</th>
-              <th>Project Name</th>
-              <th>Build With</th>
-              <th>Link</th>
-            </tr>
-          </thead>
+        <div id="projects" class="grid gap-8 md:grid-cols-2">
+          <article id="project-1" class="p-4 bg-retro-900">
+            <h3>Personal Website</h3>
+            <!-- TODO: Put real design of the website -->
+            <img
+              src="/assets/images/dummy-image-project.jpg"
+              alt="Personal Website Home Page"
+            />
+            <p>
+              My personal website is designed to showcase my projects,
+              experience,
+            </p>
 
-          <tbody>
-            <td>2024</td>
-            <td>Personal Website</td>
-            <td>
-              <span>JavaScript</span> <span>React</span> <span>Next Js</span>
-            </td>
-            <td>anpabelt.com</td>
-          </tbody>
+            <ul id="tech-tools-1" class="flex flex-wrap gap-2">
+              <li>
+                <a
+                  href="https://figma.com"
+                  class="inline-flex gap-1 text-sm bg-retro-400 py-1.5 px-3 rounded-full"
+                >
+                  <img
+                    src="/assets/icons/figma.svg"
+                    alt="Figma"
+                    width="20"
+                    height="20"
+                  />
+                  <span>Figma</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://mdn.dev/html"
+                  class="inline-flex text-sm bg-retro-400 py-1.5 px-3 rounded-full"
+                >
+                  <img
+                    src="/assets/icons/html5.svg"
+                    alt="HTML"
+                    width="20"
+                    height="20"
+                  />
+                  <span>HTML</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://mdn.dev/css">CSS</a>
+              </li>
+              <li>
+                <a href="https://tailwindcss.com">Tailwind CSS</a>
+              </li>
+              <li>
+                <a href="https://mdn.dev/js">JavaScript</a>
+              </li>
+              <li>
+                <a href="https://typescriptlang.org">TypeScript</a>
+              </li>
+              <li>
+                <a href="https://react.dev">React</a>
+              </li>
+            </ul>
+          </article>
 
-          <tbody>
-            <td>2023</td>
-            <td>Cafe Website</td>
-            <td>
-              <span>JavaScript</span> <span>React</span> <span>Next Js</span>
-              <span>Tailwind CSS</span>
-            </td>
-            <td>cafe.com</td>
-          </tbody>
-        </table>
+          <article id="project-2">
+            <h4>Address Book</h4>
+            <img src="/assets/images/dummy-image-project.jpg" alt="" />
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+              enim ad minim veniam
+            </p>
+            <ul class="tech-tools-2">
+              <li>
+                <a href="https://figma.com">
+                  <img
+                    src="/assets/icons/figma.svg"
+                    alt="Figma"
+                    width="20"
+                    height="20"
+                  />
+                  <span>Figma</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://mdn.dev/html">
+                  <img
+                    src="/assets/icons/html5.svg"
+                    alt="HTML"
+                    width="20"
+                    height="20"
+                  />
+                  <span>HTML</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://mdn.dev/css">CSS</a>
+              </li>
+              <li>
+                <a href="https://tailwindcss.com">Tailwind CSS</a>
+              </li>
+              <li>
+                <a href="https://mdn.dev/js">JavaScript</a>
+              </li>
+              <li>
+                <a href="https://typescriptlang.org">TypeScript</a>
+              </li>
+              <li>
+                <a href="https://react.dev">React</a>
+              </li>
+            </ul>
+          </article>
+        </div>
       </main>
 
       <footer>
