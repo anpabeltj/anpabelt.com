@@ -117,17 +117,6 @@ footer {
   font-size: 1.25rem;
 }
 
-.article-list {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.article-container {
-  background-color: #262626;
-  padding: 16px;
-}
-
 .icon-list {
   list-style: none;
   display: flex;
@@ -155,6 +144,12 @@ footer {
   border-radius: 1rem;
 }
 
+.tech-tools {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .tech-tools li a {
   color: var(--black);
   font-size: 0.8rem;
@@ -169,4 +164,28 @@ footer {
 .icon {
   width: 1.25rem;
   height: 1.25rem;
+}
+
+.projects {
+  display: grid;
+  gap: 2rem;
+}
+
+.project {
+  background-color: #262626;
+  padding: 16px;
+}
+
+.project img {
+  width: 100%;
+}
+
+@media (min-width: 426px) {
+  /* LATER */
+}
+
+@media (min-width: 769px) {
+  .projects {
+    grid-template-columns: 50% 50%;
+  }
 }
