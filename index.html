@@ -9,148 +9,338 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz@9..40&family=Lexend+Giga:wght@700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/style.css" />
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+      @theme {
+        --color-retro-50: hsl(144, 0%, 85%);
+        --color-retro-400: hsl(144, 10%, 55%);
+        --color-retro-550: hsl(180, 15%, 30%);
+        --color-retro-900: hsl(144, 0%, 15%);
+        --color-retro-950: hsl(144, 14%, 7%);
+      }
+      @keyframes animateBg {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.2);
+        }
+      }
+
+      @keyframes animate {
+        0% {
+          transform: rotate(315deg) translateX(0);
+          opacity: 1;
+        }
+        70% {
+          opacity: 1;
+        }
+        100% {
+          transform: rotate(315deg) translateX(-1000px);
+          opacity: 0;
+        }
+      }
+    </style>
   </head>
 
   <body>
-    <!-- Navbar -->
-    <header class="navbar-container">
-      <nav class="navbar">
-        <ul class="navbar-list">
-          <li><a href="/">Home</a></li>
-          <li><a href="/about">About</a></li>
-          <li><a href="/projects">Projects</a></li>
-          <li><a href="/contact">Contact</a></li>
-        </ul>
-      </nav>
-    </header>
-
-    <main>
-      <section class="hero">
-        <h1>Anpabelt Trah Javala</h1>
+    <div id="site-page" class="flex min-h-screen flex-col bg-retro-950 text-retro-50">
+      <section class="fixed top-0 left-0 w-full h-full pointer-events-none z-[0]">
+        <div class="absolute inset-0">
+          <!-- Randomly placed static stars -->
+          <div class="absolute top-[5%] left-[10%] w-[1px] h-[1px] bg-white opacity-50"></div>
+          <div class="absolute top-[15%] left-[20%] w-[1px] h-[1px] bg-white opacity-60"></div>
+          <div class="absolute top-[25%] left-[15%] w-[1px] h-[1px] bg-white opacity-70"></div>
+          <div class="absolute top-[35%] left-[25%] w-[1px] h-[1px] bg-white opacity-80"></div>
+          <div class="absolute top-[45%] left-[5%] w-[1px] h-[1px] bg-white opacity-90"></div>
+          <div class="absolute top-[55%] left-[50%] w-[1px] h-[1px] bg-white opacity-40"></div>
+          <div class="absolute top-[65%] left-[70%] w-[1px] h-[1px] bg-white opacity-50"></div>
+          <div class="absolute top-[75%] left-[85%] w-[1px] h-[1px] bg-white opacity-60"></div>
+          <div class="absolute top-[10%] left-[60%] w-[1px] h-[1px] bg-white opacity-80"></div>
+          <div class="absolute top-[20%] left-[80%] w-[1px] h-[1px] bg-white opacity-70"></div>
+          <div class="absolute top-[30%] left-[90%] w-[1px] h-[1px] bg-white opacity-90"></div>
+          <div class="absolute top-[40%] left-[75%] w-[1px] h-[1px] bg-white opacity-75"></div>
+          <div class="absolute top-[50%] left-[40%] w-[1px] h-[1px] bg-white opacity-65"></div>
+          <div class="absolute top-[60%] left-[20%] w-[1px] h-[1px] bg-white opacity-50"></div>
+          <div class="absolute top-[70%] left-[5%] w-[1px] h-[1px] bg-white opacity-85"></div>
+          <div class="absolute top-[80%] left-[30%] w-[1px] h-[1px] bg-white opacity-90"></div>
+          <div class="absolute top-[90%] left-[60%] w-[1px] h-[1px] bg-white opacity-75"></div>
+          <div class="absolute top-[5%] left-[95%] w-[1px] h-[1px] bg-white opacity-65"></div>
+          <div class="absolute top-[15%] left-[35%] w-[1px] h-[1px] bg-white opacity-60"></div>
+          <div class="absolute top-[25%] left-[10%] w-[1px] h-[1px] bg-white opacity-50"></div>
+          <div class="absolute top-[35%] left-[50%] w-[1px] h-[1px] bg-white opacity-80"></div>
+          <div class="absolute top-[45%] left-[65%] w-[1px] h-[1px] bg-white opacity-90"></div>
+          <div class="absolute top-[55%] left-[75%] w-[1px] h-[1px] bg-white opacity-70"></div>
+          <div class="absolute top-[65%] left-[85%] w-[1px] h-[1px] bg-white opacity-75"></div>
+          <div class="absolute top-[75%] left-[5%] w-[1px] h-[1px] bg-white opacity-65"></div>
+          <div class="absolute top-[85%] left-[15%] w-[1px] h-[1px] bg-white opacity-80"></div>
+          <div class="absolute top-[95%] left-[25%] w-[1px] h-[1px] bg-white opacity-85"></div>
+          <div class="absolute top-[5%] left-[35%] w-[1px] h-[1px] bg-white opacity-50"></div>
+          <div class="absolute top-[15%] left-[45%] w-[1px] h-[1px] bg-white opacity-90"></div>
+          <div class="absolute top-[25%] left-[55%] w-[1px] h-[1px] bg-white opacity-70"></div>
+          <div class="absolute top-[35%] left-[65%] w-[1px] h-[1px] bg-white opacity-60"></div>
+          <div class="absolute top-[45%] left-[75%] w-[1px] h-[1px] bg-white opacity-80"></div>
+          <div class="absolute top-[55%] left-[85%] w-[1px] h-[1px] bg-white opacity-65"></div>
+          <div class="absolute top-[65%] left-[95%] w-[1px] h-[1px] bg-white opacity-75"></div>
+          <!-- Add more stars as needed -->
+        </div>
       </section>
+      <header id="navbar-container" class="flex justify-center sticky top-0">
+        <nav id="navbar" class="m-4 p-4 bg-retro-900 px-12 rounded-full">
+          <ul id="navbar-list" class="list-none flex p-0 gap-12 font-semibold">
+            <li><a class="text-teal-600" href="/index.html">Home</a></li>
+            <li><a class="hover:text-teal-600 transition duration-300 cursor-pointer" href="/about">About</a></li>
+            <li><a class="hover:text-teal-600 transition duration-300 cursor-pointer" href="/projects">Projects</a></li>
+            <li><a class="hover:text-teal-600 transition duration-300 cursor-pointer" href="/contact">Contact</a></li>
+          </ul>
+        </nav>
+      </header>
 
-      <section>
-        <h1>Hi, I’m Anpabelt 👋🏻</h1>
-        <p>Currently learning Universiti Teknologi Petronas (UTP), Malaysia.</p>
+      <main id="site-content-spaced" class="pl-12">
+        <div class="py-44">
+          <!-- Shooting Stars Animation -->
+          <span class="absolute top-0 right-30 w-1 h-1 bg-white rounded-full shadow-[0_0_0_4px_rgba(255,255,255,0.1),0_0_0_8px_rgba(255,255,255,0.1),0_0_20px_rgba(255,255,255,0.1)] animate-[animate_1s_linear_infinite]">
+            <span class="absolute top-1/2 -translate-y-1/2 w-[800px] h-[2px] bg-gradient-to-r from-white to-transparent"></span>
+          </span>
 
-        <p>In addition to my studies, I’m actively learning web development. The world of web development excites me because it blends creativity with logical problem-solving, constantly presenting new challenges to overcome.</p>
+          <span class="absolute top-0 right-20 w-1 h-1 bg-white rounded-full shadow-[0_0_0_4px_rgba(255,255,255,0.1),0_0_0_8px_rgba(255,255,255,0.1),0_0_20px_rgba(255,255,255,0.1)] animate-[animate_3s_linear_infinite] delay-[200ms]">
+            <span class="absolute top-1/2 -translate-y-1/2 w-[1050px] h-[2px] bg-gradient-to-r from-white to-transparent"></span>
+          </span>
 
-        <p>I enjoy diving into these tech stack:</p>
-        <ul>
-          <li>HTML</li>
-          <li>CSS</li>
-          <li>JavaScript</li>
-          <li>Python</li>
-          <li>UI design using Figma.</li>
-          <li>React</li>
-          <li>Node.js</li>
-        </ul>
+          <span class="absolute top-0 right-0 w-1 h-1 bg-white rounded-full shadow-[0_0_0_4px_rgba(255,255,255,0.1),0_0_0_8px_rgba(255,255,255,0.1),0_0_20px_rgba(255,255,255,0.1)] animate-[animate_2s_linear_infinite] delay-[400ms]">
+            <span class="absolute top-1/2 -translate-y-1/2 w-[850px] h-[2px] bg-gradient-to-r from-white to-transparent"></span>
+          </span>
 
-        <p>I am also exploring data science with Python, where I am fascinated by how data can be transformed into actionable insights and drive impactful decisions.</p>
-        <p>
-          My ultimate goal is to become either a software engineer or an AI engineer. I am passionate about leveraging technology to create innovative solutions and am committed to growing my skills to contribute meaningfully in these
-          fields.
-        </p>
-      </section>
+          <span class="absolute top-0 right-40 w-1 h-1 bg-white rounded-full shadow-[0_0_0_4px_rgba(255,255,255,0.1),0_0_0_8px_rgba(255,255,255,0.1),0_0_20px_rgba(255,255,255,0.1)] animate-[animate_1.5s_linear_infinite] delay-[600ms]">
+            <span class="absolute top-1/2 -translate-y-1/2 w-[950px] h-[2px] bg-gradient-to-r from-white to-transparent"></span>
+          </span>
 
-      <section>
-        <h2>Featured Projects</h2>
-        <p>See all projects</p>
+          <span class="absolute top-0 right-96 w-1 h-1 bg-white rounded-full shadow-[0_0_0_4px_rgba(255,255,255,0.1),0_0_0_8px_rgba(255,255,255,0.1),0_0_20px_rgba(255,255,255,0.1)] animate-[animate_2.5s_linear_infinite] delay-[800ms]">
+            <span class="absolute top-1/2 -translate-y-1/2 w-[1000px] h-[2px] bg-gradient-to-r from-white to-transparent"></span>
+          </span>
 
-        <div class="article-list">
-          <article class="article-container">
-            <h3>Personal Website</h3>
-            <!-- TODO: Put real design of the website -->
-            <img src="/assets/images/dummy-image-project.jpg" alt="Personal Website Home Page" />
-            <p>My personal website is designed to showcase my projects, experience,</p>
-            <ul>
-              <li>
-                <a href="https://figma.com">Figma</a>
-              </li>
-              <li>
-                <a href="https://mdn.dev/html">HTML</a>
-              </li>
-              <li>
-                <a href="https://mdn.dev/css">CSS</a>
-              </li>
-              <li>
-                <a href="https://tailwindcss.com">Tailwind CSS</a>
-              </li>
-              <li>
-                <a href="https://mdn.dev/js">JavaScript</a>
-              </li>
-              <li>
-                <a href="https://typescriptlang.org">TypeScript</a>
-              </li>
-              <li>
-                <a href="https://react.dev">React</a>
-              </li>
-            </ul>
-          </article>
+          <span class="absolute top-0 right-[600px] w-1 h-1 bg-white rounded-full shadow-[0_0_0_4px_rgba(255,255,255,0.1),0_0_0_8px_rgba(255,255,255,0.1),0_0_20px_rgba(255,255,255,0.1)] animate-[animate_3s_linear_infinite] delay-[1s]">
+            <span class="absolute top-1/2 -translate-y-1/2 w-[1100px] h-[2px] bg-gradient-to-r from-white to-transparent"></span>
+          </span>
 
-          <article class="article-container">
-            <h4>Address Book</h4>
-            <img src="/assets/images/dummy-image-project.jpg" alt="" />
-            <p>
-              Lorem ipsum dolor sit amet, consectetur <br />
-              adipiscing elit, sed do eiusmod tempor <br />
-              incididunt ut labore et dolore magna aliqua. <br />
-              Ut enim ad minim veniam
+          <span class="absolute top-[300px] right-0 w-1 h-1 bg-white rounded-full shadow-[0_0_0_4px_rgba(255,255,255,0.1),0_0_0_8px_rgba(255,255,255,0.1),0_0_20px_rgba(255,255,255,0.1)] animate-[animate_1.75s_linear_infinite] delay-[1.2s]">
+            <span class="absolute top-1/2 -translate-y-1/2 w-[7500px] h-[2px] bg-gradient-to-r from-white to-transparent"></span>
+          </span>
+
+          <span class="absolute top-0 right-[700px] w-1 h-1 bg-white rounded-full shadow-[0_0_0_4px_rgba(255,255,255,0.1),0_0_0_8px_rgba(255,255,255,0.1),0_0_20px_rgba(255,255,255,0.1)] animate-[animate_1.25s_linear_infinite] delay-[1.4s]">
+            <span class="absolute top-1/2 -translate-y-1/2 w-[880px] h-[2px] bg-gradient-to-r from-white to-transparent"></span>
+          </span>
+          <div class="flex flex-col">
+            <h1 class="text-8xl font-bold">Hi There👋🏻</h1>
+            <h1 class="text-8xl font-bold">I'm <span class="text-retro-400">Anpabelt</span></h1>
+            <span class="text-gray-400 pt-4">(Pronounced: An-Pa-Belt... like a belt, but cooler)</span>
+            <br />
+            <p class="pt-2 pb-10 text-xl">
+              I’m a full-time student at Universiti Teknologi Petronas (UTP), Malaysia. 🧑🏻‍💻<br />
+              My schedule? 10% classes, 20% projects, and 70% asking myself why I chose this path.
+              <br />
             </p>
-            <ul>
+            <div class="pb-10">
+              <button class="px-6 py-4 bg-retro-900 rounded-xl transition duration-300 hover:shadow-xl hover:shadow-retro-550 text-white cursor-pointer">
+                <a href="/about/index.html">More About Me</a>
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <section id="introduction" class="pt-16 text-white mb-34">
+        <h1 class="text-center text-4xl font-bold pt-48">
+          Here are 3 things I absolutely love👾 <br />
+          <br />
+        </h1>
+        <article id="introduction-cards" class="grid grid-cols-1 md:grid-cols-3 gap-8 p-8">
+          <div id="intro-1" class="p-4 bg-retro-900 rounded-xl transition-shadow duration-700 hover:shadow-xl hover:shadow-retro-550">
+            <h1 class="text-center text-4xl mb-2">⚛️</h1>
+            <h2 class="font-semibold text-center text-2xl mb-6">Develop (Website)</h2>
+            <p>
+              Web development? Oh, it’s my jam. There’s something magical about creating websites that don’t crash (most of the time). <br />
+              It’s a mix of “Ooh, I built that!” and “Why isn’t this working?!” <br />
+              I live for the challenge—and the late-night bug hunts. <br />
+              <br />
+            </p>
+          </div>
+
+          <div id="intro-2" class="p-4 bg-retro-900 rounded-xl transition-shadow duration-700 hover:shadow-xl hover:shadow-retro-550">
+            <h1 class="text-center text-4xl mb-2">📊</h1>
+            <h2 class="font-semibold text-center text-2xl mb-6">Data</h2>
+            <p>
+              Data science has me hooked because, let’s be real, who doesn’t love making pretty graphs from numbers? <br />
+              Python and I are BFFs (Best Friends in Frustration), and together, we turn boring data into "Wow, that’s cool!" moments. <br />
+              <br />
+            </p>
+          </div>
+
+          <div id="intro-3" class="p-4 bg-retro-900 rounded-xl transition-shadow duration-700 hover:shadow-xl hover:shadow-retro-550">
+            <h1 class="text-center text-4xl mb-2">🎨</h1>
+            <h2 class="font-semibold text-center text-2xl mb-6">Design</h2>
+            <p>
+              I’m still exploring design... which is a fancy way of saying I’m experimenting with colors, fonts, and wondering why my layouts look like they came from 1998. <br />
+              But hey, progress is progress, right? <br />
+              <br />
+            </p>
+          </div>
+        </article>
+      </section>
+
+      <section>
+        <h2 class="font-bold mt-24 p-8 text-4xl">Featured Projects</h2>
+
+        <div id="projects" class="grid gap-8 md:grid-cols-2 p-8">
+          <article id="project-1" class="p-8 bg-retro-900 rounded-xl">
+            <h3 class="text-xl font-semibold pb-4">Personal Website</h3>
+            <!-- TODO: Put real design of the website -->
+            <img class="object-cover rounded-xl" src="/assets/images/dummy-image-project.jpg" alt="Personal Website Home Page" />
+            <p class="pt-4">My personal website is designed to showcase my projects, experience</p>
+
+            <ul id="tech-tools-1" class="flex flex-wrap gap-1.5 pt-6 text-retro-950">
               <li>
-                <a href="https://figma.com">Figma</a>
+                <a href="https://figma.com" class="inline-flex gap-1 text-sm bg-retro-400 py-1.5 px-3 rounded-full">
+                  <img src="/assets/icons/figma.svg" alt="Figma" width="20" height="20" />
+                  <span>Figma</span>
+                </a>
               </li>
               <li>
-                <a href="https://mdn.dev/html">HTML</a>
+                <a href="https://mdn.dev/html" class="inline-flex gap-1 text-sm bg-retro-400 py-1.5 px-3 rounded-full">
+                  <img src="/assets/icons/html5.svg" alt="HTML" width="20" height="20" />
+                  <span>HTML</span>
+                </a>
               </li>
               <li>
-                <a href="https://mdn.dev/css">CSS</a>
+                <a href="https://figma.com" class="inline-flex gap-1 text-sm bg-retro-400 py-1.5 px-3 rounded-full">
+                  <img src="/assets/icons/figma.svg" alt="Figma" width="20" height="20" />
+                  <span>Figma</span>
+                </a>
               </li>
               <li>
-                <a href="https://tailwindcss.com">Tailwind CSS</a>
+                <a href="https://figma.com" class="inline-flex gap-1 text-sm bg-retro-400 py-1.5 px-3 rounded-full">
+                  <img src="/assets/icons/figma.svg" alt="Figma" width="20" height="20" />
+                  <span>Figma</span>
+                </a>
               </li>
               <li>
-                <a href="https://mdn.dev/js">JavaScript</a>
+                <a href="https://figma.com" class="inline-flex gap-1 text-sm bg-retro-400 py-1.5 px-3 rounded-full">
+                  <img src="/assets/icons/figma.svg" alt="Figma" width="20" height="20" />
+                  <span>Figma</span>
+                </a>
               </li>
               <li>
-                <a href="https://typescriptlang.org">TypeScript</a>
+                <a href="https://figma.com" class="inline-flex gap-1 text-sm bg-retro-400 py-1.5 px-3 rounded-full">
+                  <img src="/assets/icons/figma.svg" alt="Figma" width="20" height="20" />
+                  <span>Figma</span>
+                </a>
               </li>
               <li>
-                <a href="https://react.dev">React</a>
+                <a href="https://figma.com" class="inline-flex gap-1 text-sm bg-retro-400 py-1.5 px-3 rounded-full">
+                  <img src="/assets/icons/figma.svg" alt="Figma" width="20" height="20" />
+                  <span>Figma</span>
+                </a>
               </li>
             </ul>
+            <div class="pb-4 flex items-center justify-center">
+              <div class="flex items-center justify-center gap-4 pt-8 group">
+                <a class="text-white hover:text-teal-600 transition duration-300 cursor-pointer" href="/projects/index.html">See Project</a>
+                <img class="w-4 h-4 transition duration-300 group-hover:invert group-hover:brightness-75" src="/assets/images/right-arrow.svg" alt="Right Arrow" />
+              </div>
+            </div>
+          </article>
+          <!-- Project2 -->
+          <article id="project-2" class="p-8 bg-retro-900 rounded-xl">
+            <h3 class="text-xl font-semibold pb-4">Address Book</h3>
+            <img class="object-cover rounded-xl" src="/assets/images/dummy-image-project.jpg" alt="Address Book Home Page" />
+            <p class="pt-4">My personal website is designed to showcase my projects, experience</p>
+            <ul id="tech-tools-2" class="flex flex-wrap gap-1.5 pt-6 text-retro-950">
+              <li>
+                <a href="https://figma.com" class="inline-flex gap-1 text-sm bg-retro-400 py-1.5 px-3 rounded-full">
+                  <img src="/assets/icons/figma.svg" alt="Figma" width="20" height="20" />
+                  <span>Figma</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://figma.com" class="inline-flex gap-1 text-sm bg-retro-400 py-1.5 px-3 rounded-full">
+                  <img src="/assets/icons/figma.svg" alt="Figma" width="20" height="20" />
+                  <span>Figma</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://figma.com" class="inline-flex gap-1 text-sm bg-retro-400 py-1.5 px-3 rounded-full">
+                  <img src="/assets/icons/figma.svg" alt="Figma" width="20" height="20" />
+                  <span>Figma</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://figma.com" class="inline-flex gap-1 text-sm bg-retro-400 py-1.5 px-3 rounded-full">
+                  <img src="/assets/icons/figma.svg" alt="Figma" width="20" height="20" />
+                  <span>Figma</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://figma.com" class="inline-flex gap-1 text-sm bg-retro-400 py-1.5 px-3 rounded-full">
+                  <img src="/assets/icons/figma.svg" alt="Figma" width="20" height="20" />
+                  <span>Figma</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://figma.com" class="inline-flex gap-1 text-sm bg-retro-400 py-1.5 px-3 rounded-full">
+                  <img src="/assets/icons/figma.svg" alt="Figma" width="20" height="20" />
+                  <span>Figma</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://figma.com" class="inline-flex gap-1 text-sm bg-retro-400 py-1.5 px-3 rounded-full">
+                  <img src="/assets/icons/figma.svg" alt="Figma" width="20" height="20" />
+                  <span>Figma</span>
+                </a>
+              </li>
+            </ul>
+            <div class="pb-4 flex items-center justify-center">
+              <div class="flex items-center justify-center gap-4 pt-8 group">
+                <a class="text-white hover:text-teal-600 transition duration-300 cursor-pointer" href="/projects/index.html">See Project</a>
+                <img class="w-4 h-4 transition duration-300 group-hover:invert group-hover:brightness-75" src="/assets/images/right-arrow.svg" alt="Right Arrow" />
+              </div>
+            </div>
           </article>
         </div>
       </section>
-    </main>
+      <div class="pb-10 flex items-center justify-center">
+        <button class="flex items-center justify-center gap-4 p-6 bg-retro-900 rounded-xl transition duration-300 hover:shadow-xl hover:shadow-retro-550 text-white cursor-pointer">
+          <a href="/projects/index.html">See All Project</a>
+          <img class="w-4 h-4" src="/assets/images/right-arrow.svg" alt="Right Arrow" />
+        </button>
+      </div>
 
-    <footer>
-      <ul class="icon-list">
-        <li>
-          <a href="https://github.com/anpabeltj">
-            <img src="/assets/favicons/github-icon.svg" alt="github-icon" />
-          </a>
-        </li>
-        <li>
-          <a href="https://t.me/anpabelt">
-            <img src="/assets/favicons/telegram-icon.svg" alt="telegram-icon" />
-          </a>
-        </li>
-        <li>
-          <a href="https://x.com/username">
-            <img src="/assets/favicons/x-icon.svg" alt="x-icon" />
-          </a>
-        </li>
-        <li>
-          <a href="https://linkedin.com/in/anpabelt">
-            <img src="/assets/favicons/linkedin-icon.svg" alt="linkedin-icon" />
-          </a>
-        </li>
-        <!-- TODO: Decide to keep the email or not -->
-      </ul>
-      <p>Copyright © 2024 Anpabelt. All rights reserved.</p>
-    </footer>
+      <footer id="footer" class="bg-retro-950 bg-gradient-to-t from-retro-950 to-retro-550 flex flex-col relative justify-center text-center items-center mt-20 p-4">
+        <ul id="icon-list" class="list-none flex p-1 gap-12 justify-center">
+          <li class="w-6 items-center">
+            <a href="https://github.com/anpabeltj">
+              <img src="/assets/icons/github-icon.svg" alt="github-icon" />
+            </a>
+          </li>
+          <li class="w-6 items-center">
+            <a href="https://t.me/anpabelt">
+              <img src="/assets/icons/telegram-icon.svg" alt="telegram-icon" />
+            </a>
+          </li>
+          <li class="w-6 items-center">
+            <a href="https://x.com/username">
+              <img src="/assets/icons/x-icon.svg" alt="x-icon" />
+            </a>
+          </li>
+          <li class="w-6 items-center">
+            <a href="https://linkedin.com/in/anpabelt">
+              <img src="/assets/icons/linkedin-icon.svg" alt="linkedin-icon" />
+            </a>
+          </li>
+          <!-- TODO: Decide to keep the email or not -->
+        </ul>
+        <p class="pt-4 text-center">Copyright © 2025 Anpabelt. All rights reserved.</p>
+      </footer>
+    </div>
   </body>
 </html>
