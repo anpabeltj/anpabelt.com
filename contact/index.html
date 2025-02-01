@@ -8,73 +8,192 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz@9..40&family=Lexend+Giga:wght@700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/style.css" />
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+      @theme {
+        --color-retro-50: hsl(144, 0%, 85%);
+        --color-retro-400: hsl(144, 10%, 55%);
+        --color-retro-550: hsl(180, 15%, 30%);
+        --color-retro-900: hsl(144, 0%, 15%);
+        --color-retro-950: hsl(144, 14%, 7%);
+      }
+      @keyframes animateBg {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.2);
+        }
+      }
+
+      @keyframes animate {
+        0% {
+          transform: rotate(315deg) translateX(0);
+          opacity: 1;
+        }
+        70% {
+          opacity: 1;
+        }
+        100% {
+          transform: rotate(315deg) translateX(-1000px);
+          opacity: 0;
+        }
+      }
+    </style>
   </head>
   <body>
-    <!-- Navbar -->
-    <header class="navbar-container">
-      <nav class="navbar">
-        <ul class="navbar-list">
-          <li><a href="/">Home</a></li>
-          <li><a href="/about">About</a></li>
-          <li><a href="/projects">Projects</a></li>
-          <li><a href="/contact">Contact</a></li>
+    <div id="site-page" class="flex min-h-screen flex-col bg-retro-950 text-retro-50">
+      <section class="fixed top-0 left-0 w-full h-full pointer-events-none z-[0]">
+        <div class="absolute inset-0">
+          <!-- Randomly placed static stars -->
+          <div class="absolute top-[5%] left-[10%] w-[1px] h-[1px] bg-white opacity-50"></div>
+          <div class="absolute top-[15%] left-[20%] w-[1px] h-[1px] bg-white opacity-60"></div>
+          <div class="absolute top-[25%] left-[15%] w-[1px] h-[1px] bg-white opacity-70"></div>
+          <div class="absolute top-[35%] left-[25%] w-[1px] h-[1px] bg-white opacity-80"></div>
+          <div class="absolute top-[45%] left-[5%] w-[1px] h-[1px] bg-white opacity-90"></div>
+          <div class="absolute top-[55%] left-[50%] w-[1px] h-[1px] bg-white opacity-40"></div>
+          <div class="absolute top-[65%] left-[70%] w-[1px] h-[1px] bg-white opacity-50"></div>
+          <div class="absolute top-[75%] left-[85%] w-[1px] h-[1px] bg-white opacity-60"></div>
+          <div class="absolute top-[10%] left-[60%] w-[1px] h-[1px] bg-white opacity-80"></div>
+          <div class="absolute top-[20%] left-[80%] w-[1px] h-[1px] bg-white opacity-70"></div>
+          <div class="absolute top-[30%] left-[90%] w-[1px] h-[1px] bg-white opacity-90"></div>
+          <div class="absolute top-[40%] left-[75%] w-[1px] h-[1px] bg-white opacity-75"></div>
+          <div class="absolute top-[50%] left-[40%] w-[1px] h-[1px] bg-white opacity-65"></div>
+          <div class="absolute top-[60%] left-[20%] w-[1px] h-[1px] bg-white opacity-50"></div>
+          <div class="absolute top-[70%] left-[5%] w-[1px] h-[1px] bg-white opacity-85"></div>
+          <div class="absolute top-[80%] left-[30%] w-[1px] h-[1px] bg-white opacity-90"></div>
+          <div class="absolute top-[90%] left-[60%] w-[1px] h-[1px] bg-white opacity-75"></div>
+          <div class="absolute top-[5%] left-[95%] w-[1px] h-[1px] bg-white opacity-65"></div>
+          <div class="absolute top-[15%] left-[35%] w-[1px] h-[1px] bg-white opacity-60"></div>
+          <div class="absolute top-[25%] left-[10%] w-[1px] h-[1px] bg-white opacity-50"></div>
+          <div class="absolute top-[35%] left-[50%] w-[1px] h-[1px] bg-white opacity-80"></div>
+          <div class="absolute top-[45%] left-[65%] w-[1px] h-[1px] bg-white opacity-90"></div>
+          <div class="absolute top-[55%] left-[75%] w-[1px] h-[1px] bg-white opacity-70"></div>
+          <div class="absolute top-[65%] left-[85%] w-[1px] h-[1px] bg-white opacity-75"></div>
+          <div class="absolute top-[75%] left-[5%] w-[1px] h-[1px] bg-white opacity-65"></div>
+          <div class="absolute top-[85%] left-[15%] w-[1px] h-[1px] bg-white opacity-80"></div>
+          <div class="absolute top-[95%] left-[25%] w-[1px] h-[1px] bg-white opacity-85"></div>
+          <div class="absolute top-[5%] left-[35%] w-[1px] h-[1px] bg-white opacity-50"></div>
+          <div class="absolute top-[15%] left-[45%] w-[1px] h-[1px] bg-white opacity-90"></div>
+          <div class="absolute top-[25%] left-[55%] w-[1px] h-[1px] bg-white opacity-70"></div>
+          <div class="absolute top-[35%] left-[65%] w-[1px] h-[1px] bg-white opacity-60"></div>
+          <div class="absolute top-[45%] left-[75%] w-[1px] h-[1px] bg-white opacity-80"></div>
+          <div class="absolute top-[55%] left-[85%] w-[1px] h-[1px] bg-white opacity-65"></div>
+          <div class="absolute top-[65%] left-[95%] w-[1px] h-[1px] bg-white opacity-75"></div>
+          <!-- Add more stars as needed -->
+        </div>
+      </section>
+      <!-- Navbar -->
+      <header id="navbar-container" class="flex justify-center sticky top-0">
+        <nav id="navbar" class="m-4 p-4 bg-retro-900 px-12 rounded-full">
+          <ul id="navbar-list" class="list-none flex p-0 gap-12 font-semibold">
+            <li><a class="hover:text-teal-600 transition duration-300 cursor-pointer" href="/index.html">Home</a></li>
+            <li><a class="hover:text-teal-600 transition duration-300 cursor-pointer" href="/about">About</a></li>
+            <li><a class="hover:text-teal-600 transition duration-300 cursor-pointer" href="/projects">Projects</a></li>
+            <li><a class="text-teal-600" href="/contact">Contact</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <main id="site-content" class="flex-1 mx-auto max-w-4xl">
+        <!-- Shooting Stars Animation -->
+        <span class="absolute top-0 right-30 w-1 h-1 bg-white rounded-full shadow-[0_0_0_4px_rgba(255,255,255,0.1),0_0_0_8px_rgba(255,255,255,0.1),0_0_20px_rgba(255,255,255,0.1)] animate-[animate_1s_linear_infinite]">
+          <span class="absolute top-1/2 -translate-y-1/2 w-[800px] h-[2px] bg-gradient-to-r from-white to-transparent"></span>
+        </span>
+
+        <span class="absolute top-0 right-20 w-1 h-1 bg-white rounded-full shadow-[0_0_0_4px_rgba(255,255,255,0.1),0_0_0_8px_rgba(255,255,255,0.1),0_0_20px_rgba(255,255,255,0.1)] animate-[animate_3s_linear_infinite] delay-[200ms]">
+          <span class="absolute top-1/2 -translate-y-1/2 w-[1050px] h-[2px] bg-gradient-to-r from-white to-transparent"></span>
+        </span>
+
+        <span class="absolute top-0 right-0 w-1 h-1 bg-white rounded-full shadow-[0_0_0_4px_rgba(255,255,255,0.1),0_0_0_8px_rgba(255,255,255,0.1),0_0_20px_rgba(255,255,255,0.1)] animate-[animate_2s_linear_infinite] delay-[400ms]">
+          <span class="absolute top-1/2 -translate-y-1/2 w-[850px] h-[2px] bg-gradient-to-r from-white to-transparent"></span>
+        </span>
+
+        <span class="absolute top-0 right-40 w-1 h-1 bg-white rounded-full shadow-[0_0_0_4px_rgba(255,255,255,0.1),0_0_0_8px_rgba(255,255,255,0.1),0_0_20px_rgba(255,255,255,0.1)] animate-[animate_1.5s_linear_infinite] delay-[600ms]">
+          <span class="absolute top-1/2 -translate-y-1/2 w-[950px] h-[2px] bg-gradient-to-r from-white to-transparent"></span>
+        </span>
+
+        <span class="absolute top-0 right-96 w-1 h-1 bg-white rounded-full shadow-[0_0_0_4px_rgba(255,255,255,0.1),0_0_0_8px_rgba(255,255,255,0.1),0_0_20px_rgba(255,255,255,0.1)] animate-[animate_2.5s_linear_infinite] delay-[800ms]">
+          <span class="absolute top-1/2 -translate-y-1/2 w-[1000px] h-[2px] bg-gradient-to-r from-white to-transparent"></span>
+        </span>
+
+        <span class="absolute top-0 right-[600px] w-1 h-1 bg-white rounded-full shadow-[0_0_0_4px_rgba(255,255,255,0.1),0_0_0_8px_rgba(255,255,255,0.1),0_0_20px_rgba(255,255,255,0.1)] animate-[animate_3s_linear_infinite] delay-[1s]">
+          <span class="absolute top-1/2 -translate-y-1/2 w-[1100px] h-[2px] bg-gradient-to-r from-white to-transparent"></span>
+        </span>
+
+        <span class="absolute top-[300px] right-0 w-1 h-1 bg-white rounded-full shadow-[0_0_0_4px_rgba(255,255,255,0.1),0_0_0_8px_rgba(255,255,255,0.1),0_0_20px_rgba(255,255,255,0.1)] animate-[animate_1.75s_linear_infinite] delay-[1.2s]">
+          <span class="absolute top-1/2 -translate-y-1/2 w-[7500px] h-[2px] bg-gradient-to-r from-white to-transparent"></span>
+        </span>
+
+        <span class="absolute top-0 right-[700px] w-1 h-1 bg-white rounded-full shadow-[0_0_0_4px_rgba(255,255,255,0.1),0_0_0_8px_rgba(255,255,255,0.1),0_0_20px_rgba(255,255,255,0.1)] animate-[animate_1.25s_linear_infinite] delay-[1.4s]">
+          <span class="absolute top-1/2 -translate-y-1/2 w-[880px] h-[2px] bg-gradient-to-r from-white to-transparent"></span>
+        </span>
+        <p class="py-44 text-center font-bold text-6xl">
+          Get in Touch <br />
+          <span class="text-retro-400">with Me</span>
+        </p>
+
+        <!-- <div id="site-logo" class="list-none flex p-1 gap-12 justify-center">
+          <img src="/assets/icons/github-icon.svg" alt="github-icon" />
+          <img src="/assets/icons/telegram-icon.svg" alt="telegram-icon" />
+          <img src="/assets/icons/x-icon.svg" alt="x-icon" />
+          <img src="/assets/icons/linkedin-icon.svg" alt="linkedin-icon" />
+          <img src="/assets/icons/email-icon.svg" alt="email-icon" />
+        </div> -->
+
+        <form class="w-md mx-auto bg-retro-900 p-6 rounded-lg">
+          <!-- Full Name -->
+          <div class="mb-4">
+            <label for="full-name" class="block text-sm font-bold text-white mb-2">Full name</label>
+            <input id="full-name" type="text" name="full-name" class="w-full p-3 text-retro-50 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-900" placeholder="Enter your full name" required />
+          </div>
+
+          <!-- Email -->
+          <div class="mb-4">
+            <label for="email" class="block text-sm font-bold text-white mb-2">Email</label>
+            <input id="email" type="email" name="email" class="w-full p-3 text-retro-50 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-900" placeholder="Enter your email" required />
+          </div>
+
+          <!-- Message -->
+          <div class="mb-4">
+            <label for="message" class="block text-sm font-bold text-white mb-2">Message</label>
+            <textarea id="message" name="message" rows="4" class="w-full p-3 text-retro-50 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-900" placeholder="Enter your message" required></textarea>
+          </div>
+
+          <!-- Submit Button -->
+          <div>
+            <button type="submit" class="w-full bg-retro-400 hover:bg-retro-550 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-400">Submit</button>
+          </div>
+        </form>
+      </main>
+
+      <footer id="footer" class="bg-retro-950 bg-gradient-to-t from-retro-950 to-retro-550 flex flex-col relative justify-center text-center items-center mt-20 p-4">
+        <ul id="icon-list" class="list-none flex p-1 gap-12 justify-center">
+          <li class="w-6 items-center">
+            <a href="https://github.com/anpabeltj">
+              <img src="/assets/icons/github-icon.svg" alt="github-icon" />
+            </a>
+          </li>
+          <li class="w-6 items-center">
+            <a href="https://t.me/anpabelt">
+              <img src="/assets/icons/telegram-icon.svg" alt="telegram-icon" />
+            </a>
+          </li>
+          <li class="w-6 items-center">
+            <a href="https://x.com/username">
+              <img src="/assets/icons/x-icon.svg" alt="x-icon" />
+            </a>
+          </li>
+          <li class="w-6 items-center">
+            <a href="https://linkedin.com/in/anpabelt">
+              <img src="/assets/icons/linkedin-icon.svg" alt="linkedin-icon" />
+            </a>
+          </li>
+          <!-- TODO: Decide to keep the email or not -->
         </ul>
-      </nav>
-    </header>
-
-    <h3>Contact and Socialize with Anpabelt!</h3>
-
-    <div>
-      <img src="/assets/favicons/github-icon.svg" alt="github-icon" />
-      <img src="/assets/favicons/telegram-icon.svg" alt="telegram-icon" />
-      <img src="/assets/favicons/x-icon.svg" alt="x-icon" />
-      <img src="/assets/favicons/linkedin-icon.svg" alt="linkedin-icon" />
-      <img src="/assets/favicons/email-icon.svg" alt="email-icon" />
+        <p class="pt-4 text-center">Copyright © 2025 Anpabelt. All rights reserved.</p>
+      </footer>
     </div>
-
-    <form>
-      <div>
-        <label for="full-name">Full name</label>
-        <input id="full-name" type="text" name="full-name" />
-      </div>
-
-      <div>
-        <label for="email">Email</label>
-        <input id="email" type="email" name="email" />
-      </div>
-
-      <div>
-        <label for="message">Message</label>
-        <textarea name="message" id="message" name="message"></textarea>
-      </div>
-    </form>
-
-    <footer>
-      <ul class="icon-list">
-        <li>
-          <a href="https://github.com/anpabeltj">
-            <img src="/assets/favicons/github-icon.svg" alt="github-icon" />
-          </a>
-        </li>
-        <li>
-          <a href="https://t.me/anpabelt">
-            <img src="/assets/favicons/telegram-icon.svg" alt="telegram-icon" />
-          </a>
-        </li>
-        <li>
-          <a href="https://x.com/username">
-            <img src="/assets/favicons/x-icon.svg" alt="x-icon" />
-          </a>
-        </li>
-        <li>
-          <a href="https://linkedin.com/in/anpabelt">
-            <img src="/assets/favicons/linkedin-icon.svg" alt="linkedin-icon" />
-          </a>
-        </li>
-        <!-- TODO: Decide to keep the email or not -->
-      </ul>
-      <p style="padding-bottom: 1rem; text-align: center">Copyright © 2024 Anpabelt. All rights reserved.</p>
-    </footer>
   </body>
 </html>
