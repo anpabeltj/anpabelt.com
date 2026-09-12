@@ -1,6 +1,6 @@
 import { getDb } from "./db";
 import { nanoid } from "nanoid";
-import type { Post, PostInput, PostStatus } from "./types";
+import type { GalleryImage, Post, PostInput, PostStatus } from "./types";
 
 interface PostRow {
   id: string;
@@ -12,6 +12,7 @@ interface PostRow {
   status: string;
   type: string;
   tags: string;
+  images: string;
   created_at: string;
   updated_at: string;
   published_at: string | null;
@@ -25,6 +26,7 @@ function rowToPost(r: PostRow): Post {
     excerpt: r.excerpt,
     content: r.content,
     coverImage: r.cover_image,
+    images: safeParseImages(r.images),
     status: r.status as PostStatus,
     type: r.type as Post["type"],
     tags: safeParseTags(r.tags),
@@ -38,6 +40,18 @@ function safeParseTags(raw: string): string[] {
   try {
     const v = JSON.parse(raw);
     return Array.isArray(v) ? v.map(String) : [];
+  } catch {
+    return [];
+  }
+}
+
+function safeParseImages(raw: string): GalleryImage[] {
+  try {
+    const v = JSON.parse(raw);
+    if (!Array.isArray(v)) return [];
+    return v
+      .filter((x) => x && typeof x.url === "string")
+      .map((x) => ({ url: String(x.url), caption: String(x.caption ?? "") }));
   } catch {
     return [];
   }
@@ -101,8 +115,8 @@ export function createPost(input: PostInput): Post {
   const publishedAt = status === "published" ? now : null;
 
   db.prepare(
-    `INSERT INTO posts (id, title, slug, excerpt, content, cover_image, status, type, tags, created_at, updated_at, published_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO posts (id, title, slug, excerpt, content, cover_image, status, type, tags, images, created_at, updated_at, published_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     id,
     input.title.trim(),
@@ -113,6 +127,7 @@ export function createPost(input: PostInput): Post {
     status,
     input.type ?? "article",
     JSON.stringify(input.tags ?? []),
+    JSON.stringify(input.images ?? []),
     now,
     now,
     publishedAt
@@ -136,7 +151,7 @@ export function updatePost(id: string, input: PostInput): Post | null {
   if (status === "draft") publishedAt = null;
 
   db.prepare(
-    `UPDATE posts SET title = ?, slug = ?, excerpt = ?, content = ?, cover_image = ?, status = ?, type = ?, tags = ?, updated_at = ?, published_at = ?
+    `UPDATE posts SET title = ?, slug = ?, excerpt = ?, content = ?, cover_image = ?, status = ?, type = ?, tags = ?, images = ?, updated_at = ?, published_at = ?
      WHERE id = ?`
   ).run(
     (input.title ?? current.title).trim(),
@@ -147,6 +162,7 @@ export function updatePost(id: string, input: PostInput): Post | null {
     status,
     input.type ?? current.type,
     JSON.stringify(input.tags ?? current.tags),
+    JSON.stringify(input.images ?? current.images),
     now,
     publishedAt,
     id

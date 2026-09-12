@@ -1,16 +1,22 @@
 export type PostStatus = "draft" | "published";
 
-// Extensible content type. Only "article" is implemented today; the schema and
-// types are ready for photo/video/journal/gallery posts later.
-export type PostType = "article" | "photo" | "video" | "journal" | "gallery";
+// Extensible content type. "article" and "gallery" are implemented; the schema
+// and types are ready for photo/video/journal posts later.
+export type PostType = "article" | "gallery" | "photo" | "video" | "journal";
+
+export interface GalleryImage {
+  url: string;
+  caption: string;
+}
 
 export interface Post {
   id: string;
   title: string;
   slug: string;
   excerpt: string;
-  content: string; // Markdown source
+  content: string; // Markdown source (intro text for galleries)
   coverImage: string | null;
+  images: GalleryImage[]; // used by gallery/photo posts
   status: PostStatus;
   type: PostType;
   tags: string[];
@@ -25,6 +31,7 @@ export interface PostInput {
   excerpt?: string;
   content?: string;
   coverImage?: string | null;
+  images?: GalleryImage[];
   status?: PostStatus;
   type?: PostType;
   tags?: string[];

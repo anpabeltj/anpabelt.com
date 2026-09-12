@@ -6,7 +6,9 @@ export interface Props {
   index?: number;
 }
 const { post, index = 0 } = Astro.props;
+const isGallery = post.type === "gallery" || post.type === "photo";
 const minutes = readingTime(post.content);
+const cover = post.coverImage || (isGallery ? post.images[0]?.url ?? null : null);
 ---
 
 <article
@@ -14,16 +16,19 @@ const minutes = readingTime(post.content);
   style={`animation-delay:${index * 70}ms`}
   data-testid="post-card"
 >
-  {post.coverImage && (
-    <a href={`/blog/${post.slug}`} class="md:col-span-4 block overflow-hidden rounded-xl aspect-[16/10] bg-elevated" data-testid="post-card-cover-link">
-      <img src={post.coverImage} alt={post.title} loading="lazy" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+  {cover && (
+    <a href={`/blog/${post.slug}`} class="md:col-span-4 block overflow-hidden rounded-xl aspect-[16/10] bg-elevated relative" data-testid="post-card-cover-link">
+      <img src={cover} alt={post.title} loading="lazy" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+      {isGallery && (
+        <span class="absolute top-2 right-2 rounded-full bg-black/60 backdrop-blur px-2 py-0.5 text-[10px] font-mono text-white">🖼 {post.images.length}</span>
+      )}
     </a>
   )}
-  <div class={post.coverImage ? "md:col-span-8" : "md:col-span-12"}>
+  <div class={cover ? "md:col-span-8" : "md:col-span-12"}>
     <div class="flex flex-wrap items-center gap-3 text-xs font-mono text-teal-400/80">
       <time datetime={post.publishedAt ?? post.createdAt}>{formatDate(post.publishedAt ?? post.createdAt)}</time>
       <span class="text-retro-400">•</span>
-      <span>{minutes} min read</span>
+      {isGallery ? <span>{post.images.length} photos</span> : <span>{minutes} min read</span>}
     </div>
     <h2 class="mt-2 font-display text-xl sm:text-2xl font-semibold leading-tight">
       <a href={`/blog/${post.slug}`} class="text-white hover:text-teal-400 transition-colors" data-testid="post-card-title-link">

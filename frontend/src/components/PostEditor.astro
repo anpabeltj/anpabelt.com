@@ -12,13 +12,24 @@ const initial = {
   content: post?.content ?? "",
   coverImage: post?.coverImage ?? "",
   status: post?.status ?? "draft",
+  type: post?.type ?? "article",
+  images: post?.images ?? [],
   tags: post?.tags ?? [],
 };
+const isGallery = initial.type === "gallery" || initial.type === "photo";
 ---
 
 <form id="post-editor" class="grid grid-cols-1 lg:grid-cols-3 gap-6" data-testid="post-editor">
   <!-- Main column -->
   <div class="lg:col-span-2 space-y-5">
+    <!-- Post type selector -->
+    <div class="inline-flex rounded-lg border border-white/10 bg-elevated p-1 text-sm" data-testid="editor-type-selector">
+      <button type="button" data-type="article" data-testid="editor-type-article"
+        class={`type-btn px-4 py-1.5 rounded-md transition-colors ${!isGallery ? "bg-teal-500/20 text-teal-200" : "text-retro-50/70 hover:text-white"}`}>Article</button>
+      <button type="button" data-type="gallery" data-testid="editor-type-gallery"
+        class={`type-btn px-4 py-1.5 rounded-md transition-colors ${isGallery ? "bg-teal-500/20 text-teal-200" : "text-retro-50/70 hover:text-white"}`}>Gallery</button>
+    </div>
+
     <div>
       <input id="f-title" type="text" placeholder="Post title" value={initial.title} data-testid="editor-title-input"
         class="w-full bg-transparent font-display text-2xl sm:text-3xl font-bold text-white placeholder:text-retro-400 focus:outline-none border-b border-white/10 focus:border-teal-500/50 pb-3 transition-colors" />
@@ -30,10 +41,25 @@ const initial = {
         class="flex-1 bg-elevated border border-white/10 rounded-md px-3 py-1.5 font-mono text-teal-300 focus:outline-none focus:ring-2 focus:ring-teal-400/60 transition" />
     </div>
 
-    <textarea id="f-content" rows="22" placeholder="Write in Markdown…  # Heading, **bold**, > quote, ```code```" data-testid="editor-content-input"
-      class="w-full bg-elevated border border-white/10 rounded-xl px-4 py-4 font-mono text-sm leading-relaxed text-retro-50 focus:outline-none focus:ring-2 focus:ring-teal-400/50 transition resize-y">{initial.content}</textarea>
+    <div>
+      <label id="content-label" class="block text-sm font-medium mb-2">{isGallery ? "Intro text (optional)" : "Content"}</label>
+      <textarea id="f-content" rows={isGallery ? "6" : "22"} placeholder="Write in Markdown…  # Heading, **bold**, > quote, ```code```" data-testid="editor-content-input"
+        class="w-full bg-elevated border border-white/10 rounded-xl px-4 py-4 font-mono text-sm leading-relaxed text-retro-50 focus:outline-none focus:ring-2 focus:ring-teal-400/50 transition resize-y">{initial.content}</textarea>
+      <p class="mt-2 text-xs text-retro-400 font-mono">Markdown supported: headings, lists, links, images, blockquotes and fenced code blocks.</p>
+    </div>
 
-    <p class="text-xs text-retro-400 font-mono">Markdown supported: headings, lists, links, images, blockquotes and fenced code blocks.</p>
+    <!-- Gallery manager -->
+    <div id="gallery-manager" class={`rounded-xl border border-white/10 bg-card p-5 space-y-4 ${isGallery ? "" : "hidden"}`} data-testid="editor-gallery-manager">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-medium">Photos <span id="gallery-count" class="text-retro-400 font-mono">({initial.images.length})</span></h3>
+        <label class="cursor-pointer rounded-lg bg-teal-500 hover:bg-teal-400 text-canvas font-semibold px-3 py-1.5 text-sm transition-colors">
+          <span id="gallery-upload-label">+ Add photos</span>
+          <input id="f-gallery-files" type="file" accept="image/*" multiple class="hidden" data-testid="editor-gallery-upload" />
+        </label>
+      </div>
+      <p id="gallery-empty" class={`text-sm text-retro-400 text-center py-6 ${initial.images.length ? "hidden" : ""}`}>No photos yet — add some to build your gallery.</p>
+      <div id="gallery-list" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+    </div>
   </div>
 
   <!-- Sidebar -->
@@ -87,111 +113,8 @@ const initial = {
   </aside>
 </form>
 
-<script define:vars={{ initial }}>
-  const state = { id: initial.id };
-  const $ = (id) => document.getElementById(id);
-  const msg = $("editor-status-msg");
-  const badge = $("status-badge");
-
-  function slugify(s) {
-    return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 80);
-  }
-
-  // Auto-fill slug from title until the user edits the slug manually.
-  let slugTouched = Boolean(initial.slug);
-  $("f-slug").addEventListener("input", () => { slugTouched = true; });
-  $("f-title").addEventListener("input", (e) => {
-    if (!slugTouched) $("f-slug").value = slugify(e.target.value);
-  });
-
-  function showMsg(text, ok = true) {
-    msg.textContent = text;
-    msg.className = `text-xs text-center ${ok ? "text-teal-300" : "text-red-400"}`;
-  }
-
-  function collect(status) {
-    return {
-      title: $("f-title").value.trim(),
-      slug: $("f-slug").value.trim() || undefined,
-      excerpt: $("f-excerpt").value.trim(),
-      content: $("f-content").value,
-      coverImage: $("f-cover-url").value.trim() || null,
-      status,
-      tags: $("f-tags").value.split(",").map((t) => t.trim()).filter(Boolean),
-    };
-  }
-
-  async function save(status) {
-    const data = collect(status);
-    if (!data.title) { showMsg("A title is required.", false); return null; }
-    showMsg("Saving…");
-    const url = state.id ? `/actions/posts/${state.id}` : "/actions/posts";
-    const method = state.id ? "PUT" : "POST";
-    try {
-      const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Save failed.");
-      const post = json.post;
-      // First save of a new post: switch to its edit URL without a full reload feel.
-      if (!state.id) {
-        state.id = post.id;
-        window.history.replaceState({}, "", `/admin/posts/${post.id}/edit`);
-        $("btn-delete")?.classList.remove("hidden");
-      }
-      badge.textContent = post.status;
-      badge.className = `text-xs font-mono px-2 py-1 rounded-full ${post.status === "published" ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/15 text-amber-300"}`;
-      $("btn-unpublish").classList.toggle("hidden", post.status !== "published");
-      $("f-slug").value = post.slug;
-      showMsg(status === "published" ? "Published ✓" : "Saved ✓");
-      return post;
-    } catch (err) {
-      showMsg(err.message || "Save failed.", false);
-      return null;
-    }
-  }
-
-  $("btn-save-draft").addEventListener("click", () => save("draft"));
-  $("btn-publish").addEventListener("click", () => save("published"));
-  $("btn-unpublish").addEventListener("click", () => save("draft"));
-
-  $("btn-preview").addEventListener("click", async () => {
-    const post = await save(badge.textContent === "published" ? "published" : "draft");
-    if (post) window.open(`/admin/preview/${post.id}`, "_blank");
-  });
-
-  $("btn-delete")?.addEventListener("click", async () => {
-    if (!state.id || !confirm("Delete this post permanently?")) return;
-    const res = await fetch(`/actions/posts/${state.id}`, { method: "DELETE" });
-    if (res.ok) window.location.href = "/admin";
-    else showMsg("Failed to delete.", false);
-  });
-
-  // Cover image handling
-  $("f-cover-url").addEventListener("input", (e) => setCover(e.target.value.trim()));
-  function setCover(url) {
-    $("cover-preview").src = url;
-    $("cover-preview-wrap").classList.toggle("hidden", !url);
-    $("btn-clear-cover").classList.toggle("hidden", !url);
-  }
-  $("btn-clear-cover").addEventListener("click", () => { $("f-cover-url").value = ""; setCover(""); });
-
-  $("f-cover-file").addEventListener("change", async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    $("upload-label").textContent = "Uploading…";
-    const fd = new FormData();
-    fd.append("file", file);
-    try {
-      const res = await fetch("/actions/upload", { method: "POST", body: fd });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Upload failed.");
-      $("f-cover-url").value = json.asset.url;
-      setCover(json.asset.url);
-      showMsg("Cover uploaded ✓");
-    } catch (err) {
-      showMsg(err.message || "Upload failed.", false);
-    } finally {
-      $("upload-label").textContent = "Upload";
-    }
-  });
+<script type="application/json" id="editor-data" is:inline set:html={JSON.stringify(initial).replace(/</g, "\\u003c")}></script>
+<script>
+  import "../scripts/postEditor.ts";
 </script>
+

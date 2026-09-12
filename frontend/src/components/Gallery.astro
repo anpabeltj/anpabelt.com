@@ -1,0 +1,43 @@
+---
+import type { GalleryImage } from "../lib/types";
+export interface Props {
+  images: GalleryImage[];
+}
+const { images } = Astro.props;
+---
+
+{images.length > 0 && (
+  <div class="mt-10 columns-1 sm:columns-2 gap-4 [&>figure]:mb-4" data-testid="gallery">
+    {images.map((img, i) => (
+      <figure class="break-inside-avoid overflow-hidden rounded-2xl border border-white/10 bg-elevated">
+        <button
+          type="button"
+          class="gallery-open block w-full"
+          data-index={i}
+          data-testid="gallery-open"
+          aria-label={img.caption || "Open photo"}
+        >
+          <img src={img.url} alt={img.caption || ""} loading="lazy" class="w-full h-auto object-cover transition-transform duration-500 hover:scale-[1.02]" />
+        </button>
+        {img.caption && <figcaption class="px-4 py-3 text-sm text-retro-50/70 font-serif italic">{img.caption}</figcaption>}
+      </figure>
+    ))}
+  </div>
+)}
+
+<!-- Lightbox -->
+<div id="lightbox" class="fixed inset-0 z-[70] hidden items-center justify-center bg-black/90 backdrop-blur-sm p-4" data-testid="gallery-lightbox">
+  <button id="lightbox-close" class="absolute top-5 right-5 text-white/80 hover:text-white text-2xl" aria-label="Close" data-testid="gallery-lightbox-close">✕</button>
+  <button id="lightbox-prev" class="absolute left-4 sm:left-8 text-white/70 hover:text-white text-3xl" aria-label="Previous">‹</button>
+  <figure class="max-w-5xl max-h-[85vh] flex flex-col items-center gap-3">
+    <img id="lightbox-img" src="" alt="" class="max-h-[78vh] w-auto rounded-xl object-contain" />
+    <figcaption id="lightbox-cap" class="text-sm text-white/70 font-serif italic text-center"></figcaption>
+  </figure>
+  <button id="lightbox-next" class="absolute right-4 sm:right-8 text-white/70 hover:text-white text-3xl" aria-label="Next">›</button>
+</div>
+
+<script type="application/json" id="gallery-data" is:inline set:html={JSON.stringify(images).replace(/</g, "\\u003c")}></script>
+<script>
+  import "../scripts/gallery.ts";
+</script>
+

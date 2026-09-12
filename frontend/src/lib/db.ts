@@ -47,6 +47,7 @@ function migrate(db: Database.Database) {
       status TEXT NOT NULL DEFAULT 'draft',
       type TEXT NOT NULL DEFAULT 'article',
       tags TEXT NOT NULL DEFAULT '[]',
+      images TEXT NOT NULL DEFAULT '[]',
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL,
       published_at TEXT
@@ -74,6 +75,12 @@ function migrate(db: Database.Database) {
     CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status, published_at);
     CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts(slug);
   `);
+
+  // Additive migrations for databases created before a column existed.
+  const cols = (db.prepare("PRAGMA table_info(posts)").all() as { name: string }[]).map((c) => c.name);
+  if (!cols.includes("images")) {
+    db.exec("ALTER TABLE posts ADD COLUMN images TEXT NOT NULL DEFAULT '[]'");
+  }
 }
 
 function seedAdmin(db: Database.Database) {

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Gallery from "../../../components/Gallery.astro";
 import { getPostById } from "../../../lib/posts";
 import { renderMarkdown, readingTime, formatDate } from "../../../lib/markdown";
 
@@ -7,7 +8,8 @@ import { renderMarkdown, readingTime, formatDate } from "../../../lib/markdown";
 // will appear once published.
 const post = getPostById(Astro.params.id!);
 if (!post) return Astro.redirect("/admin");
-const html = renderMarkdown(post.content);
+const isGallery = post.type === "gallery" || post.type === "photo";
+const html = post.content.trim() ? renderMarkdown(post.content) : "";
 const minutes = readingTime(post.content);
 ---
 
@@ -21,7 +23,7 @@ const minutes = readingTime(post.content);
       <div class="flex flex-wrap items-center gap-3 text-xs font-mono text-teal-400/80">
         <time>{formatDate(post.publishedAt ?? post.createdAt)}</time>
         <span class="text-retro-400">•</span>
-        <span>{minutes} min read</span>
+        {isGallery ? <span>{post.images.length} photos</span> : <span>{minutes} min read</span>}
       </div>
       <h1 class="mt-4 font-display text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.1]">{post.title}</h1>
       {post.tags.length > 0 && (
@@ -31,6 +33,13 @@ const minutes = readingTime(post.content);
       )}
     </header>
     {post.coverImage && <img src={post.coverImage} alt={post.title} class="mt-8 w-full rounded-2xl border border-white/10 aspect-[16/9] object-cover" />}
-    <div class="article-content mt-10" set:html={html}></div>
+    {isGallery ? (
+      <>
+        {html && <div class="article-content mt-10" set:html={html}></div>}
+        <Gallery images={post.images} />
+      </>
+    ) : (
+      <div class="article-content mt-10" set:html={html}></div>
+    )}
   </article>
 </BaseLayout>

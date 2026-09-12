@@ -31,7 +31,14 @@ Preserve content • editorial redesign • clean TS architecture • blog (`/bl
 • private admin CMS (`/admin`) • self‑hostable • performance • SEO • accessibility •
 extensible content model.
 
-## Implemented (2026-09-12)
+## Implemented
+### Phase 2 (2026-09-12) — Photo / Gallery post type
+- Extended content model: `Post.images: {url,caption}[]` (+ SQLite `images` column with additive migration); `type` now supports `gallery`/`photo`.
+- Admin editor: Article/Gallery type toggle + gallery manager (multi-upload, per-photo captions, reorder, remove); first upload auto-sets cover. Client script externalised to `src/scripts/postEditor.ts` (data via JSON tag).
+- Public rendering: `Gallery.astro` masonry grid + keyboard lightbox on article & preview; blog cards show photo count + gallery badge and fall back to first photo as cover.
+- Create/update endpoints validate `type` + parse `images`. Demo gallery post seeded. Lint clean.
+
+### Phase 1 (2026-09-12) — Migration + blog + admin
 - Migrated all existing content (home bio, "3 things I love", 7 projects, about
   experience/education + tech marquee, contact, socials) into typed content (`src/lib/site.ts`).
 - Refined dark cosmic editorial design: floating glass nav, Lexend Giga/DM Sans/Newsreader/

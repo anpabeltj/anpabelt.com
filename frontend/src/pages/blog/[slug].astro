@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import Gallery from "../../components/Gallery.astro";
 import { getPostBySlug, listPosts } from "../../lib/posts";
 import { renderMarkdown, readingTime, formatDate } from "../../lib/markdown";
 
@@ -11,7 +12,8 @@ if (!post || post.status !== "published") {
   return new Response(null, { status: 404, statusText: "Not Found" });
 }
 
-const html = renderMarkdown(post.content);
+const isGallery = post.type === "gallery" || post.type === "photo";
+const html = post.content.trim() ? renderMarkdown(post.content) : "";
 const minutes = readingTime(post.content);
 
 const published = listPosts({ status: "published" });
@@ -39,7 +41,7 @@ const next = idx > 0 ? published[idx - 1] : null;
       <div class="flex flex-wrap items-center gap-3 text-xs font-mono text-teal-400/80">
         <time datetime={post.publishedAt ?? post.createdAt}>{formatDate(post.publishedAt ?? post.createdAt)}</time>
         <span class="text-retro-400">•</span>
-        <span>{minutes} min read</span>
+        {isGallery ? <span>{post.images.length} photos</span> : <span>{minutes} min read</span>}
       </div>
       <h1 class="mt-4 font-display text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.1]">{post.title}</h1>
       {post.tags.length > 0 && (
@@ -55,7 +57,14 @@ const next = idx > 0 ? published[idx - 1] : null;
       <img src={post.coverImage} alt={post.title} class="mt-8 w-full rounded-2xl border border-white/10 aspect-[16/9] object-cover" />
     )}
 
-    <div class="article-content mt-10" data-testid="article-content" set:html={html}></div>
+    {isGallery ? (
+      <>
+        {html && <div class="article-content mt-10" data-testid="article-content" set:html={html}></div>}
+        <Gallery images={post.images} />
+      </>
+    ) : (
+      <div class="article-content mt-10" data-testid="article-content" set:html={html}></div>
+    )}
 
     <nav class="mt-16 grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-white/10 pt-8">
       {prev ? (
