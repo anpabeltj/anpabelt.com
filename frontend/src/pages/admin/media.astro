@@ -1,0 +1,80 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import { listMedia } from "../../lib/media";
+import { formatDate } from "../../lib/markdown";
+
+const media = listMedia();
+---
+
+<AdminLayout title="Media" active="media">
+  <div class="flex items-center justify-between gap-4 mb-6">
+    <h1 class="font-display text-2xl font-bold">Media Library</h1>
+    <label class="cursor-pointer rounded-lg bg-teal-500 hover:bg-teal-400 text-canvas font-semibold px-4 py-2 text-sm transition-colors">
+      <span id="upload-label">+ Upload</span>
+      <input id="media-upload" type="file" accept="image/*" class="hidden" data-testid="media-upload-input" />
+    </label>
+  </div>
+
+  <p id="media-msg" class="text-sm mb-4 hidden" role="status"></p>
+
+  {media.length === 0 ? (
+    <div class="rounded-2xl border border-white/10 bg-card p-12 text-center">
+      <p class="text-retro-400">No images uploaded yet.</p>
+    </div>
+  ) : (
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" data-testid="media-grid">
+      {media.map((m) => (
+        <figure class="rounded-xl border border-white/10 bg-card overflow-hidden group" data-testid="media-item">
+          <div class="aspect-square bg-elevated overflow-hidden">
+            <img src={m.url} alt={m.originalName} loading="lazy" class="w-full h-full object-cover" />
+          </div>
+          <figcaption class="p-3 space-y-2">
+            <p class="text-xs font-mono text-retro-50/70 truncate" title={m.originalName}>{m.originalName}</p>
+            <p class="text-[10px] font-mono text-retro-400">{formatDate(m.createdAt)} · {(m.size / 1024).toFixed(0)} KB</p>
+            <button data-url={m.url} class="copy-url-btn w-full text-xs rounded-md border border-white/10 py-1.5 hover:border-teal-500/40 hover:text-teal-300 transition-colors" data-testid="media-copy-button">Copy URL</button>
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+  )}
+</AdminLayout>
+
+<script>
+  const msg = document.getElementById("media-msg") as HTMLElement;
+  function show(text: string, ok = true) {
+    msg.textContent = text;
+    msg.className = `text-sm mb-4 ${ok ? "text-teal-300" : "text-red-400"}`;
+  }
+
+  document.getElementById("media-upload")?.addEventListener("change", async (e) => {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    const label = document.getElementById("upload-label")!;
+    label.textContent = "Uploading…";
+    const fd = new FormData();
+    fd.append("file", file);
+    try {
+      const res = await fetch("/actions/upload", { method: "POST", body: fd });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Upload failed.");
+      window.location.reload();
+    } catch (err) {
+      show(err instanceof Error ? err.message : "Upload failed.", false);
+      label.textContent = "+ Upload";
+    }
+  });
+
+  document.querySelectorAll(".copy-url-btn").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const url = (btn as HTMLButtonElement).dataset.url!;
+      const absolute = new URL(url, window.location.origin).toString();
+      try {
+        await navigator.clipboard.writeText(absolute);
+        show("Copied image URL to clipboard ✓");
+      } catch {
+        show(absolute, true);
+      }
+    });
+  });
+</script>

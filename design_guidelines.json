@@ -1,0 +1,183 @@
+{
+  "project_title": "Anpabelt Trah Javala - Personal Digital Home & Editorial Blog",
+  "persona_and_owner": {
+    "name": "Anpabelt Trah Javala",
+    "role": "Information Systems Student & Developer",
+    "institution": "Universiti Teknologi Petronas (UTP), Malaysia",
+    "tone_of_voice": "Playful, first-person, curious, intellectually honest, personal, non-corporate"
+  },
+  "design_archetype": {
+    "name": "Editorial Dark Retro-Cosmic",
+    "description": "Refined dark retro/space identity combining a deep obsidian-emerald canvas with glowing teal/emerald accents, sculptural display typography, and a quiet, tactile editorial layout for long-form reading."
+  },
+  "colors": {
+    "canvas": {
+      "background_primary": "hsl(144, 14%, 7%)",
+      "background_primary_hex": "#0d1510",
+      "background_secondary": "hsl(144, 12%, 10%)",
+      "background_card": "hsl(144, 10%, 12%)",
+      "background_elevated": "hsl(144, 10%, 15%)",
+      "overlay_glass": "rgba(13, 21, 16, 0.75)"
+    },
+    "text": {
+      "primary": "#f3f4f6",
+      "secondary": "#a1a1aa",
+      "muted": "#71717a",
+      "emerald_tint": "hsl(144, 10%, 55%)",
+      "heading": "#ffffff"
+    },
+    "accents": {
+      "teal_primary": "#2dd4bf",
+      "teal_glow": "rgba(45, 212, 191, 0.25)",
+      "emerald_accent": "#10b981",
+      "star_dust": "#a7f3d0",
+      "retro_highlight": "#14b8a6",
+      "border_subtle": "rgba(255, 255, 255, 0.08)",
+      "border_active": "rgba(45, 212, 191, 0.4)"
+    },
+    "editorial_highlight": {
+      "selection_bg": "rgba(45, 212, 191, 0.3)",
+      "selection_text": "#ffffff",
+      "code_bg": "#0a0f0c",
+      "quote_border": "#2dd4bf"
+    },
+    "forbidden_colors": [
+      "#1B93A4",
+      "#7351B7",
+      "pure saturated cyan gradients",
+      "flat pure white full-screen overlays"
+    ]
+  },
+  "typography": {
+    "display_font": {
+      "family": "'Lexend Giga', sans-serif",
+      "usage": "Main H1-H3 headings, hero phrases, section tags, big numbers",
+      "tracking": "tracking-tight (-0.03em)",
+      "line_height": "leading-none to leading-tight",
+      "weights": ["600", "700"]
+    },
+    "body_font": {
+      "family": "'DM Sans', sans-serif",
+      "usage": "UI body text, navigation, meta tags, project summaries, form fields",
+      "tracking": "tracking-normal",
+      "line_height": "leading-relaxed",
+      "weights": ["400", "500"]
+    },
+    "editorial_serif": {
+      "family": "'Newsreader', 'Lora', serif",
+      "usage": "Blog long-form article body paragraphs, blockquotes, author bio callouts",
+      "tracking": "tracking-normal",
+      "line_height": "leading-loose (1.8)",
+      "size_article_body": "text-lg sm:text-xl",
+      "weights": ["400", "400i", "600"]
+    },
+    "monospace_font": {
+      "family": "'JetBrains Mono', 'Fira Code', monospace",
+      "usage": "Code snippets, terminal blocks, tech stack tags, stats, dates, administrative IDs",
+      "weights": ["400", "500"]
+    },
+    "font_scale": {
+      "hero_h1": "text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight",
+      "section_h2": "text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight",
+      "subsection_h3": "text-xl sm:text-2xl font-medium",
+      "card_title": "text-lg sm:text-xl font-semibold",
+      "body_regular": "text-base sm:text-lg leading-relaxed",
+      "body_small": "text-sm text-zinc-400",
+      "meta_label": "text-xs uppercase tracking-widest text-teal-400/80 font-mono"
+    }
+  },
+  "starfield_and_cosmic_motif": {
+    "concept": "Subtle, atmospheric retro-space motif providing depth without distracting from content or execution speed.",
+    "implementation_rules": [
+      "Use lightweight HTML5 Canvas or SVG particle background with reduced point count (30-50 stars max).",
+      "Stars should twinkle softly with smooth opacity cycling (0.1 to 0.7) rather than harsh flashes.",
+      "Include periodic, rare shooting star animation (every 12-18 seconds, 0.8s duration) across top viewport.",
+      "Respect 'prefers-reduced-motion' by pausing particle movement and freezing opacity.",
+      "Never block pointer events (pointer-events: none on canvas overlay).",
+      "Provide smooth radial gradient vignette at viewport edges to anchor editorial text."
+    ]
+  },
+  "layout_and_spacing": {
+    "max_width_containers": {
+      "editorial_article": "max-w-2xl mx-auto px-4 sm:px-6",
+      "standard_page": "max-w-5xl mx-auto px-4 sm:px-6 lg:px-8",
+      "admin_dashboard": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+    },
+    "spacing_scale": {
+      "section_gap": "py-16 sm:py-24 lg:py-32",
+      "content_gap": "space-y-8 sm:space-y-12",
+      "card_padding": "p-6 sm:p-8"
+    },
+    "bento_and_grids": {
+      "projects_grid": "grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12",
+      "experience_timeline": "space-y-8 border-l border-zinc-800/80 pl-6 sm:pl-8 ml-2 sm:ml-4",
+      "blog_listing": "grid grid-cols-1 md:grid-cols-12 gap-8 border-b border-zinc-800/60 pb-12"
+    }
+  },
+  "component_design_specs": {
+    "navigation_header": {
+      "style": "Floating crystal glass capsule navbar centered at viewport top",
+      "classes": "fixed top-6 left-1/2 -translate-x-1/2 z-50 backdrop-blur-xl bg-[#0d1510]/80 border border-white/10 rounded-full px-6 py-3 shadow-2xl transition-all duration-300",
+      "nav_links": ["Home", "About", "Projects", "Blog", "Contact"],
+      "cta": "Admin Login / Dashboard button with subtle teal stroke"
+    },
+    "hero_section": {
+      "structure": "Asymmetrical text-dominant layout with oversized Lexend Giga title, playful first-person intro bio, student tag ('UTP Malaysia'), interactive availability status badge, and dual CTAs ('Read Blog', 'Explore Projects').",
+      "status_badge": "Live pulsing emerald dot + 'Crafting software @ UTP, Malaysia'"
+    },
+    "project_cards": {
+      "style": "Dark elevated cards with subtle 1px border, smooth lift on hover, image preview with gradient overlay, tags in monospace pill badges, live demo and GitHub source links.",
+      "border": "border border-white/5 hover:border-teal-500/30 transition-all duration-300 shadow-xl"
+    },
+    "blog_editorial": {
+      "listing_style": "High-density editorial index with publication dates, reading time badges, tags, clean excerpts, and featured cover image thumbnails.",
+      "article_reading_experience": {
+        "header": "Large dramatic Lexend Giga title, published date, tag pills, author avatar + bio snippet, estimated reading time.",
+        "typography": "Newsreader/serif font for long-form prose, large initial drop-cap on first paragraph, custom styled blockquotes with teal vertical border, syntax-highlighted code blocks with copy-to-clipboard button.",
+        "navigation": "Sticky subtle progress bar at top, back to blog link, next/previous post links at footer."
+      }
+    },
+    "admin_cms_dashboard": {
+      "style": "High-clarity, dark tactical admin interface for managing blog articles and media.",
+      "features": [
+        "Login screen with password protection & secure state",
+        "Post list view with Status tabs (All, Published, Drafts)",
+        "Post Editor with split or full markdown preview, cover image upload dropzone, slug generator, tag input, draft/publish controls",
+        "Image gallery manager to browse uploaded assets and copy markdown URLs"
+      ]
+    },
+    "forms_and_contact": {
+      "style": "Tactile dark input fields with teal focus rings, clear validation states, accessible labels, interactive submit button with loading state, and Sonner toast notifications upon success."
+    }
+  },
+  "image_urls": {
+    "profile_avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600",
+    "utp_campus": "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=1200",
+    "cosmic_space_bg": "https://images.unsplash.com/photo-1429305336325-b84ace7eba3b?auto=format&fit=crop&q=80&w=1600",
+    "projects": {
+      "estate_sales": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=800",
+      "dwbi_analytics": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800",
+      "ev_charging": "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=800",
+      "re_cafe_web": "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&q=80&w=800"
+    },
+    "blog_covers": {
+      "retro_space_dev": "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&q=80&w=1000",
+      "utp_student_life": "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=1000",
+      "data_engineering": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1000"
+    }
+  },
+  "testing_and_accessibility": {
+    "data_testid_rules": "All interactive elements, buttons, inputs, nav links, blog cards, and CMS controls MUST include unambiguous kebab-case data-testid attributes (e.g. data-testid=\"nav-blog-link\", data-testid=\"admin-publish-button\").",
+    "wcag_compliance": "Ensure minimum 4.5:1 contrast for body text against dark green-black background (#0d1510) and 3:1 for large display titles and interactive indicators.",
+    "keyboard_navigation": "Visible focus ring (ring-2 ring-teal-400 ring-offset-2 ring-offset-[#0d1510]) on all interactive elements."
+  },
+  "instructions_to_main_agent": [
+    "Structure the application cleanly with full Astro/React pages or dynamic components for Home, About, Projects, Contact, Blog Listing, Blog Post, and Admin CMS.",
+    "Inject Google Fonts for Lexend Giga, DM Sans, Newsreader, and JetBrains Mono in head.",
+    "Implement the background Canvas starfield with smooth twinkle, gentle drift, and shooting stars without impacting scroll performance.",
+    "Maintain the first-person playful voice of Anpabelt Trah Javala throughout the website copy and sample blog articles.",
+    "Build a robust SQLite or LocalStorage/API backed CMS under /admin allowing CRUD operations on blog posts with cover image preview and status toggles.",
+    "Use Sonner for toasts on contact submission, admin actions, and image URL copies.",
+    "Add data-testid to every button, link, input, post card, and CMS action button."
+  ]
+}

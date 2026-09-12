@@ -1,0 +1,16 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import PostEditor from "../../../../components/PostEditor.astro";
+import { getPostById } from "../../../../lib/posts";
+
+const post = getPostById(Astro.params.id!);
+if (!post) return Astro.redirect("/admin");
+---
+
+<AdminLayout title="Edit Post" active="posts">
+  <div class="flex items-center gap-3 mb-6">
+    <a href="/admin" class="text-sm text-retro-50/70 hover:text-white">← Posts</a>
+    <h1 class="font-display text-xl font-bold">Edit Post</h1>
+  </div>
+  <PostEditor post={post} />
+</AdminLayout>

@@ -1,0 +1,32 @@
+---
+// Lightweight, performance-friendly starfield: static twinkling stars +
+// occasional shooting stars. Pure CSS animation, no JavaScript, no layout cost.
+const stars = Array.from({ length: 42 }, (_, i) => {
+  const top = Math.round(((i * 97) % 100));
+  const left = Math.round(((i * 53) % 100));
+  const delay = ((i * 0.37) % 4).toFixed(2);
+  const dur = (2.5 + ((i * 0.13) % 3)).toFixed(2);
+  const size = i % 7 === 0 ? 2 : 1;
+  return { top, left, delay, dur, size };
+});
+const shooters = [
+  { top: 8, right: 6, delay: 0, dur: 2.4 },
+  { top: 18, right: 22, delay: 6, dur: 2.8 },
+  { top: 4, right: 40, delay: 12, dur: 2.2 },
+];
+---
+
+<div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
+  {stars.map((s) => (
+    <span
+      class="star absolute rounded-full bg-white"
+      style={`top:${s.top}%;left:${s.left}%;width:${s.size}px;height:${s.size}px;animation:twinkle ${s.dur}s ease-in-out ${s.delay}s infinite;`}
+    ></span>
+  ))}
+  {shooters.map((s) => (
+    <span
+      class="shooting-star absolute h-[2px] w-[120px] bg-gradient-to-r from-white/90 to-transparent"
+      style={`top:${s.top}%;right:${s.right}%;border-radius:9999px;animation:shoot ${s.dur}s linear ${s.delay}s infinite;animation-iteration-count:infinite;animation-delay:${s.delay}s;`}
+    ></span>
+  ))}
+</div>

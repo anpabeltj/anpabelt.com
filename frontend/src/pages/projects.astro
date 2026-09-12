@@ -1,0 +1,22 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import { projects } from "../lib/site";
+---
+
+<BaseLayout title="Projects" description="A curated selection of things Anpabelt has designed, built and analysed — web, data and everything between.">
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <p class="reveal font-mono text-xs uppercase tracking-widest text-teal-400/80">Work</p>
+    <h1 class="reveal mt-3 font-display text-4xl sm:text-5xl font-bold" style="animation-delay:60ms">
+      Curated <span class="text-retro-400">Projects</span>
+    </h1>
+    <p class="reveal mt-5 max-w-2xl text-retro-50/80 leading-relaxed" style="animation-delay:100ms">
+      A mix of web builds, data analyses and experiments. Each one taught me something —
+      usually the hard way.
+    </p>
+
+    <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+      {projects.map((p, i) => <ProjectCard project={p} index={i} />)}
+    </div>
+  </section>
+</BaseLayout>

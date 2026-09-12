@@ -1,79 +1,107 @@
-# 🧑🏽‍💻 Anpabelt Personal Website
+# anpabelt.com
 
-Welcome to my personal website! Access it at [anpabelt.com](https://anpabelt.com)
+My personal digital home — portfolio, projects and an editorial blog with a private
+writing/admin system. Rebuilt from a static HTML + Tailwind site into a maintainable,
+TypeScript‑first application.
 
-UI design on Figma: <https://figma.com/design/f1F1KJzzDHD9ve07mnpxvT/anpabelt.com>
+- **Live:** https://anpabelt.com
+- **Stack:** [Astro](https://astro.build) (SSR) · TypeScript · Tailwind CSS v4 · SQLite
 
-This site is designed to showcase my **projects**, **experience**, and provide ways to **connect** with me. Below are the details of the sections on the website. This website consists of several features, such that:
+The application lives in [`frontend/`](./frontend). The original static site is preserved
+under [`legacy/`](./legacy) for reference.
 
-1.  Home
-2.  About
-3.  Projects
-4.  Contact
-5.  Footer
+---
 
-## 🧑🏽‍💼 Home
+## Architecture
 
-On the Home page, I introduce myself and my passion for creating user-friendly and visually appealing designs. This section gives you a glimpse into who I am and what I love to do. You’ll also find a preview of my featured projects, where I showcase some of my best work.
+A single, self‑hostable Astro app renders every page server‑side and also exposes its own
+small API — no separate backend service, no vendor lock‑in.
 
-Design:
+```
+frontend/
+├── astro.config.mjs         # Astro + Node adapter (SSR) + Tailwind v4 (Vite plugin)
+├── data/                    # SQLite DB + uploaded images (git‑ignored, created at runtime)
+└── src/
+    ├── layouts/             # BaseLayout (public), AdminLayout
+    ├── components/          # Nav, Footer, Starfield, ProjectCard, PostCard, PostEditor
+    ├── lib/                 # db, auth, posts, media, markdown, site content, types
+    ├── middleware.ts        # protects /admin/* and /actions/*
+    └── pages/
+        ├── index / about / projects / contact
+        ├── blog/            # /blog and /blog/[slug]
+        ├── admin/           # login, dashboard, editor, media, preview (auth‑gated)
+        ├── actions/         # server endpoints (auth, posts CRUD, upload, contact)
+        └── media/[filename] # serves uploaded images
+```
 
-![Home Page](designs/home-page.png)
+> **Note on routes:** server endpoints are under `/actions/*` and uploaded files under
+> `/media/*` (not `/api/*`). This keeps everything inside one Astro app while remaining
+> compatible with the hosting proxy.
 
-Highlights:
+### Content model (`src/lib/types.ts`)
 
-- A warm introduction to who I am and what I do.
-- Featured projects that reflect my skills and creativity.
-- A gateway to explore more about me and my work.
+A `Post` has `id, title, slug, excerpt, content` (Markdown), `coverImage, status`
+(`draft` | `published`), `type`, `tags[]`, `createdAt, updatedAt, publishedAt`. The `type`
+field is already in place so photo / video / journal / gallery posts can be added later
+without a migration.
 
-## ℹ️ About
+---
 
-On the About page, I share my professional journey, from the roles I’ve held to the skills I’ve developed over the years. I focus on how I’ve applied my knowledge to real-world challenges and how those experiences have shaped me. This is where you’ll learn more about what I bring to the table.
+## Local development
 
-Design:
+Requirements: **Node 20+** and **Yarn**.
 
-![About Page](designs/about-page.png)
+```bash
+cd frontend
+cp .env.example .env      # then edit the values (see below)
+yarn install
+yarn dev                  # http://localhost:3000
+```
 
-Key points:
+Other scripts: `yarn build` (production build) · `yarn preview` (run the built Node server)
+· `yarn typecheck`.
 
-- A clear timeline of my work experience.
-- Descriptions of my roles and responsibilities.
-- Insights into how I’ve grown and adapted in my career.
+## Environment variables (`frontend/.env`)
 
-## 💻 Projects
+| Variable         | Purpose                                              |
+| ---------------- | ---------------------------------------------------- |
+| `SITE_URL`       | Canonical site URL (used for SEO, sitemap, OG tags)  |
+| `JWT_SECRET`     | Secret used to sign admin session tokens (64+ chars) |
+| `ADMIN_EMAIL`    | Admin login email (seeded on first boot)             |
+| `ADMIN_PASSWORD` | Admin login password                                 |
+| `ADMIN_NAME`     | Display name for the admin                           |
 
-The Projects section is where I highlight the work I’m most proud of. Each project represents a unique challenge I’ve tackled, showcasing my technical skills and creativity. I also include the tools and technologies I used, giving you a sense of how I approach and execute my ideas.
+Secrets are never committed — `.env` is git‑ignored (`.env.example` is the template).
 
-Design:
+## Database & admin setup
 
-![Projects Page](designs/project-page.png)
+SQLite is created automatically at `frontend/data/blog.db` on first run. On boot the app:
 
-What you’ll find:
+1. creates the schema,
+2. seeds the admin account from the `ADMIN_*` env vars (updates the password if it changed),
+3. seeds a couple of sample posts if the blog is empty.
 
-- A list of projects I’ve worked on, organized by year.
-- The technologies I used to bring each project to life.
-- A reflection of my versatility and ability to deliver quality results.
+Sign in at **`/admin/login`**, then write from **`/admin`** — create/edit posts, save drafts,
+publish/unpublish, upload cover images, browse the media library and preview before publishing.
+Images are stored on disk under `frontend/data/uploads/` and served from `/media/…`.
 
-## 📱 Contact
+## Deployment (self‑hosting)
 
-I want to make it easy for you to connect with me, which is why I’ve designed the Contact section to be simple and straightforward. Whether you prefer sending a message through the form or reaching out via social media, I’m always open to conversations and collaborations.
+```bash
+cd frontend
+yarn install --production=false
+yarn build
+node ./dist/server/entry.mjs        # serves on $PORT (default 3000)
+```
 
-Design:
+Run it behind a reverse proxy (Nginx/Caddy) with a process manager (systemd/PM2/Docker).
+Persist the `frontend/data/` directory (SQLite database + uploaded images) with a volume or
+regular backups. Set the environment variables listed above in your server environment.
 
-![Contact Page](designs/contact-page.png)
+## SEO & performance
 
-Ways to connect:
-
-- A user-friendly contact form for direct communication.
-- Links to my social media profiles for additional ways to engage.
-- A welcoming invitation to share ideas, feedback, or opportunities.
-
-## 🗂️ Footer
-
-The Footer ties everything together with useful links and resources. I’ve included quick navigation options to ensure you can easily find what you’re looking for. It’s also where I showcase my brand identity and provide essential information about my work.
-
-Features:
-
-- Links to product features, platforms, and support.
-- Copyright information to reinforce my personal brand.
-- Additional resources like careers, press, and shop for added value.
+Server‑rendered HTML, per‑page titles/descriptions, canonical URLs, Open Graph + Twitter
+metadata (articles include their own), `/sitemap.xml`, `/robots.txt`, semantic markup and a
+proper heading hierarchy. The public site ships almost no client JavaScript (a small script
+for the mobile menu, the contact form and the reading‑progress bar); animations are CSS‑only
+and respect `prefers-reduced-motion`.

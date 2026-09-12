@@ -1,0 +1,12 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import PostEditor from "../../../components/PostEditor.astro";
+---
+
+<AdminLayout title="New Post" active="new">
+  <div class="flex items-center gap-3 mb-6">
+    <a href="/admin" class="text-sm text-retro-50/70 hover:text-white">← Posts</a>
+    <h1 class="font-display text-xl font-bold">New Post</h1>
+  </div>
+  <PostEditor />
+</AdminLayout>

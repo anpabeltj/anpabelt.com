@@ -1,0 +1,49 @@
+---
+import type { Project } from "../lib/site";
+export interface Props {
+  project: Project;
+  index?: number;
+}
+const { project, index = 0 } = Astro.props;
+---
+
+<article
+  class="reveal group relative flex flex-col rounded-2xl border border-white/5 bg-card p-6 sm:p-7 shadow-xl transition-all duration-300 hover:border-teal-500/30 hover:-translate-y-1"
+  style={`animation-delay:${index * 80}ms`}
+  data-testid="project-card"
+>
+  <div class="overflow-hidden rounded-xl mb-5 aspect-[16/10] bg-elevated">
+    <img
+      src={project.image}
+      alt={project.title}
+      loading="lazy"
+      class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+    />
+  </div>
+  <h3 class="font-display text-lg font-semibold text-white leading-snug">{project.title}</h3>
+  <p class="mt-2 text-sm text-retro-50/70 leading-relaxed flex-1">{project.description}</p>
+
+  <ul class="mt-4 flex flex-wrap gap-1.5">
+    {project.tags.map((tag) => (
+      <li class="inline-flex items-center gap-1.5 rounded-full bg-elevated border border-white/5 px-2.5 py-1 text-xs font-mono text-retro-50/80">
+        {tag.icon && <img src={tag.icon} alt="" class="w-3.5 h-3.5" width="14" height="14" />}
+        <span>{tag.name}</span>
+      </li>
+    ))}
+  </ul>
+
+  <div class="mt-5 flex flex-wrap gap-5">
+    {project.links.map((link) => (
+      <a
+        href={link.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        data-testid="project-link"
+        class="inline-flex items-center gap-1.5 text-sm text-white hover:text-teal-400 transition-colors"
+      >
+        {link.label}
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7V16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    ))}
+  </div>
+</article>

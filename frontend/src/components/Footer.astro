@@ -1,0 +1,32 @@
+---
+import { socials, site } from "../lib/site";
+const year = new Date().getFullYear();
+---
+
+<footer class="relative mt-24 border-t border-white/10">
+  <div class="absolute inset-0 -z-10 bg-gradient-to-t from-retro-550/25 to-transparent"></div>
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col items-center gap-6 text-center">
+    <a href="/" class="font-display font-bold text-lg text-white">
+      anpabelt<span class="text-teal-400">.com</span>
+    </a>
+    <ul class="flex items-center gap-8" data-testid="footer-socials">
+      {socials.map((s) => (
+        <li>
+          <a
+            href={s.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={s.label}
+            data-testid={`footer-social-${s.label.toLowerCase()}`}
+            class="opacity-70 hover:opacity-100 transition-opacity"
+          >
+            <img src={s.icon} alt={s.label} class="w-5 h-5" width="20" height="20" />
+          </a>
+        </li>
+      ))}
+    </ul>
+    <p class="text-xs font-mono text-retro-400">
+      © {year} {site.shortName}. Built with Astro, TypeScript &amp; a lot of coffee.
+    </p>
+  </div>
+</footer>

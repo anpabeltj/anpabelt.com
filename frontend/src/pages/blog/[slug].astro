@@ -1,0 +1,86 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getPostBySlug, listPosts } from "../../lib/posts";
+import { renderMarkdown, readingTime, formatDate } from "../../lib/markdown";
+
+const { slug } = Astro.params;
+const post = slug ? getPostBySlug(slug) : null;
+
+// Only published posts are public. Drafts are 404 here (preview lives in /admin).
+if (!post || post.status !== "published") {
+  return new Response(null, { status: 404, statusText: "Not Found" });
+}
+
+const html = renderMarkdown(post.content);
+const minutes = readingTime(post.content);
+
+const published = listPosts({ status: "published" });
+const idx = published.findIndex((p) => p.id === post.id);
+const prev = idx >= 0 && idx < published.length - 1 ? published[idx + 1] : null;
+const next = idx > 0 ? published[idx - 1] : null;
+---
+
+<BaseLayout
+  title={post.title}
+  description={post.excerpt}
+  image={post.coverImage ?? undefined}
+  type="article"
+  publishedTime={post.publishedAt ?? undefined}
+  tags={post.tags}
+>
+  <div class="reading-progress" id="reading-progress"></div>
+
+  <article class="max-w-2xl mx-auto px-4 sm:px-6">
+    <a href="/blog" data-testid="article-back-link" class="inline-flex items-center gap-2 text-sm text-retro-50/70 hover:text-teal-400 transition-colors">
+      ← Back to blog
+    </a>
+
+    <header class="mt-8">
+      <div class="flex flex-wrap items-center gap-3 text-xs font-mono text-teal-400/80">
+        <time datetime={post.publishedAt ?? post.createdAt}>{formatDate(post.publishedAt ?? post.createdAt)}</time>
+        <span class="text-retro-400">•</span>
+        <span>{minutes} min read</span>
+      </div>
+      <h1 class="mt-4 font-display text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.1]">{post.title}</h1>
+      {post.tags.length > 0 && (
+        <ul class="mt-5 flex flex-wrap gap-2">
+          {post.tags.map((t) => (
+            <li><a href={`/blog?tag=${encodeURIComponent(t)}`} class="rounded-full border border-white/10 bg-elevated px-2.5 py-0.5 text-xs font-mono text-retro-50/70 hover:text-teal-300 transition-colors">#{t}</a></li>
+          ))}
+        </ul>
+      )}
+    </header>
+
+    {post.coverImage && (
+      <img src={post.coverImage} alt={post.title} class="mt-8 w-full rounded-2xl border border-white/10 aspect-[16/9] object-cover" />
+    )}
+
+    <div class="article-content mt-10" data-testid="article-content" set:html={html}></div>
+
+    <nav class="mt-16 grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-white/10 pt-8">
+      {prev ? (
+        <a href={`/blog/${prev.slug}`} class="group rounded-xl border border-white/5 bg-card p-4 hover:border-teal-500/30 transition-colors" data-testid="article-prev-link">
+          <span class="text-xs font-mono text-retro-400">← Previous</span>
+          <p class="mt-1 font-display text-white group-hover:text-teal-400 transition-colors">{prev.title}</p>
+        </a>
+      ) : <div></div>}
+      {next && (
+        <a href={`/blog/${next.slug}`} class="group rounded-xl border border-white/5 bg-card p-4 hover:border-teal-500/30 transition-colors sm:text-right" data-testid="article-next-link">
+          <span class="text-xs font-mono text-retro-400">Next →</span>
+          <p class="mt-1 font-display text-white group-hover:text-teal-400 transition-colors">{next.title}</p>
+        </a>
+      )}
+    </nav>
+  </article>
+</BaseLayout>
+
+<script>
+  const bar = document.getElementById("reading-progress");
+  const update = () => {
+    const h = document.documentElement;
+    const scrolled = h.scrollTop / (h.scrollHeight - h.clientHeight);
+    if (bar) bar.style.width = `${Math.min(100, Math.max(0, scrolled * 100))}%`;
+  };
+  document.addEventListener("scroll", update, { passive: true });
+  update();
+</script>

@@ -1,0 +1,84 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import PostCard from "../components/PostCard.astro";
+import { projects, loves, site } from "../lib/site";
+import { listPosts } from "../lib/posts";
+
+const featured = projects.slice(0, 2);
+const latestPosts = listPosts({ status: "published" }).slice(0, 3);
+---
+
+<BaseLayout>
+  <!-- Hero -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
+    <div class="reveal inline-flex items-center gap-2 rounded-full border border-white/10 bg-card px-3 py-1.5 text-xs font-mono text-retro-50/80">
+      <span class="relative flex h-2 w-2">
+        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+        <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-400"></span>
+      </span>
+      Crafting software @ UTP, Malaysia
+    </div>
+
+    <h1 class="reveal mt-6 font-display text-4xl sm:text-6xl lg:text-7xl font-bold leading-[1.05]" style="animation-delay:80ms">
+      Hi there <span class="inline-block">👋</span><br />
+      I'm <span class="text-retro-400">Anpabelt</span>
+    </h1>
+    <p class="reveal mt-3 text-sm text-retro-400 font-mono" style="animation-delay:120ms">
+      (pronounced An-Pa-Belt… like a belt, but cooler)
+    </p>
+
+    <p class="reveal mt-6 max-w-2xl text-lg sm:text-xl text-retro-50/80 leading-relaxed" style="animation-delay:160ms">
+      A full-time student at Universiti Teknologi Petronas, Malaysia. My schedule?
+      10% classes, 20% projects, and 70% asking myself why I chose this path. I build for the
+      web, wrangle data, and tinker with design in between.
+    </p>
+
+    <div class="reveal mt-9 flex flex-wrap gap-4" style="animation-delay:200ms">
+      <a href="/blog" data-testid="hero-read-blog" class="rounded-full bg-teal-500 hover:bg-teal-400 text-canvas font-semibold px-6 py-3 transition-colors">
+        Read the Blog
+      </a>
+      <a href="/projects" data-testid="hero-explore-projects" class="rounded-full border border-white/15 hover:border-teal-500/50 hover:text-teal-400 px-6 py-3 transition-colors">
+        Explore Projects
+      </a>
+    </div>
+  </section>
+
+  <!-- Three things I love -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+    <h2 class="font-display text-2xl sm:text-3xl font-semibold">Three things I absolutely love <span class="text-teal-400">👾</span></h2>
+    <div class="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+      {loves.map((item, i) => (
+        <div class="reveal rounded-2xl border border-white/5 bg-card p-7 transition-all duration-300 hover:border-teal-500/25 hover:-translate-y-1" style={`animation-delay:${i * 90}ms`}>
+          <div class="text-3xl">{item.emoji}</div>
+          <h3 class="mt-4 font-display text-lg font-semibold text-white">{item.title}</h3>
+          <p class="mt-3 text-sm text-retro-50/70 leading-relaxed">{item.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Featured projects -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+    <div class="flex items-end justify-between gap-4">
+      <h2 class="font-display text-2xl sm:text-3xl font-semibold">Featured Projects</h2>
+      <a href="/projects" data-testid="home-all-projects-link" class="text-sm text-retro-50/70 hover:text-teal-400 transition-colors shrink-0">All projects →</a>
+    </div>
+    <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+      {featured.map((p, i) => <ProjectCard project={p} index={i} />)}
+    </div>
+  </section>
+
+  <!-- Latest writing -->
+  {latestPosts.length > 0 && (
+    <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+      <div class="flex items-end justify-between gap-4">
+        <h2 class="font-display text-2xl sm:text-3xl font-semibold">From the Blog</h2>
+        <a href="/blog" data-testid="home-all-posts-link" class="text-sm text-retro-50/70 hover:text-teal-400 transition-colors shrink-0">All posts →</a>
+      </div>
+      <div class="mt-10 space-y-10">
+        {latestPosts.map((post, i) => <PostCard post={post} index={i} />)}
+      </div>
+    </section>
+  )}
+</BaseLayout>

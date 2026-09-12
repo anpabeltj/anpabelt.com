@@ -1,0 +1,105 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { experiences, education, techStack, site } from "../lib/site";
+---
+
+<BaseLayout title="About" description="Anpabelt Trah Javala — developer, data enthusiast and design tinkerer. Experience, education and the tech I love.">
+  <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <p class="reveal font-mono text-xs uppercase tracking-widest text-teal-400/80">About</p>
+    <h1 class="reveal mt-3 font-display text-4xl sm:text-5xl font-bold" style="animation-delay:60ms">
+      About <span class="text-retro-400">Me</span>
+    </h1>
+
+    <div class="reveal mt-12 flex flex-col sm:flex-row items-center sm:items-start gap-8 sm:gap-12" style="animation-delay:100ms">
+      <img src="/assets/images/profile-image-3.png" alt="Anpabelt Trah Javala" class="w-32 h-32 sm:w-44 sm:h-44 rounded-full object-cover border border-white/10 shrink-0" />
+      <div class="text-center sm:text-left">
+        <h2 class="font-display text-2xl font-bold text-white">Anpabelt Trah Javala</h2>
+        <p class="mt-4 text-retro-50/80 leading-relaxed">
+          Hi, I'm Anpabelt — you can call me Ann. I'm a full-time student at Universiti Teknologi
+          Petronas (UTP), Malaysia, with a passion for blending creativity and technology. My
+          journey revolves around web development, data science and design.
+        </p>
+        <ul class="mt-5 space-y-3 text-left text-retro-50/80">
+          <li><span class="font-semibold text-white">⚛️ Web Development:</span> I build intuitive websites that (mostly) don't break — from portfolios to complex projects.</li>
+          <li><span class="font-semibold text-white">📈 Data Science:</span> I dive into datasets with Python, turning raw numbers into stories and visualisations.</li>
+          <li><span class="font-semibold text-white">🎨 Design:</span> I explore modern aesthetics, balancing function and creativity to craft designs that feel right.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Tech marquee -->
+    <div class="mt-14">
+      <p class="text-center sm:text-left text-retro-50/80">I enjoy diving into these tech stacks ✨</p>
+      <div class="mt-6 w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_80px,black_calc(100%-80px),transparent)]">
+        <ul class="flex items-center gap-10 w-max animate-[marquee_28s_linear_infinite]">
+          {[...techStack, ...techStack].map((icon) => (
+            <li class="shrink-0"><img src={`/assets/icons/${icon}.svg`} alt="" class="w-9 h-9 sm:w-11 sm:h-11 opacity-90" loading="lazy" /></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Experience -->
+    <h2 class="mt-20 font-display text-2xl sm:text-3xl font-semibold">Work Experience</h2>
+    <div class="mt-8 space-y-6">
+      {experiences.map((exp) => (
+        <article class="reveal rounded-2xl border border-white/5 bg-card p-6 sm:p-7 transition-all duration-300 hover:border-teal-500/25">
+          <div class="flex items-start gap-4">
+            <img src={exp.logo} alt={exp.org} class="w-12 h-12 rounded-lg object-cover shrink-0" />
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
+                <h3 class="font-display text-lg font-semibold text-white">{exp.role}</h3>
+                <p class="text-xs font-mono text-teal-400/80 shrink-0">{exp.period}</p>
+              </div>
+              <p class="text-sm text-retro-400">{exp.org}</p>
+              <p class="text-sm text-retro-400">{exp.location}</p>
+              <ul class="mt-4 space-y-2 list-disc pl-5 text-sm text-retro-50/80 leading-relaxed">
+                {exp.bullets.map((b) => <li>{b}</li>)}
+              </ul>
+              {exp.tags && (
+                <ul class="mt-4 flex flex-wrap gap-1.5">
+                  {exp.tags.map((t) => (
+                    <li class="inline-flex items-center gap-1.5 rounded-full bg-elevated border border-white/5 px-2.5 py-1 text-xs font-mono text-retro-50/80">
+                      <img src={`/assets/icons/${t}.svg`} alt="" class="w-3.5 h-3.5" /> {t}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <!-- Education -->
+    <h2 class="mt-16 font-display text-2xl sm:text-3xl font-semibold">Education</h2>
+    <div class="mt-8 space-y-6">
+      {education.map((ed) => (
+        <article class="reveal rounded-2xl border border-white/5 bg-card p-6 sm:p-7 transition-all duration-300 hover:border-teal-500/25">
+          <div class="flex items-start gap-4">
+            <img src={ed.logo} alt={ed.school} class="w-12 h-12 rounded-lg object-cover shrink-0" />
+            <div class="flex-1">
+              <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
+                <h3 class="font-display text-lg font-semibold text-white">{ed.school}</h3>
+                <p class="text-xs font-mono text-teal-400/80 shrink-0">{ed.period}</p>
+              </div>
+              <p class="text-sm text-retro-400">{ed.degree}</p>
+              <p class="text-sm text-retro-400">{ed.location}</p>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <div class="mt-12 flex justify-center">
+      <a href={site.resumeUrl} target="_blank" rel="noopener noreferrer" data-testid="about-resume-link" class="inline-flex items-center gap-3 rounded-full border border-white/15 hover:border-teal-500/50 hover:text-teal-400 px-6 py-3 transition-colors">
+        See Full Résumé →
+      </a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style is:global>
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) { .animate-\[marquee_28s_linear_infinite\] { animation: none; } }
+</style>

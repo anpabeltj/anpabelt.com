@@ -1,0 +1,181 @@
+@import "tailwindcss";
+
+@theme {
+  /* Retro-cosmic canvas */
+  --color-canvas: hsl(144, 14%, 7%);
+  --color-surface: hsl(144, 12%, 10%);
+  --color-card: hsl(144, 10%, 12%);
+  --color-elevated: hsl(144, 10%, 15%);
+
+  --color-retro-50: #f3f4f6;
+  --color-retro-100: #e5e7eb;
+  --color-retro-400: hsl(144, 10%, 55%);
+  --color-retro-550: hsl(180, 15%, 30%);
+  --color-retro-900: hsl(144, 8%, 13%);
+  --color-retro-950: hsl(144, 14%, 7%);
+
+  --color-star: #a7f3d0;
+
+  --font-display: "Lexend Giga", sans-serif;
+  --font-sans: "DM Sans", sans-serif;
+  --font-serif: "Newsreader", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-retro-50);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+::selection {
+  background: rgba(45, 212, 191, 0.3);
+  color: #fff;
+}
+
+/* Subtle radial vignette to anchor editorial text over the starfield */
+.cosmic-vignette {
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(45, 212, 191, 0.06), transparent 60%),
+    radial-gradient(900px 500px at 100% 100%, rgba(16, 185, 129, 0.05), transparent 60%);
+}
+
+/* Reveal-on-load animation, staggered via inline animation-delay */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.reveal {
+  animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Shooting star */
+@keyframes shoot {
+  0% { transform: translateX(0) translateY(0) rotate(-35deg); opacity: 0; }
+  10% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translateX(-90vw) translateY(60vh) rotate(-35deg); opacity: 0; }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.7; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { animation: none; }
+  .star, .shooting-star { animation: none !important; }
+  html { scroll-behavior: auto; }
+}
+
+/* Reading progress bar */
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 0%;
+  background: linear-gradient(90deg, #2dd4bf, #10b981);
+  z-index: 60;
+  transition: width 0.1s linear;
+}
+
+/* ------------------------------------------------------------------ */
+/* Editorial article typography                                        */
+/* ------------------------------------------------------------------ */
+.article-content {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  line-height: 1.85;
+  color: #d7dbd8;
+}
+.article-content > * + * { margin-top: 1.5rem; }
+.article-content h2 {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  line-height: 1.2;
+  margin-top: 3rem;
+  color: #fff;
+}
+.article-content h3 {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  margin-top: 2.25rem;
+  color: #fff;
+}
+.article-content p:first-of-type::first-letter {
+  font-family: var(--font-display);
+  font-size: 3.4rem;
+  line-height: 0.8;
+  float: left;
+  padding: 0.1em 0.14em 0 0;
+  color: #2dd4bf;
+}
+.article-content a {
+  color: #5eead4;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.article-content a:hover { color: #99f6e4; }
+.article-content ul, .article-content ol {
+  padding-left: 1.4rem;
+  display: block;
+}
+.article-content li { margin-top: 0.5rem; list-style: revert; }
+.article-content ul { list-style: disc; }
+.article-content ol { list-style: decimal; }
+.article-content blockquote {
+  border-left: 3px solid #2dd4bf;
+  padding: 0.25rem 0 0.25rem 1.5rem;
+  color: #e7ece9;
+  font-style: italic;
+  font-size: 1.25rem;
+}
+.article-content img {
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  width: 100%;
+}
+.article-content code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: rgba(45, 212, 191, 0.12);
+  color: #99f6e4;
+  padding: 0.15em 0.4em;
+  border-radius: 0.35rem;
+}
+.article-content pre {
+  background: #0a0f0c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  padding: 1.15rem 1.25rem;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+.article-content pre code {
+  background: transparent;
+  color: #d7dbd8;
+  padding: 0;
+}
+.article-content hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}

@@ -1,0 +1,36 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { getPostById } from "../../../lib/posts";
+import { renderMarkdown, readingTime, formatDate } from "../../../lib/markdown";
+
+// Protected by middleware (path is under /admin). Renders a draft exactly as it
+// will appear once published.
+const post = getPostById(Astro.params.id!);
+if (!post) return Astro.redirect("/admin");
+const html = renderMarkdown(post.content);
+const minutes = readingTime(post.content);
+---
+
+<BaseLayout title={`Preview · ${post.title}`} noindex={true}>
+  <div class="fixed top-20 left-1/2 -translate-x-1/2 z-40 rounded-full bg-amber-500/20 border border-amber-500/40 px-4 py-1.5 text-xs font-mono text-amber-200" data-testid="preview-banner">
+    Preview — status: {post.status}
+  </div>
+
+  <article class="max-w-2xl mx-auto px-4 sm:px-6">
+    <header class="mt-8">
+      <div class="flex flex-wrap items-center gap-3 text-xs font-mono text-teal-400/80">
+        <time>{formatDate(post.publishedAt ?? post.createdAt)}</time>
+        <span class="text-retro-400">•</span>
+        <span>{minutes} min read</span>
+      </div>
+      <h1 class="mt-4 font-display text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.1]">{post.title}</h1>
+      {post.tags.length > 0 && (
+        <ul class="mt-5 flex flex-wrap gap-2">
+          {post.tags.map((t) => <li class="rounded-full border border-white/10 bg-elevated px-2.5 py-0.5 text-xs font-mono text-retro-50/70">#{t}</li>)}
+        </ul>
+      )}
+    </header>
+    {post.coverImage && <img src={post.coverImage} alt={post.title} class="mt-8 w-full rounded-2xl border border-white/10 aspect-[16/9] object-cover" />}
+    <div class="article-content mt-10" set:html={html}></div>
+  </article>
+</BaseLayout>

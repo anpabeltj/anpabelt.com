@@ -1,0 +1,86 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { socials } from "../lib/site";
+---
+
+<BaseLayout title="Contact" description="Get in touch with Anpabelt — collaborations, ideas, feedback or just to say hello.">
+  <section class="max-w-2xl mx-auto px-4 sm:px-6">
+    <p class="reveal font-mono text-xs uppercase tracking-widest text-teal-400/80">Say hello</p>
+    <h1 class="reveal mt-3 font-display text-4xl sm:text-5xl font-bold" style="animation-delay:60ms">
+      Get in Touch <span class="text-retro-400">with Me</span>
+    </h1>
+    <p class="reveal mt-5 text-retro-50/80 leading-relaxed" style="animation-delay:100ms">
+      Whether it's a collaboration, an idea or just a friendly note — I'd love to hear from you.
+    </p>
+
+    <form id="contact-form" class="reveal mt-10 rounded-2xl border border-white/5 bg-card p-6 sm:p-8 space-y-5" style="animation-delay:140ms" data-testid="contact-form">
+      <div>
+        <label for="name" class="block text-sm font-medium text-white mb-2">Full name</label>
+        <input id="name" name="name" type="text" required data-testid="contact-name-input"
+          class="w-full rounded-lg bg-elevated border border-white/10 px-4 py-3 text-retro-50 placeholder:text-retro-400 focus:outline-none focus:ring-2 focus:ring-teal-400/70 focus:border-transparent transition"
+          placeholder="Your name" />
+      </div>
+      <div>
+        <label for="email" class="block text-sm font-medium text-white mb-2">Email</label>
+        <input id="email" name="email" type="email" required data-testid="contact-email-input"
+          class="w-full rounded-lg bg-elevated border border-white/10 px-4 py-3 text-retro-50 placeholder:text-retro-400 focus:outline-none focus:ring-2 focus:ring-teal-400/70 focus:border-transparent transition"
+          placeholder="you@example.com" />
+      </div>
+      <div>
+        <label for="message" class="block text-sm font-medium text-white mb-2">Message</label>
+        <textarea id="message" name="message" rows="5" required data-testid="contact-message-input"
+          class="w-full rounded-lg bg-elevated border border-white/10 px-4 py-3 text-retro-50 placeholder:text-retro-400 focus:outline-none focus:ring-2 focus:ring-teal-400/70 focus:border-transparent transition resize-y"
+          placeholder="What's on your mind?"></textarea>
+      </div>
+      <button type="submit" data-testid="contact-submit-button"
+        class="w-full rounded-lg bg-teal-500 hover:bg-teal-400 text-canvas font-semibold py-3 transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+        Send Message
+      </button>
+      <p id="contact-status" class="text-sm text-center hidden" data-testid="contact-status" role="status"></p>
+    </form>
+
+    <div class="mt-10 flex items-center justify-center gap-8">
+      {socials.map((s) => (
+        <a href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}
+          data-testid={`contact-social-${s.label.toLowerCase()}`}
+          class="opacity-70 hover:opacity-100 transition-opacity">
+          <img src={s.icon} alt={s.label} class="w-6 h-6" />
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById("contact-form") as HTMLFormElement | null;
+  const status = document.getElementById("contact-status") as HTMLElement | null;
+  const btn = form?.querySelector("button[type=submit]") as HTMLButtonElement | null;
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!status || !btn) return;
+    btn.disabled = true;
+    btn.textContent = "Sending…";
+    status.className = "text-sm text-center hidden";
+
+    const data = Object.fromEntries(new FormData(form).entries());
+    try {
+      const res = await fetch("/actions/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Something went wrong.");
+      form.reset();
+      status.textContent = "Thanks! Your message has been sent. 🚀";
+      status.className = "text-sm text-center text-teal-300";
+    } catch (err) {
+      status.textContent = err instanceof Error ? err.message : "Failed to send. Please try again.";
+      status.className = "text-sm text-center text-red-400";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Send Message";
+    }
+  });
+</script>
