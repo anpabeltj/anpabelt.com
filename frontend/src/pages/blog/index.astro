@@ -3,6 +3,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../../components/PostCard.astro";
 import { listPosts } from "../../lib/posts";
 
+declare const Astro: any;
 const posts = listPosts({ status: "published" });
 
 const activeTag = Astro.url.searchParams.get("tag");

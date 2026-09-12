@@ -1,4 +1,5 @@
 ---
+declare const Astro: any;
 import type { Post } from "../lib/types";
 export interface Props {
   post?: Post | null;
@@ -42,10 +43,16 @@ const isGallery = initial.type === "gallery" || initial.type === "photo";
     </div>
 
     <div>
-      <label id="content-label" class="block text-sm font-medium mb-2">{isGallery ? "Intro text (optional)" : "Content"}</label>
+      <div class="flex items-center justify-between gap-2 mb-2">
+        <label id="content-label" class="block text-sm font-medium">{isGallery ? "Intro text (optional)" : "Content"}</label>
+        <label class="cursor-pointer inline-flex items-center gap-1.5 rounded-md border border-white/15 px-2.5 py-1 text-xs hover:border-teal-500/40 hover:text-teal-300 transition-colors" data-testid="editor-insert-image">
+          <span id="insert-image-label">🖼 Insert image</span>
+          <input id="f-inline-image" type="file" accept="image/*" class="hidden" />
+        </label>
+      </div>
       <textarea id="f-content" rows={isGallery ? "6" : "22"} placeholder="Write in Markdown…  # Heading, **bold**, > quote, ```code```" data-testid="editor-content-input"
         class="w-full bg-elevated border border-white/10 rounded-xl px-4 py-4 font-mono text-sm leading-relaxed text-retro-50 focus:outline-none focus:ring-2 focus:ring-teal-400/50 transition resize-y">{initial.content}</textarea>
-      <p class="mt-2 text-xs text-retro-400 font-mono">Markdown supported: headings, lists, links, images, blockquotes and fenced code blocks.</p>
+      <p class="mt-2 text-xs text-retro-400 font-mono">Markdown supported — or just drag &amp; drop / paste an image into the box to upload and embed it.</p>
     </div>
 
     <!-- Gallery manager -->

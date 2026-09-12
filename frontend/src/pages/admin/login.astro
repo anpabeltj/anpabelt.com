@@ -1,4 +1,5 @@
 ---
+declare const Astro: any;
 import AdminLayout from "../../layouts/AdminLayout.astro";
 // If already logged in, go straight to the dashboard.
 if (Astro.locals.user) return Astro.redirect("/admin");

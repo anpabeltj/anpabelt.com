@@ -202,3 +202,67 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     }
   });
 
+  // ---- In-body image insertion (toolbar button, drag & drop, paste) ----
+  async function uploadImage(file) {
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/actions/upload", { method: "POST", body: fd });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || "Upload failed.");
+    return json.asset.url;
+  }
+
+  function insertAtCursor(text) {
+    const ta = $("f-content");
+    const start = ta.selectionStart ?? ta.value.length;
+    const end = ta.selectionEnd ?? ta.value.length;
+    ta.value = ta.value.slice(0, start) + text + ta.value.slice(end);
+    const pos = start + text.length;
+    ta.selectionStart = ta.selectionEnd = pos;
+    ta.focus();
+  }
+
+  async function embedImage(file, alt) {
+    try {
+      const url = await uploadImage(file);
+      const caption = (alt || file.name.replace(/\.[^.]+$/, "")).trim();
+      insertAtCursor(`\n\n![${caption}](${url})\n\n`);
+      showMsg("Image inserted \u2713");
+    } catch (err) {
+      showMsg(err.message || "Upload failed.", false);
+    }
+  }
+
+  $("f-inline-image").addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const label = $("insert-image-label");
+    label.textContent = "Uploading…";
+    await embedImage(file);
+    label.textContent = "\uD83D\uDDBC Insert image";
+    e.target.value = "";
+  });
+
+  const contentEl = $("f-content");
+  ["dragenter", "dragover"].forEach((ev) =>
+    contentEl.addEventListener(ev, (e) => { e.preventDefault(); contentEl.classList.add("ring-2", "ring-teal-400/60"); })
+  );
+  ["dragleave", "drop"].forEach((ev) =>
+    contentEl.addEventListener(ev, () => contentEl.classList.remove("ring-2", "ring-teal-400/60"))
+  );
+  contentEl.addEventListener("drop", async (e) => {
+    const files = Array.from(e.dataTransfer?.files || []).filter((f) => f.type.startsWith("image/"));
+    if (!files.length) return;
+    e.preventDefault();
+    for (const f of files) await embedImage(f);
+  });
+  contentEl.addEventListener("paste", async (e) => {
+    const items = Array.from(e.clipboardData?.items || []);
+    const imgItem = items.find((it) => it.type.startsWith("image/"));
+    if (!imgItem) return;
+    const file = imgItem.getAsFile();
+    if (!file) return;
+    e.preventDefault();
+    await embedImage(file);
+  });
+

@@ -37,6 +37,7 @@ extensible content model.
 - Admin editor: Article/Gallery type toggle + gallery manager (multi-upload, per-photo captions, reorder, remove); first upload auto-sets cover. Client script externalised to `src/scripts/postEditor.ts` (data via JSON tag).
 - Public rendering: `Gallery.astro` masonry grid + keyboard lightbox on article & preview; blog cards show photo count + gallery badge and fall back to first photo as cover.
 - Create/update endpoints validate `type` + parse `images`. Demo gallery post seeded. Lint clean.
+- In-editor images: article body supports inserting uploaded images via a toolbar button, drag & drop, or paste — uploads then inserts `![alt](url)` Markdown at the cursor (renders as lazy `<img>`).
 
 ### Phase 1 (2026-09-12) — Migration + blog + admin
 - Migrated all existing content (home bio, "3 things I love", 7 projects, about
