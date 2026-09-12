@@ -7,7 +7,7 @@ import { renderMarkdown, readingTime, formatDate } from "../../../lib/markdown";
 
 // Protected by middleware (path is under /admin). Renders a draft exactly as it
 // will appear once published.
-const post = getPostById(Astro.params.id!);
+const post = await getPostById(Astro.params.id!);
 if (!post) return Astro.redirect("/admin");
 const isGallery = post.type === "gallery" || post.type === "photo";
 const html = post.content.trim() ? renderMarkdown(post.content) : "";

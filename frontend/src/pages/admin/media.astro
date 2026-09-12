@@ -3,7 +3,7 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
 import { listMedia } from "../../lib/media";
 import { formatDate } from "../../lib/markdown";
 
-const media = listMedia();
+const media = await listMedia();
 ---
 
 <AdminLayout title="Media" active="media">

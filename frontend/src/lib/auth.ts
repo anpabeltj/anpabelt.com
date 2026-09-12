@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import type { AstroCookies } from "astro";
-import { getDb } from "./db";
+import { db as getDb } from "./db";
 import { getEnv } from "./env";
 import type { User } from "./types";
 
@@ -16,14 +16,14 @@ export function verifyPassword(plain: string, hash: string): boolean {
   return bcrypt.compareSync(plain, hash);
 }
 
-export function authenticate(email: string, password: string): User | null {
-  const db = getDb();
-  const row = db
-    .prepare("SELECT id, email, password_hash, name, role FROM users WHERE email = ?")
-    .get(email.toLowerCase().trim()) as
-    | { id: string; email: string; password_hash: string; name: string; role: string }
-    | undefined;
-  if (!row) return null;
+export async function authenticate(email: string, password: string): Promise<User | null> {
+  const c = await getDb();
+  const rs = await c.execute({
+    sql: "SELECT id, email, password_hash, name, role FROM users WHERE email = ?",
+    args: [email.toLowerCase().trim()],
+  });
+  if (rs.rows.length === 0) return null;
+  const row = rs.rows[0] as unknown as { id: string; email: string; password_hash: string; name: string; role: string };
   if (!verifyPassword(password, row.password_hash)) return null;
   return { id: row.id, email: row.email, name: row.name, role: row.role };
 }

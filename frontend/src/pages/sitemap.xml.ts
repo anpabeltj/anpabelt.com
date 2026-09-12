@@ -1,10 +1,10 @@
 import type { APIRoute } from "astro";
 import { listPosts } from "../lib/posts";
 
-export const GET: APIRoute = ({ site }) => {
+export const GET: APIRoute = async ({ site }) => {
   const base = (site?.toString() || "https://anpabelt.com").replace(/\/$/, "");
   const staticPaths = ["/", "/about", "/projects", "/blog", "/contact"];
-  const posts = listPosts({ status: "published" });
+  const posts = await listPosts({ status: "published" });
 
   const urls = [
     ...staticPaths.map((p) => ({ loc: `${base}${p}`, lastmod: new Date().toISOString() })),

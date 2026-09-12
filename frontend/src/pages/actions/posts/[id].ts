@@ -9,7 +9,7 @@ const VALID_TYPES: PostType[] = ["article", "gallery", "photo", "video", "journa
 
 export const PUT: APIRoute = async ({ params, request }) => {
   const id = params.id!;
-  if (!getPostById(id)) return json({ error: "Post not found." }, 404);
+  if (!(await getPostById(id))) return json({ error: "Post not found." }, 404);
 
   let body: Record<string, unknown>;
   try {
@@ -30,12 +30,12 @@ export const PUT: APIRoute = async ({ params, request }) => {
     tags: Array.isArray(body.tags) ? body.tags.map(String) : undefined,
   };
 
-  const post = updatePost(id, input);
+  const post = await updatePost(id, input);
   return json({ post });
 };
 
-export const DELETE: APIRoute = ({ params }) => {
-  const ok = deletePost(params.id!);
+export const DELETE: APIRoute = async ({ params }) => {
+  const ok = await deletePost(params.id!);
   if (!ok) return json({ error: "Post not found." }, 404);
   return json({ ok: true });
 };

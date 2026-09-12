@@ -6,7 +6,7 @@ import { getPostBySlug, listPosts } from "../../lib/posts";
 import { renderMarkdown, readingTime, formatDate } from "../../lib/markdown";
 
 const { slug } = Astro.params;
-const post = slug ? getPostBySlug(slug) : null;
+const post = slug ? await getPostBySlug(slug) : null;
 
 // Only published posts are public. Drafts are 404 here (preview lives in /admin).
 if (!post || post.status !== "published") {
@@ -17,7 +17,7 @@ const isGallery = post.type === "gallery" || post.type === "photo";
 const html = post.content.trim() ? renderMarkdown(post.content) : "";
 const minutes = readingTime(post.content);
 
-const published = listPosts({ status: "published" });
+const published = await listPosts({ status: "published" });
 const idx = published.findIndex((p) => p.id === post.id);
 const prev = idx >= 0 && idx < published.length - 1 ? published[idx + 1] : null;
 const next = idx > 0 ? published[idx - 1] : null;

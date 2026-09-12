@@ -15,7 +15,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   const password = body.password ?? "";
   if (!email || !password) return json({ error: "Email and password are required." }, 400);
 
-  const user = authenticate(email, password);
+  const user = await authenticate(email, password);
   if (!user) return json({ error: "Invalid email or password." }, 401);
 
   setSessionCookie(cookies, signSession(user));

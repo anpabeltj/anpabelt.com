@@ -6,7 +6,7 @@ import { listPosts } from "../lib/posts";
 import { formatDate, readingTime } from "../lib/markdown";
 
 const featured = projects.slice(0, 2);
-const latestPosts = listPosts({ status: "published" }).slice(0, 3);
+const latestPosts = (await listPosts({ status: "published" })).slice(0, 3);
 const n2 = (i: number) => String(i + 1).padStart(2, "0");
 ---
 

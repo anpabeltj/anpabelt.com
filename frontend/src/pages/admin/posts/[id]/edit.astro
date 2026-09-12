@@ -4,7 +4,7 @@ import AdminLayout from "../../../../layouts/AdminLayout.astro";
 import PostEditor from "../../../../components/PostEditor.astro";
 import { getPostById } from "../../../../lib/posts";
 
-const post = getPostById(Astro.params.id!);
+const post = await getPostById(Astro.params.id!);
 if (!post) return Astro.redirect("/admin");
 ---
 

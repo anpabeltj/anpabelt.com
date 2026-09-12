@@ -38,7 +38,7 @@ export const POST: APIRoute = async ({ request }) => {
     tags: Array.isArray(body.tags) ? body.tags.map(String) : undefined,
   };
 
-  const post = createPost(input);
+  const post = await createPost(input);
   return json({ post }, 201);
 };
 

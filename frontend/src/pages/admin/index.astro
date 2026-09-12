@@ -5,7 +5,7 @@ import { listPosts } from "../../lib/posts";
 import { formatDate } from "../../lib/markdown";
 
 const filter = (Astro.url.searchParams.get("status") ?? "all") as "all" | "published" | "draft";
-const all = listPosts({ status: "all" });
+const all = await listPosts({ status: "all" });
 const posts = filter === "all" ? all : all.filter((p) => p.status === filter);
 const counts = {
   all: all.length,

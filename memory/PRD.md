@@ -32,6 +32,12 @@ Preserve content • editorial redesign • clean TS architecture • blog (`/bl
 extensible content model.
 
 ## Implemented
+### Phase 4 (2026-09-12) — Vercel-ready persistence
+- Migrated DB from better-sqlite3 (sync, disk) to **libSQL/`@libsql/client`** (async): remote **Turso** in production, local `file:` DB in dev/Emergent. Refactored db/posts/auth/media + all pages/endpoints to async.
+- Image uploads: **Vercel Blob** when `BLOB_READ_WRITE_TOKEN` is set (production), else local disk `/media` (dev).
+- Adapter auto-switches: `@astrojs/vercel` on Vercel, `@astrojs/node` locally. Removed native `better-sqlite3` so Vercel builds cleanly.
+- Verified: local `yarn build` succeeds; auth/CRUD/upload/blog all work on libSQL. README + `.env.example` document Turso + Blob + domain steps.
+
 ### Phase 3 (2026-09-12) — Editorial redesign
 - Refined to a calm, serif-forward editorial look (matching a user-provided reference): Fraunces display/serif + DM Sans + JetBrains Mono, near-black deep-green palette with a soft mint accent.
 - Replaced the animated teal starfield with a generated subtle dark background image (`/assets/images/bg-editorial.jpg`) + gentle overlay.

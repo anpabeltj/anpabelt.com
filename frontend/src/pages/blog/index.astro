@@ -4,7 +4,7 @@ import PostCard from "../../components/PostCard.astro";
 import { listPosts } from "../../lib/posts";
 
 declare const Astro: any;
-const posts = listPosts({ status: "published" });
+const posts = await listPosts({ status: "published" });
 
 const activeTag = Astro.url.searchParams.get("tag");
 const filtered = activeTag ? posts.filter((p) => p.tags.includes(activeTag)) : posts;

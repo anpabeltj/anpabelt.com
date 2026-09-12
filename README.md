@@ -85,7 +85,30 @@ Sign in at **`/admin/login`**, then write from **`/admin`** — create/edit post
 publish/unpublish, upload cover images, browse the media library and preview before publishing.
 Images are stored on disk under `frontend/data/uploads/` and served from `/media/…`.
 
-## Deployment (self‑hosting)
+## Deployment
+
+### Vercel (serverless)
+
+The app auto-detects Vercel (`@astrojs/vercel` adapter) and uses **Turso** (libSQL) for
+the database and **Vercel Blob** for image uploads — both have free tiers and work on
+Vercel's read-only serverless filesystem.
+
+1. **Import the repo** in Vercel → New Project. Set **Root Directory** to `frontend`
+   (Framework preset: Astro).
+2. **Create a Turso database** (free): install the CLI, then
+   `turso db create anpabelt` and `turso db tokens create anpabelt`. Grab the database URL
+   (`libsql://…turso.io`) and the token.
+3. **Create a Blob store**: Vercel project → **Storage → Create → Blob**. This adds
+   `BLOB_READ_WRITE_TOKEN` to the project automatically.
+4. **Set Environment Variables** (Project → Settings → Environment Variables):
+   `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`,
+   `ADMIN_NAME` (and optionally `SITE_URL`).
+5. **Deploy**, then **connect your domain**: Project → Settings → Domains → add
+   `anpabelt.com` and update your registrar's DNS as Vercel instructs (remove old records).
+
+The admin is seeded from `ADMIN_EMAIL`/`ADMIN_PASSWORD` on first request.
+
+### Self-hosting (Node)
 
 ```bash
 cd frontend
