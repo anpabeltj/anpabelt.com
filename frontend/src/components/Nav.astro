@@ -6,70 +6,56 @@ const isActive = (href: string) =>
   href === "/" ? pathname === "/" : pathname.startsWith(href);
 ---
 
-<header class="fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-1.5rem)] sm:w-auto max-w-3xl">
-  <nav
-    class="backdrop-blur-xl bg-[hsl(144,14%,7%)]/80 border border-white/10 rounded-2xl sm:rounded-full px-4 sm:px-6 py-2.5 shadow-2xl"
-    data-testid="main-nav"
-  >
-    <div class="flex items-center justify-between gap-4">
-      <a href="/" class="font-display font-bold text-sm tracking-tight text-white shrink-0" data-testid="nav-brand">
-        ann<span class="text-teal-400">.</span>
-      </a>
+<header id="site-header" class="fixed top-0 inset-x-0 z-50 transition-colors duration-300">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+    <a href="/" class="font-display text-lg font-semibold tracking-tight text-white shrink-0" data-testid="nav-brand">
+      Anpabelt<span class="text-mint">.</span>
+    </a>
 
-      <ul class="hidden md:flex items-center gap-7 font-medium text-sm">
+    <nav class="hidden md:block" data-testid="main-nav">
+      <ul class="flex items-center gap-8 text-sm">
         {navLinks.map((link) => (
           <li>
             <a
               href={link.href}
               data-testid={`nav-${link.label.toLowerCase()}-link`}
-              class={`transition-colors duration-300 ${isActive(link.href) ? "text-teal-400" : "text-retro-50/80 hover:text-teal-400"}`}
+              class={`transition-colors duration-300 ${isActive(link.href) ? "text-mint" : "text-retro-50/70 hover:text-white"}`}
             >
               {link.label}
             </a>
           </li>
         ))}
-        <li>
-          <a
-            href="/admin"
-            data-testid="nav-admin-link"
-            class="text-xs font-mono border border-teal-500/40 text-teal-300 hover:bg-teal-500/10 rounded-full px-3 py-1.5 transition-colors"
-          >
-            Admin
-          </a>
-        </li>
       </ul>
+    </nav>
 
-      <!-- Mobile toggle -->
-      <button
-        id="nav-toggle"
-        class="md:hidden text-white p-1"
-        aria-label="Toggle menu"
-        aria-expanded="false"
-        data-testid="nav-mobile-toggle"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
-    </div>
+    <button
+      id="nav-toggle"
+      class="md:hidden text-white p-1"
+      aria-label="Toggle menu"
+      aria-expanded="false"
+      data-testid="nav-mobile-toggle"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16" />
+      </svg>
+    </button>
+  </div>
 
-    <ul id="nav-mobile-menu" class="hidden md:hidden flex-col gap-1 pt-3 mt-2 border-t border-white/10 font-medium">
+  <div id="nav-mobile-menu" class="hidden md:hidden border-t border-white/10 bg-canvas/95 backdrop-blur-xl">
+    <ul class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex flex-col gap-1 text-base">
       {navLinks.map((link) => (
         <li>
           <a
             href={link.href}
             data-testid={`nav-mobile-${link.label.toLowerCase()}-link`}
-            class={`block py-2 px-2 rounded-lg transition-colors ${isActive(link.href) ? "text-teal-400" : "text-retro-50/80 hover:text-teal-400"}`}
+            class={`block py-2.5 transition-colors ${isActive(link.href) ? "text-mint" : "text-retro-50/80 hover:text-white"}`}
           >
             {link.label}
           </a>
         </li>
       ))}
-      <li>
-        <a href="/admin" data-testid="nav-mobile-admin-link" class="block py-2 px-2 rounded-lg text-teal-300 font-mono text-sm">Admin</a>
-      </li>
     </ul>
-  </nav>
+  </div>
 </header>
 
 <script>
@@ -79,4 +65,16 @@ const isActive = (href: string) =>
     const open = menu?.classList.toggle("hidden");
     toggle.setAttribute("aria-expanded", String(!open));
   });
+
+  const header = document.getElementById("site-header");
+  const onScroll = () => {
+    if (!header) return;
+    const scrolled = window.scrollY > 12;
+    header.classList.toggle("bg-canvas/80", scrolled);
+    header.classList.toggle("backdrop-blur-xl", scrolled);
+    header.classList.toggle("border-b", scrolled);
+    header.classList.toggle("border-white/5", scrolled);
+  };
+  document.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
 </script>

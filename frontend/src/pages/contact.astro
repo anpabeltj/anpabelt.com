@@ -5,7 +5,7 @@ import { socials } from "../lib/site";
 
 <BaseLayout title="Contact" description="Get in touch with Anpabelt — collaborations, ideas, feedback or just to say hello.">
   <section class="max-w-2xl mx-auto px-4 sm:px-6">
-    <p class="reveal font-mono text-xs uppercase tracking-widest text-teal-400/80">Say hello</p>
+    <p class="reveal font-mono text-xs uppercase tracking-widest text-mint/80">Say hello</p>
     <h1 class="reveal mt-3 font-display text-4xl sm:text-5xl font-bold" style="animation-delay:60ms">
       Get in Touch <span class="text-retro-400">with Me</span>
     </h1>
@@ -17,23 +17,23 @@ import { socials } from "../lib/site";
       <div>
         <label for="name" class="block text-sm font-medium text-white mb-2">Full name</label>
         <input id="name" name="name" type="text" required data-testid="contact-name-input"
-          class="w-full rounded-lg bg-elevated border border-white/10 px-4 py-3 text-retro-50 placeholder:text-retro-400 focus:outline-none focus:ring-2 focus:ring-teal-400/70 focus:border-transparent transition"
+          class="w-full rounded-lg bg-elevated border border-white/10 px-4 py-3 text-retro-50 placeholder:text-retro-400 focus:outline-none focus:ring-2 focus:ring-mint/70 focus:border-transparent transition"
           placeholder="Your name" />
       </div>
       <div>
         <label for="email" class="block text-sm font-medium text-white mb-2">Email</label>
         <input id="email" name="email" type="email" required data-testid="contact-email-input"
-          class="w-full rounded-lg bg-elevated border border-white/10 px-4 py-3 text-retro-50 placeholder:text-retro-400 focus:outline-none focus:ring-2 focus:ring-teal-400/70 focus:border-transparent transition"
+          class="w-full rounded-lg bg-elevated border border-white/10 px-4 py-3 text-retro-50 placeholder:text-retro-400 focus:outline-none focus:ring-2 focus:ring-mint/70 focus:border-transparent transition"
           placeholder="you@example.com" />
       </div>
       <div>
         <label for="message" class="block text-sm font-medium text-white mb-2">Message</label>
         <textarea id="message" name="message" rows="5" required data-testid="contact-message-input"
-          class="w-full rounded-lg bg-elevated border border-white/10 px-4 py-3 text-retro-50 placeholder:text-retro-400 focus:outline-none focus:ring-2 focus:ring-teal-400/70 focus:border-transparent transition resize-y"
+          class="w-full rounded-lg bg-elevated border border-white/10 px-4 py-3 text-retro-50 placeholder:text-retro-400 focus:outline-none focus:ring-2 focus:ring-mint/70 focus:border-transparent transition resize-y"
           placeholder="What's on your mind?"></textarea>
       </div>
       <button type="submit" data-testid="contact-submit-button"
-        class="w-full rounded-lg bg-teal-500 hover:bg-teal-400 text-canvas font-semibold py-3 transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+        class="w-full rounded-lg bg-mint hover:bg-mint-bright text-canvas font-semibold py-3 transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
         Send Message
       </button>
       <p id="contact-status" class="text-sm text-center hidden" data-testid="contact-status" role="status"></p>
@@ -74,7 +74,7 @@ import { socials } from "../lib/site";
       if (!res.ok) throw new Error(json.error || "Something went wrong.");
       form.reset();
       status.textContent = "Thanks! Your message has been sent. 🚀";
-      status.className = "text-sm text-center text-teal-300";
+      status.className = "text-sm text-center text-mint";
     } catch (err) {
       status.textContent = err instanceof Error ? err.message : "Failed to send. Please try again.";
       status.className = "text-sm text-center text-red-400";

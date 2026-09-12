@@ -9,7 +9,7 @@ const { project, index = 0 } = Astro.props;
 ---
 
 <article
-  class="reveal group relative flex flex-col rounded-2xl border border-white/5 bg-card p-6 sm:p-7 shadow-xl transition-all duration-300 hover:border-teal-500/30 hover:-translate-y-1"
+  class="reveal group relative flex flex-col rounded-2xl border border-white/5 bg-card p-6 sm:p-7 shadow-xl transition-all duration-300 hover:border-mint/30 hover:-translate-y-1"
   style={`animation-delay:${index * 80}ms`}
   data-testid="project-card"
 >
@@ -40,7 +40,7 @@ const { project, index = 0 } = Astro.props;
         target="_blank"
         rel="noopener noreferrer"
         data-testid="project-link"
-        class="inline-flex items-center gap-1.5 text-sm text-white hover:text-teal-400 transition-colors"
+        class="inline-flex items-center gap-1.5 text-sm text-white hover:text-mint transition-colors"
       >
         {link.label}
         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7V16" stroke-linecap="round" stroke-linejoin="round"/></svg>

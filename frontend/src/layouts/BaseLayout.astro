@@ -2,7 +2,6 @@
 declare const Astro: any;
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
-import Starfield from "../components/Starfield.astro";
 import { site } from "../lib/site";
 import "../styles/global.css";
 
@@ -61,12 +60,12 @@ const ogImage = new URL(image, Astro.site ?? Astro.url.origin).toString();
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Lexend+Giga:wght@600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
   </head>
-  <body class="cosmic-vignette min-h-screen flex flex-col">
-    <Starfield />
+  <body class="min-h-screen flex flex-col">
+    <div class="site-bg"></div>
     <Nav />
     <main class="flex-1 pt-24 sm:pt-28">
       <slot />

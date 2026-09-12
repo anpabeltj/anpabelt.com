@@ -34,12 +34,12 @@ const next = idx > 0 ? published[idx - 1] : null;
   <div class="reading-progress" id="reading-progress"></div>
 
   <article class="max-w-2xl mx-auto px-4 sm:px-6">
-    <a href="/blog" data-testid="article-back-link" class="inline-flex items-center gap-2 text-sm text-retro-50/70 hover:text-teal-400 transition-colors">
+    <a href="/blog" data-testid="article-back-link" class="inline-flex items-center gap-2 text-sm text-retro-50/70 hover:text-mint transition-colors">
       ← Back to blog
     </a>
 
     <header class="mt-8">
-      <div class="flex flex-wrap items-center gap-3 text-xs font-mono text-teal-400/80">
+      <div class="flex flex-wrap items-center gap-3 text-xs font-mono text-mint/80">
         <time datetime={post.publishedAt ?? post.createdAt}>{formatDate(post.publishedAt ?? post.createdAt)}</time>
         <span class="text-retro-400">•</span>
         {isGallery ? <span>{post.images.length} photos</span> : <span>{minutes} min read</span>}
@@ -48,7 +48,7 @@ const next = idx > 0 ? published[idx - 1] : null;
       {post.tags.length > 0 && (
         <ul class="mt-5 flex flex-wrap gap-2">
           {post.tags.map((t) => (
-            <li><a href={`/blog?tag=${encodeURIComponent(t)}`} class="rounded-full border border-white/10 bg-elevated px-2.5 py-0.5 text-xs font-mono text-retro-50/70 hover:text-teal-300 transition-colors">#{t}</a></li>
+            <li><a href={`/blog?tag=${encodeURIComponent(t)}`} class="rounded-full border border-white/10 bg-elevated px-2.5 py-0.5 text-xs font-mono text-retro-50/70 hover:text-mint transition-colors">#{t}</a></li>
           ))}
         </ul>
       )}
@@ -69,15 +69,15 @@ const next = idx > 0 ? published[idx - 1] : null;
 
     <nav class="mt-16 grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-white/10 pt-8">
       {prev ? (
-        <a href={`/blog/${prev.slug}`} class="group rounded-xl border border-white/5 bg-card p-4 hover:border-teal-500/30 transition-colors" data-testid="article-prev-link">
+        <a href={`/blog/${prev.slug}`} class="group rounded-xl border border-white/5 bg-card p-4 hover:border-mint/30 transition-colors" data-testid="article-prev-link">
           <span class="text-xs font-mono text-retro-400">← Previous</span>
-          <p class="mt-1 font-display text-white group-hover:text-teal-400 transition-colors">{prev.title}</p>
+          <p class="mt-1 font-display text-white group-hover:text-mint transition-colors">{prev.title}</p>
         </a>
       ) : <div></div>}
       {next && (
-        <a href={`/blog/${next.slug}`} class="group rounded-xl border border-white/5 bg-card p-4 hover:border-teal-500/30 transition-colors sm:text-right" data-testid="article-next-link">
+        <a href={`/blog/${next.slug}`} class="group rounded-xl border border-white/5 bg-card p-4 hover:border-mint/30 transition-colors sm:text-right" data-testid="article-next-link">
           <span class="text-xs font-mono text-retro-400">Next →</span>
-          <p class="mt-1 font-display text-white group-hover:text-teal-400 transition-colors">{next.title}</p>
+          <p class="mt-1 font-display text-white group-hover:text-mint transition-colors">{next.title}</p>
         </a>
       )}
     </nav>

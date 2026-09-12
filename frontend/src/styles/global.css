@@ -1,24 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-  /* Retro-cosmic canvas */
-  --color-canvas: hsl(144, 14%, 7%);
-  --color-surface: hsl(144, 12%, 10%);
-  --color-card: hsl(144, 10%, 12%);
-  --color-elevated: hsl(144, 10%, 15%);
+  /* Calm, near-black deep-green canvas */
+  --color-canvas: hsl(155, 24%, 5%);
+  --color-surface: hsl(153, 16%, 9%);
+  --color-card: hsl(153, 14%, 10%);
+  --color-elevated: hsl(153, 12%, 13%);
 
-  --color-retro-50: #f3f4f6;
-  --color-retro-100: #e5e7eb;
-  --color-retro-400: hsl(144, 10%, 55%);
-  --color-retro-550: hsl(180, 15%, 30%);
-  --color-retro-900: hsl(144, 8%, 13%);
-  --color-retro-950: hsl(144, 14%, 7%);
+  --color-retro-50: #eef2ef;
+  --color-retro-100: #e3e8e5;
+  --color-retro-400: hsl(150, 7%, 58%);
+  --color-retro-550: hsl(155, 12%, 26%);
+  --color-retro-900: hsl(153, 10%, 12%);
+  --color-retro-950: hsl(155, 24%, 5%);
 
-  --color-star: #a7f3d0;
+  /* Soft mint accent (replaces the old bright teal) */
+  --color-mint: #7fe3bb;
+  --color-mint-bright: #9defcb;
+  --color-mint-dim: #5cc79e;
 
-  --font-display: "Lexend Giga", sans-serif;
-  --font-sans: "DM Sans", sans-serif;
-  --font-serif: "Newsreader", Georgia, serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Fraunces", Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
@@ -41,46 +44,46 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
+  font-weight: 600;
 }
 
 ::selection {
-  background: rgba(45, 212, 191, 0.3);
+  background: rgba(127, 227, 187, 0.25);
   color: #fff;
 }
 
-/* Subtle radial vignette to anchor editorial text over the starfield */
-.cosmic-vignette {
-  background:
-    radial-gradient(1200px 600px at 50% -10%, rgba(45, 212, 191, 0.06), transparent 60%),
-    radial-gradient(900px 500px at 100% 100%, rgba(16, 185, 129, 0.05), transparent 60%);
+/* Fixed, subtle background image + gentle dark overlay for text contrast */
+.site-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  background-image:
+    linear-gradient(to bottom, rgba(8, 16, 12, 0.55), rgba(8, 16, 12, 0.82)),
+    url("/assets/images/bg-editorial.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
 /* Reveal-on-load animation, staggered via inline animation-delay */
 @keyframes rise {
-  from { opacity: 0; transform: translateY(14px); }
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
 .reveal {
-  animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-/* Shooting star */
-@keyframes shoot {
-  0% { transform: translateX(0) translateY(0) rotate(-35deg); opacity: 0; }
-  10% { opacity: 1; }
-  70% { opacity: 1; }
-  100% { transform: translateX(-90vw) translateY(60vh) rotate(-35deg); opacity: 0; }
-}
-@keyframes twinkle {
-  0%, 100% { opacity: 0.15; }
-  50% { opacity: 0.7; }
+  animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .reveal { animation: none; }
-  .star, .shooting-star { animation: none !important; }
   html { scroll-behavior: auto; }
+}
+
+/* Hairline rule used between editorial sections */
+.rule {
+  height: 1px;
+  background: linear-gradient(to right, rgba(255,255,255,0.14), rgba(255,255,255,0.04));
 }
 
 /* Reading progress bar */
@@ -90,7 +93,7 @@ h1, h2, h3, h4, h5, h6 {
   left: 0;
   height: 2px;
   width: 0%;
-  background: linear-gradient(90deg, #2dd4bf, #10b981);
+  background: var(--color-mint);
   z-index: 60;
   transition: width 0.1s linear;
 }
@@ -100,52 +103,49 @@ h1, h2, h3, h4, h5, h6 {
 /* ------------------------------------------------------------------ */
 .article-content {
   font-family: var(--font-serif);
-  font-size: 1.15rem;
-  line-height: 1.85;
-  color: #d7dbd8;
+  font-size: 1.2rem;
+  line-height: 1.8;
+  color: #d5dbd7;
+  font-optical-sizing: auto;
 }
 .article-content > * + * { margin-top: 1.5rem; }
 .article-content h2 {
-  font-family: var(--font-display);
-  font-size: 1.7rem;
+  font-size: 1.75rem;
   line-height: 1.2;
   margin-top: 3rem;
   color: #fff;
 }
 .article-content h3 {
-  font-family: var(--font-display);
-  font-size: 1.3rem;
+  font-size: 1.35rem;
   margin-top: 2.25rem;
   color: #fff;
 }
 .article-content p:first-of-type::first-letter {
   font-family: var(--font-display);
-  font-size: 3.4rem;
+  font-size: 3.6rem;
   line-height: 0.8;
   float: left;
-  padding: 0.1em 0.14em 0 0;
-  color: #2dd4bf;
+  padding: 0.08em 0.12em 0 0;
+  color: var(--color-mint);
+  font-weight: 600;
 }
 .article-content a {
-  color: #5eead4;
+  color: var(--color-mint-bright);
   text-decoration: underline;
   text-underline-offset: 3px;
   text-decoration-thickness: 1px;
 }
-.article-content a:hover { color: #99f6e4; }
-.article-content ul, .article-content ol {
-  padding-left: 1.4rem;
-  display: block;
-}
+.article-content a:hover { color: #c4f6df; }
+.article-content ul, .article-content ol { padding-left: 1.4rem; display: block; }
 .article-content li { margin-top: 0.5rem; list-style: revert; }
 .article-content ul { list-style: disc; }
 .article-content ol { list-style: decimal; }
 .article-content blockquote {
-  border-left: 3px solid #2dd4bf;
+  border-left: 2px solid var(--color-mint);
   padding: 0.25rem 0 0.25rem 1.5rem;
   color: #e7ece9;
   font-style: italic;
-  font-size: 1.25rem;
+  font-size: 1.3rem;
 }
 .article-content img {
   border-radius: 0.75rem;
@@ -154,14 +154,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 .article-content code {
   font-family: var(--font-mono);
-  font-size: 0.85em;
-  background: rgba(45, 212, 191, 0.12);
-  color: #99f6e4;
+  font-size: 0.82em;
+  background: rgba(127, 227, 187, 0.12);
+  color: var(--color-mint-bright);
   padding: 0.15em 0.4em;
   border-radius: 0.35rem;
 }
 .article-content pre {
-  background: #0a0f0c;
+  background: #080f0b;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0.75rem;
   padding: 1.15rem 1.25rem;
@@ -170,12 +170,5 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.9rem;
   line-height: 1.6;
 }
-.article-content pre code {
-  background: transparent;
-  color: #d7dbd8;
-  padding: 0;
-}
-.article-content hr {
-  border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
+.article-content pre code { background: transparent; color: #d5dbd7; padding: 0; }
+.article-content hr { border: none; border-top: 1px solid rgba(255, 255, 255, 0.1); }

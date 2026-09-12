@@ -32,6 +32,13 @@ Preserve content • editorial redesign • clean TS architecture • blog (`/bl
 extensible content model.
 
 ## Implemented
+### Phase 3 (2026-09-12) — Editorial redesign
+- Refined to a calm, serif-forward editorial look (matching a user-provided reference): Fraunces display/serif + DM Sans + JetBrains Mono, near-black deep-green palette with a soft mint accent.
+- Replaced the animated teal starfield with a generated subtle dark background image (`/assets/images/bg-editorial.jpg`) + gentle overlay.
+- Home rebuilt: mono kicker, big serif hero ("Hi there. / I'm *Anpabelt*."), numbered "Three things I keep coming back to", "Selected work" (numbered, image + tech + links), "From the journal" list.
+- Nav: clean transparent editorial bar, serif brand "Anpabelt.", **Admin link removed from the public nav** (admin still reachable at /admin); "Blog" renamed to "Writing".
+- Accent color unified teal→mint across public pages.
+
 ### Phase 2 (2026-09-12) — Photo / Gallery post type
 - Extended content model: `Post.images: {url,caption}[]` (+ SQLite `images` column with additive migration); `type` now supports `gallery`/`photo`.
 - Admin editor: Article/Gallery type toggle + gallery manager (multi-upload, per-photo captions, reorder, remove); first upload auto-sets cover. Client script externalised to `src/scripts/postEditor.ts` (data via JSON tag).

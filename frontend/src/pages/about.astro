@@ -5,7 +5,7 @@ import { experiences, education, techStack, site } from "../lib/site";
 
 <BaseLayout title="About" description="Anpabelt Trah Javala — developer, data enthusiast and design tinkerer. Experience, education and the tech I love.">
   <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-    <p class="reveal font-mono text-xs uppercase tracking-widest text-teal-400/80">About</p>
+    <p class="reveal font-mono text-xs uppercase tracking-widest text-mint/80">About</p>
     <h1 class="reveal mt-3 font-display text-4xl sm:text-5xl font-bold" style="animation-delay:60ms">
       About <span class="text-retro-400">Me</span>
     </h1>
@@ -43,13 +43,13 @@ import { experiences, education, techStack, site } from "../lib/site";
     <h2 class="mt-20 font-display text-2xl sm:text-3xl font-semibold">Work Experience</h2>
     <div class="mt-8 space-y-6">
       {experiences.map((exp) => (
-        <article class="reveal rounded-2xl border border-white/5 bg-card p-6 sm:p-7 transition-all duration-300 hover:border-teal-500/25">
+        <article class="reveal rounded-2xl border border-white/5 bg-card p-6 sm:p-7 transition-all duration-300 hover:border-mint/25">
           <div class="flex items-start gap-4">
             <img src={exp.logo} alt={exp.org} class="w-12 h-12 rounded-lg object-cover shrink-0" />
             <div class="flex-1 min-w-0">
               <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
                 <h3 class="font-display text-lg font-semibold text-white">{exp.role}</h3>
-                <p class="text-xs font-mono text-teal-400/80 shrink-0">{exp.period}</p>
+                <p class="text-xs font-mono text-mint/80 shrink-0">{exp.period}</p>
               </div>
               <p class="text-sm text-retro-400">{exp.org}</p>
               <p class="text-sm text-retro-400">{exp.location}</p>
@@ -75,13 +75,13 @@ import { experiences, education, techStack, site } from "../lib/site";
     <h2 class="mt-16 font-display text-2xl sm:text-3xl font-semibold">Education</h2>
     <div class="mt-8 space-y-6">
       {education.map((ed) => (
-        <article class="reveal rounded-2xl border border-white/5 bg-card p-6 sm:p-7 transition-all duration-300 hover:border-teal-500/25">
+        <article class="reveal rounded-2xl border border-white/5 bg-card p-6 sm:p-7 transition-all duration-300 hover:border-mint/25">
           <div class="flex items-start gap-4">
             <img src={ed.logo} alt={ed.school} class="w-12 h-12 rounded-lg object-cover shrink-0" />
             <div class="flex-1">
               <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
                 <h3 class="font-display text-lg font-semibold text-white">{ed.school}</h3>
-                <p class="text-xs font-mono text-teal-400/80 shrink-0">{ed.period}</p>
+                <p class="text-xs font-mono text-mint/80 shrink-0">{ed.period}</p>
               </div>
               <p class="text-sm text-retro-400">{ed.degree}</p>
               <p class="text-sm text-retro-400">{ed.location}</p>
@@ -92,7 +92,7 @@ import { experiences, education, techStack, site } from "../lib/site";
     </div>
 
     <div class="mt-12 flex justify-center">
-      <a href={site.resumeUrl} target="_blank" rel="noopener noreferrer" data-testid="about-resume-link" class="inline-flex items-center gap-3 rounded-full border border-white/15 hover:border-teal-500/50 hover:text-teal-400 px-6 py-3 transition-colors">
+      <a href={site.resumeUrl} target="_blank" rel="noopener noreferrer" data-testid="about-resume-link" class="inline-flex items-center gap-3 rounded-full border border-white/15 hover:border-mint/50 hover:text-mint px-6 py-3 transition-colors">
         See Full Résumé →
       </a>
     </div>

@@ -13,7 +13,7 @@ const allTags = [...new Set(posts.flatMap((p) => p.tags))].sort();
 
 <BaseLayout title="Blog" description="Personal writing by Anpabelt — notes on building for the web, working with data, student life and whatever else is on my mind." type="website">
   <section class="max-w-3xl mx-auto px-4 sm:px-6">
-    <p class="reveal font-mono text-xs uppercase tracking-widest text-teal-400/80">Writing</p>
+    <p class="reveal font-mono text-xs uppercase tracking-widest text-mint/80">Writing</p>
     <h1 class="reveal mt-3 font-display text-4xl sm:text-5xl font-bold" style="animation-delay:60ms">
       The <span class="text-retro-400">Blog</span>
     </h1>
@@ -24,9 +24,9 @@ const allTags = [...new Set(posts.flatMap((p) => p.tags))].sort();
 
     {allTags.length > 0 && (
       <div class="mt-8 flex flex-wrap items-center gap-2" data-testid="blog-tag-filters">
-        <a href="/blog" class={`rounded-full border px-3 py-1 text-xs font-mono transition-colors ${!activeTag ? "border-teal-500/50 text-teal-300 bg-teal-500/10" : "border-white/10 text-retro-50/70 hover:text-teal-300"}`}>All</a>
+        <a href="/blog" class={`rounded-full border px-3 py-1 text-xs font-mono transition-colors ${!activeTag ? "border-mint/50 text-mint bg-mint/10" : "border-white/10 text-retro-50/70 hover:text-mint"}`}>All</a>
         {allTags.map((t) => (
-          <a href={`/blog?tag=${encodeURIComponent(t)}`} class={`rounded-full border px-3 py-1 text-xs font-mono transition-colors ${activeTag === t ? "border-teal-500/50 text-teal-300 bg-teal-500/10" : "border-white/10 text-retro-50/70 hover:text-teal-300"}`}>#{t}</a>
+          <a href={`/blog?tag=${encodeURIComponent(t)}`} class={`rounded-full border px-3 py-1 text-xs font-mono transition-colors ${activeTag === t ? "border-mint/50 text-mint bg-mint/10" : "border-white/10 text-retro-50/70 hover:text-mint"}`}>#{t}</a>
         ))}
       </div>
     )}

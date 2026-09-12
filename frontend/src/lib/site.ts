@@ -60,7 +60,7 @@ export const navLinks: NavLink[] = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "Projects", href: "/projects" },
-  { label: "Blog", href: "/blog" },
+  { label: "Writing", href: "/blog" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -73,22 +73,19 @@ export const socials: SocialLink[] = [
 
 export const loves = [
   {
-    emoji: "⚛️",
-    title: "Develop",
+    title: "Building for the web",
     body:
-      "Web development is my jam. There's something magical about building things that don't crash (most of the time). I live for the challenge — and the late-night bug hunts.",
+      "There's something quietly satisfying about shipping something that works. I like the craft of it — the layout, the details, the late-night bug hunts, and the small wins that add up.",
   },
   {
-    emoji: "📊",
-    title: "Data",
+    title: "Working with data",
     body:
-      "Data science has me hooked — who doesn't love turning boring numbers into \"wow, that's cool\" moments? Python and I are best friends in frustration.",
+      "Python and I turn messy spreadsheets into things that actually mean something. Pipelines, dashboards, and the occasional graph that makes a room go \u201Chuh, interesting.\u201D",
   },
   {
-    emoji: "🎨",
-    title: "Design",
+    title: "Designing calmly",
     body:
-      "I'm still exploring design — a fancy way of saying I experiment with colours, fonts and layouts. But hey, progress is progress, right?",
+      "I'm still learning design, but I care about how things feel — spacing, type, restraint. Trying to make things that are pleasant to sit with rather than loud.",
   },
 ];
 
