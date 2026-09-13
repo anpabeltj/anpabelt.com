@@ -144,6 +144,7 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     if (!selectionInEditor()) restoreSelection();
     document.execCommand(command, false, value);
     saveSelection();
+    updateToolbarState();
     scheduleAutosave();
   }
 
@@ -163,8 +164,56 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
       r.selectNodeContents(el);
       sel.addRange(r);
       savedRange = r;
+      updateToolbarState();
       scheduleAutosave();
     } catch { /* selection spanned block boundaries; ignore */ }
+  }
+
+  // ---- Toolbar active-state feedback ----
+  function closestTag(tag) {
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return null;
+    let n: any = sel.anchorNode;
+    if (n && n.nodeType === 3) n = n.parentNode;
+    while (n && n !== editor) { if (n.tagName === tag) return n; n = n.parentNode; }
+    return null;
+  }
+  function currentFormatBlockTag() {
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return null;
+    let n: any = sel.anchorNode;
+    if (n && n.nodeType === 3) n = n.parentNode;
+    const tags = ["P", "H1", "H2", "H3", "BLOCKQUOTE", "PRE"];
+    while (n && n !== editor) { if (tags.includes(n.tagName)) return n.tagName.toLowerCase(); n = n.parentNode; }
+    return null;
+  }
+  function currentFontSize() {
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return "";
+    let n: any = sel.anchorNode;
+    if (n && n.nodeType === 3) n = n.parentNode;
+    while (n && n !== editor) { if (n.style && n.style.fontSize) return n.style.fontSize; n = n.parentNode; }
+    return "";
+  }
+  const STATE_CMDS = ["bold", "italic", "underline", "strikeThrough", "insertUnorderedList", "insertOrderedList"];
+  function updateToolbarState() {
+    const inEditor = selectionInEditor();
+    document.querySelectorAll("#rte-toolbar [data-cmd]").forEach((b: any) => {
+      const cmd = b.dataset.cmd;
+      let active = false;
+      if (inEditor) {
+        if (cmd === "inlineCode") active = !!closestTag("CODE");
+        else if (STATE_CMDS.includes(cmd)) { try { active = document.queryCommandState(cmd); } catch { active = false; } }
+      }
+      b.classList.toggle("active", active);
+    });
+    if (inEditor) {
+      const blk = currentFormatBlockTag();
+      if (blk) blockSelect.value = blk;
+      const fs = currentFontSize();
+      const match = Array.from(sizeSelect.options).some((o: any) => o.value === fs);
+      sizeSelect.value = match ? fs : "";
+    }
   }
 
   // Nearest block element that is a direct-ish child of the editor and holds the caret.
@@ -200,15 +249,20 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
   blockSelect.addEventListener("change", () => {
     const tag = blockSelect.value;
     exec("formatBlock", tag === "p" ? "P" : tag.toUpperCase());
-    blockSelect.value = "p";
   });
 
   const sizeSelect = $("rte-size");
   sizeSelect.addEventListener("mousedown", saveSelection);
   sizeSelect.addEventListener("change", () => {
     if (sizeSelect.value) wrapSelection("span", { fontSize: sizeSelect.value });
-    sizeSelect.value = "";
+    updateToolbarState();
   });
+
+  // Reflect the caret's current formatting in the toolbar (active buttons + dropdown values).
+  document.addEventListener("selectionchange", () => { if (selectionInEditor()) updateToolbarState(); });
+  editor.addEventListener("keyup", updateToolbarState);
+  editor.addEventListener("mouseup", updateToolbarState);
+  editor.addEventListener("focus", updateToolbarState);
 
   // ---- Slash command menu ----
   function makeEl(html) {
