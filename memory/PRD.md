@@ -40,8 +40,14 @@ so `saveUpload()` fell back to local disk (`process.cwd()/data/uploads`) which c
 written on Vercel. ACTION REQUIRED BY USER: add a Vercel Blob store to the project (Vercel
 dashboard → Storage → Create → Blob) which injects `BLOB_READ_WRITE_TOKEN`, then redeploy.
 The code already uses `@vercel/blob` when that token exists (`lib/media.ts useBlob()`).
-- `lib/media.ts`: disk write now throws a clear, actionable message on Vercel instead of ENOENT.
-- Added upload progress + live thumbnail toast (`postEditor.ts` `uploadWithProgress` +
-  `createUploadToast`, styles in `global.css`), wired into cover, inline insert-at-cursor,
-  and gallery uploads. Verified in preview (toast shows thumbnail, green bar to 100%).
+## Bug Fix #3 — 2026-09-13 (Vercel Blob uses OIDC, not a static token)
+The connected Blob store `anpabelt-media` authenticates via OIDC: Vercel injects
+`BLOB_STORE_ID` + auto-rotated `VERCEL_OIDC_TOKEN`, NOT a static `BLOB_READ_WRITE_TOKEN`.
+Old `useBlob()` required the static token → disk fallback → upload error.
+Fix (`lib/media.ts`): `useBlob()` now also enables when `BLOB_STORE_ID` (or
+`VERCEL_OIDC_TOKEN`) is present; `put()` is called WITHOUT a token in the OIDC case so
+the @vercel/blob SDK (v2.8.0, OIDC-capable) authenticates automatically. Static
+`*_READ_WRITE_TOKEN` still used if present. No new env var required.
+Requires: push to GitHub + Vercel redeploy. OIDC path only verifiable on Vercel (the
+Emergent preview has no OIDC token and correctly still uses local disk).
 

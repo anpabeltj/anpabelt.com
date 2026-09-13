@@ -39,7 +39,10 @@ function blobToken(): string {
 }
 
 function useBlob(): boolean {
-  return Boolean(blobToken());
+  // Usable when we have a static read-write token, OR the project is connected to a
+  // Blob store via OIDC (Vercel injects BLOB_STORE_ID + VERCEL_OIDC_TOKEN and the
+  // @vercel/blob SDK authenticates automatically — no static token required).
+  return Boolean(blobToken() || getEnv("BLOB_STORE_ID", "") || getEnv("VERCEL_OIDC_TOKEN", ""));
 }
 
 export async function saveUpload(file: File): Promise<MediaAsset> {
@@ -53,8 +56,13 @@ export async function saveUpload(file: File): Promise<MediaAsset> {
   let url: string;
   if (useBlob()) {
     // Production (Vercel): store in Vercel Blob and reference its public URL.
+    // Pass the read-write token only if we actually have one; otherwise omit it so
+    // the SDK resolves OIDC auth (VERCEL_OIDC_TOKEN + BLOB_STORE_ID) on its own.
     const { put } = await import("@vercel/blob");
-    const blob = await put(`uploads/${filename}`, buf, { access: "public", contentType: file.type, token: blobToken() });
+    const token = blobToken();
+    const opts: { access: "public"; contentType: string; token?: string } = { access: "public", contentType: file.type };
+    if (token) opts.token = token;
+    const blob = await put(`uploads/${filename}`, buf, opts);
     url = blob.url;
   } else {
     // Local/dev: write to disk, served via /media/[filename].
@@ -62,7 +70,7 @@ export async function saveUpload(file: File): Promise<MediaAsset> {
       await writeFile(join(UPLOADS_DIR, filename), buf);
     } catch (err) {
       if (getEnv("VERCEL", "")) {
-        throw new Error("Image storage isn't configured for production. Add a Vercel Blob store to the project (which sets BLOB_READ_WRITE_TOKEN) and redeploy.");
+        throw new Error("Image storage isn't configured for production. Connect a Vercel Blob store to this project (Storage \u2192 your Blob store \u2192 Connect Project) and redeploy.");
       }
       throw err;
     }
