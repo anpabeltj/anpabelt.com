@@ -91,6 +91,8 @@ export default function ProjectsExplorer({ projects }: { projects: ExplorerProje
                 data-zoomable="true"
                 data-gallery="projects"
                 data-caption={p.title}
+                data-tech={p.tech.join(", ")}
+                data-live={p.liveUrl ?? ""}
                 className="h-full w-full object-cover cursor-zoom-in transition-transform duration-500 group-hover:scale-105"
               />
             </div>

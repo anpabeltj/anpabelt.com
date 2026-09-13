@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-interface Slide { src: string; caption: string; }
+interface Slide { src: string; caption: string; tech: string[]; live: string; }
 
 export default function Lightbox() {
   const [slides, setSlides] = useState<Slide[]>([]);
@@ -26,6 +26,8 @@ export default function Lightbox() {
       const list = (imgs.length ? imgs : [target]).map((im) => ({
         src: im.currentSrc || im.src,
         caption: im.getAttribute("data-caption") || im.getAttribute("alt") || "",
+        tech: (im.getAttribute("data-tech") || "").split(",").map((s) => s.trim()).filter(Boolean),
+        live: im.getAttribute("data-live") || "",
       }));
       const startSrc = target.currentSrc || target.src;
       const start = Math.max(0, list.findIndex((s) => s.src === startSrc));
@@ -104,7 +106,33 @@ export default function Lightbox() {
             transition: drag.current ? "none" : "transform 0.2s ease",
           }}
         />
-        {cur.caption && <figcaption className="text-center text-sm text-white/70 font-serif italic">{cur.caption}</figcaption>}
+        {cur.caption && <figcaption className="text-center text-sm text-white/80 font-serif italic">{cur.caption}</figcaption>}
+
+        {(cur.tech.length > 0 || cur.live) && (
+          <div className="flex flex-col items-center gap-3" data-testid="lightbox-meta">
+            {cur.tech.length > 0 && (
+              <ul className="flex flex-wrap justify-center gap-1.5">
+                {cur.tech.map((t) => (
+                  <li key={t} className="rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-mono text-white/75">{t}</li>
+                ))}
+              </ul>
+            )}
+            {cur.live && (
+              <a
+                href={cur.live}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-testid="lightbox-live-link"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1.5 rounded-full bg-mint px-4 py-1.5 text-sm font-semibold text-canvas hover:bg-mint-bright transition-colors"
+              >
+                View Live
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M7 17L17 7M17 7H8M17 7V16" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </a>
+            )}
+          </div>
+        )}
+
         {many && <p className="font-mono text-xs text-white/40" data-testid="lightbox-counter">{index + 1} / {slides.length}</p>}
       </figure>
 

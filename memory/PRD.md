@@ -199,3 +199,9 @@ Added @astrojs/react@4 (Node 20 / React 19) integration. Four islands built:
   + counter + Esc/backdrop close. Blog cover + markdown content images tagged data-zoomable
   (markdown.ts img transform + sanitize allowedAttributes updated); blog/[slug].astro cover.
 Testing agent: 100% pass, no functional bugs (iteration_4.json).
+
+## Public side — 2026-09-13 (Lightbox captions: project tech + live link)
+- Project images now carry data-tech (comma list) and data-live; Lightbox.tsx parses these
+  into each slide and, for project images, renders tech pills + a "View Live" button
+  (data-testid lightbox-meta / lightbox-live-link) below the caption. Blog images (no such
+  attrs) show nothing extra. Verified compiled into the served island bundles; no errors.
