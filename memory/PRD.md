@@ -85,3 +85,11 @@ Emergent preview has no OIDC token and correctly still uses local disk).
   the next, "Save captions" applies all at once (captions double as gallery alt). Verified:
   two photos captioned in one pass, alts match.
 
+## Feature — 2026-09-13 (Media Library delete)
+- `lib/media.ts deleteMedia(id)`: removes the stored file (Vercel Blob `del` in prod via
+  token/OIDC, disk `unlink` in dev — best-effort) then the DB row.
+- New action `pages/actions/media/[id].ts` (DELETE, auth-protected by middleware).
+- `pages/admin/media.astro`: per-item Delete button (with confirm) beside Copy URL;
+  removes the card on success and reloads when the last item is deleted. Verified: 19 → 18
+  items with "Image deleted ✓", no console errors.
+

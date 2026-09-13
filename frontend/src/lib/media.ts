@@ -1,4 +1,4 @@
-import { writeFile, readFile } from "node:fs/promises";
+import { writeFile, readFile, unlink } from "node:fs/promises";
 import { join, extname } from "node:path";
 import { nanoid } from "nanoid";
 import { db, UPLOADS_DIR } from "./db";
@@ -91,6 +91,30 @@ export async function listMedia(): Promise<MediaAsset[]> {
   const c = await db();
   const rs = await c.execute("SELECT * FROM media ORDER BY created_at DESC");
   return rs.rows.map((r) => rowToMedia(r as Rec));
+}
+
+// Delete a media asset: remove the stored file (Vercel Blob in prod, disk in dev) then its DB row.
+export async function deleteMedia(id: string): Promise<boolean> {
+  const c = await db();
+  const rs = await c.execute({ sql: "SELECT filename, url FROM media WHERE id = ?", args: [id] });
+  if (rs.rows.length === 0) return false;
+  const row = rs.rows[0] as Rec;
+  const filename = String(row.filename);
+  const url = String(row.url);
+  try {
+    if (useBlob() && /^https?:\/\//.test(url)) {
+      const { del } = await import("@vercel/blob");
+      const token = blobToken();
+      if (token) await del(url, { token });
+      else await del(url);
+    } else {
+      await unlink(join(UPLOADS_DIR, filename));
+    }
+  } catch {
+    // file already removed or storage unavailable — proceed to drop the DB row anyway
+  }
+  const res = await c.execute({ sql: "DELETE FROM media WHERE id = ?", args: [id] });
+  return res.rowsAffected > 0;
 }
 
 const CONTENT_TYPES: Record<string, string> = {

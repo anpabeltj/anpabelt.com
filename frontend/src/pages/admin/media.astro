@@ -31,7 +31,10 @@ const media = await listMedia();
           <figcaption class="p-3 space-y-2">
             <p class="text-xs font-mono text-retro-50/70 truncate" title={m.originalName}>{m.originalName}</p>
             <p class="text-[10px] font-mono text-retro-400">{formatDate(m.createdAt)} · {(m.size / 1024).toFixed(0)} KB</p>
-            <button data-url={m.url} class="copy-url-btn w-full text-xs rounded-md border border-white/10 py-1.5 hover:border-teal-500/40 hover:text-teal-300 transition-colors" data-testid="media-copy-button">Copy URL</button>
+            <div class="flex gap-2">
+              <button data-url={m.url} class="copy-url-btn flex-1 text-xs rounded-md border border-white/10 py-1.5 hover:border-teal-500/40 hover:text-teal-300 transition-colors" data-testid="media-copy-button">Copy URL</button>
+              <button data-id={m.id} class="delete-media-btn text-xs rounded-md border border-red-500/30 text-red-300 px-2.5 py-1.5 hover:bg-red-500/10 transition-colors" data-testid="media-delete-button" title="Delete image">Delete</button>
+            </div>
           </figcaption>
         </figure>
       ))}
@@ -74,6 +77,28 @@ const media = await listMedia();
         show("Copied image URL to clipboard ✓");
       } catch {
         show(absolute, true);
+      }
+    });
+  });
+
+  document.querySelectorAll(".delete-media-btn").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const id = (btn as HTMLButtonElement).dataset.id!;
+      if (!id || !confirm("Delete this image permanently? Posts still using it will show a broken image.")) return;
+      const original = btn.textContent;
+      btn.textContent = "Deleting…";
+      (btn as HTMLButtonElement).disabled = true;
+      try {
+        const res = await fetch(`/actions/media/${id}`, { method: "DELETE" });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || "Delete failed.");
+        btn.closest("[data-testid='media-item']")?.remove();
+        show("Image deleted ✓");
+        if (!document.querySelector("[data-testid='media-item']")) window.location.reload();
+      } catch (err) {
+        show(err instanceof Error ? err.message : "Delete failed.", false);
+        btn.textContent = original;
+        (btn as HTMLButtonElement).disabled = false;
       }
     });
   });
