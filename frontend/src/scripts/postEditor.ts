@@ -943,6 +943,7 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
   }
 
   // ---- Gallery management ----
+  let galleryDragFrom: number | null = null;
   function renderGallery() {
     const list = $("gallery-list");
     $("gallery-count").textContent = `(${images.length})`;
@@ -950,36 +951,52 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     list.innerHTML = "";
     images.forEach((img, i) => {
       const cell = document.createElement("div");
-      cell.className = "rounded-lg border border-white/10 bg-elevated overflow-hidden";
+      cell.className = "gallery-cell rounded-lg border border-white/10 bg-elevated overflow-hidden";
       cell.dataset.testid = "gallery-item";
       const thumb = document.createElement("div");
-      thumb.className = "aspect-square bg-canvas overflow-hidden";
-      thumb.innerHTML = `<img src="${img.url}" alt="" class="w-full h-full object-cover" />`;
+      thumb.className = "gallery-thumb relative aspect-square bg-canvas overflow-hidden cursor-grab";
+      thumb.setAttribute("draggable", "true");
+      thumb.title = "Drag to reorder";
+      thumb.innerHTML =
+        `<img src="${escapeAttr(img.url)}" alt="${escapeAttr(img.caption || "")}" class="w-full h-full object-cover pointer-events-none" />` +
+        `<span class="gallery-grip" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg></span>`;
+      // Drag to reorder (from the thumbnail; captions stay freely editable).
+      thumb.addEventListener("dragstart", (e) => {
+        galleryDragFrom = i;
+        cell.classList.add("gallery-dragging");
+        if (e.dataTransfer) { e.dataTransfer.effectAllowed = "move"; try { e.dataTransfer.setData("text/plain", String(i)); } catch { /* ignore */ } }
+      });
+      thumb.addEventListener("dragend", () => {
+        cell.classList.remove("gallery-dragging");
+        document.querySelectorAll(".gallery-drop-target").forEach((n) => n.classList.remove("gallery-drop-target"));
+      });
+      cell.addEventListener("dragover", (e) => { if (galleryDragFrom === null) return; e.preventDefault(); if (e.dataTransfer) e.dataTransfer.dropEffect = "move"; cell.classList.add("gallery-drop-target"); });
+      cell.addEventListener("dragleave", () => cell.classList.remove("gallery-drop-target"));
+      cell.addEventListener("drop", (e) => {
+        e.preventDefault();
+        cell.classList.remove("gallery-drop-target");
+        if (galleryDragFrom === null || galleryDragFrom === i) { galleryDragFrom = null; return; }
+        const [moved] = images.splice(galleryDragFrom, 1);
+        images.splice(i, 0, moved);
+        galleryDragFrom = null;
+        renderGallery();
+        scheduleAutosave();
+      });
       const cap = document.createElement("input");
       cap.type = "text";
       cap.value = img.caption;
-      cap.placeholder = "Caption (optional)";
+      cap.placeholder = "Caption / alt text";
+      cap.dataset.testid = "gallery-caption";
       cap.className = "w-full bg-transparent border-t border-white/10 px-2 py-1.5 text-xs text-retro-50 focus:outline-none";
       cap.addEventListener("input", (e) => { images[i].caption = e.target.value; scheduleAutosave(); });
       const bar = document.createElement("div");
-      bar.className = "flex items-center justify-between px-2 py-1 border-t border-white/5";
-      const pos = document.createElement("div");
-      pos.className = "flex gap-1";
-      const mk = (label, fn, disabled) => {
-        const btn = document.createElement("button");
-        btn.type = "button"; btn.textContent = label;
-        btn.className = `text-xs px-1.5 py-0.5 rounded ${disabled ? "opacity-30" : "hover:text-teal-300"}`;
-        if (!disabled) btn.addEventListener("click", fn);
-        return btn;
-      };
-      pos.appendChild(mk("\u2190", () => { [images[i - 1], images[i]] = [images[i], images[i - 1]]; renderGallery(); scheduleAutosave(); }, i === 0));
-      pos.appendChild(mk("\u2192", () => { [images[i + 1], images[i]] = [images[i], images[i + 1]]; renderGallery(); scheduleAutosave(); }, i === images.length - 1));
+      bar.className = "flex items-center justify-end px-2 py-1 border-t border-white/5";
       const del = document.createElement("button");
       del.type = "button"; del.textContent = "Remove";
       del.className = "text-xs px-1.5 py-0.5 rounded text-red-300/80 hover:text-red-300";
       del.dataset.testid = "gallery-remove";
       del.addEventListener("click", () => { images.splice(i, 1); renderGallery(); scheduleAutosave(); });
-      bar.appendChild(pos); bar.appendChild(del);
+      bar.appendChild(del);
       cell.appendChild(thumb); cell.appendChild(cap); cell.appendChild(bar);
       list.appendChild(cell);
     });
@@ -1130,7 +1147,7 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     await uploadCoverFile(files[0]);
     for (const f of files.slice(1)) {
       if (currentType === "gallery") await uploadGalleryFile(f);
-      else await embedImage(f);
+      else await embedImage(f, { promptAlt: false });
     }
     if (currentType === "gallery") renderGallery();
     scheduleAutosave();
@@ -1185,11 +1202,50 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     scheduleAutosave();
   }
 
-  async function embedImage(file, alt) {
+  // Small modal asking for a short image description (alt text) — improves a11y + SEO.
+  // Resolves to the entered text, or the provided fallback if skipped.
+  function askAltText(fallback) {
+    return new Promise((resolve) => {
+      const modal = document.createElement("div");
+      modal.className = "alt-modal";
+      modal.dataset.testid = "alt-modal";
+      modal.innerHTML =
+        `<div class="alt-backdrop" data-alt-skip></div>` +
+        `<div class="alt-panel" role="dialog" aria-label="Image description">` +
+        `<h3>Describe this image</h3>` +
+        `<p class="alt-help">A short description improves accessibility &amp; SEO. It becomes the image's alt text.</p>` +
+        `<input type="text" class="alt-input" data-testid="alt-input" placeholder="e.g. Sunset over the harbour" />` +
+        `<div class="alt-actions">` +
+        `<button type="button" class="alt-skip" data-alt-skip data-testid="alt-skip">Skip</button>` +
+        `<button type="button" class="alt-save" data-testid="alt-save">Save description</button>` +
+        `</div></div>`;
+      document.body.appendChild(modal);
+      const input = modal.querySelector(".alt-input") as HTMLInputElement;
+      input.value = fallback || "";
+      requestAnimationFrame(() => { modal.classList.add("open"); input.focus(); input.select(); });
+      let settled = false;
+      function close(val) {
+        if (settled) return;
+        settled = true;
+        modal.classList.remove("open");
+        setTimeout(() => modal.remove(), 200);
+        resolve(val);
+      }
+      modal.querySelectorAll("[data-alt-skip]").forEach((el) => el.addEventListener("click", () => close(fallback || "")));
+      modal.querySelector(".alt-save").addEventListener("click", () => close(input.value.trim()));
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { e.preventDefault(); close(input.value.trim()); }
+        else if (e.key === "Escape") { e.preventDefault(); close(fallback || ""); }
+      });
+    });
+  }
+
+  async function embedImage(file, opts: { promptAlt?: boolean } = {}) {
     try {
       const url = await uploadImage(file);
-      const caption = (alt || file.name.replace(/\.[^.]+$/, "")).trim();
-      insertHtmlAtCursor(`<img src="${escapeAttr(url)}" alt="${escapeAttr(caption)}" /><p><br></p>`);
+      const fallback = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim();
+      const alt = opts.promptAlt === false ? fallback : await askAltText(fallback);
+      insertHtmlAtCursor(`<img src="${escapeAttr(url)}" alt="${escapeAttr(alt)}" /><p><br></p>`);
       showMsg("Image inserted \u2713");
     } catch (err) {
       showMsg(err.message || "Upload failed.", false);
@@ -1200,7 +1256,7 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     const file = e.target.files?.[0];
     if (!file) return;
     saveSelection();
-    await embedImage(file);
+    await embedImage(file, { promptAlt: true });
     e.target.value = "";
   });
 
@@ -1238,14 +1294,14 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     if (!files.length) return;
     e.preventDefault();
     saveSelection();
-    for (const f of files) await embedImage(f);
+    for (const f of files) await embedImage(f, { promptAlt: files.length === 1 });
   });
   editor.addEventListener("paste", async (e) => {
     const items = Array.from(e.clipboardData?.items || []);
     const imgItem = items.find((it) => it.type.startsWith("image/"));
     if (imgItem) {
       const file = imgItem.getAsFile();
-      if (file) { e.preventDefault(); saveSelection(); await embedImage(file); return; }
+      if (file) { e.preventDefault(); saveSelection(); await embedImage(file, { promptAlt: true }); return; }
     }
     // Pasting a bare URL onto an empty line -> rich preview card.
     const text = (e.clipboardData?.getData("text/plain") || "").trim();

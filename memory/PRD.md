@@ -63,3 +63,15 @@ Emergent preview has no OIDC token and correctly still uses local disk).
   (gallery posts) or are inserted into the article body. Verified: 2-file drop → 1 cover
   + 1 inline, no console errors. Styles in `global.css`.
 
+## Feature — 2026-09-13 (Alt Text Prompt + Gallery Drag-Reorder)
+- Alt text (`postEditor.ts askAltText` modal): after an inline image uploads (toolbar/slash
+  picker, single paste, single drop), a small modal asks for a short description prefilled
+  with the cleaned filename; the value is written to the `<img alt>` (sanitizer already
+  allows img alt). Batch drops skip the prompt (use filename) to avoid nagging. Gallery
+  `<img>` now uses the caption as its alt. Verified: modal prefilled "harbour sunset",
+  saved alt "Golden sunset over the harbour".
+- Gallery drag-reorder (`postEditor.ts renderGallery` + `global.css`): gallery thumbnails
+  are draggable (grip handle, grab cursor, mint drop-target outline); dropping on another
+  cell reorders `images`. Removed the ←/→ arrow buttons. Verified: first→last reorder
+  (['first','second','third'] → ['second','third','first']).
+

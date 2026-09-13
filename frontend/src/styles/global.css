@@ -819,3 +819,77 @@ kbd.rte-kbd {
 }
 .cover-dropzone.cover-drop-active * { pointer-events: none; }
 
+
+/* ---- Alt-text (image description) modal ---- */
+.alt-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.alt-modal.open { opacity: 1; pointer-events: auto; }
+.alt-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(2px); }
+.alt-panel {
+  position: relative;
+  width: 420px;
+  max-width: calc(100vw - 2rem);
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background: #131a19;
+  border: 1px solid rgba(111, 227, 154, 0.22);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  transform: translateY(8px) scale(0.98);
+  transition: transform 0.2s ease;
+}
+.alt-modal.open .alt-panel { transform: translateY(0) scale(1); }
+.alt-panel h3 { font-size: 1rem; font-weight: 600; color: #e7f6ee; margin-bottom: 0.35rem; }
+.alt-help { font-size: 0.78rem; color: rgba(231, 246, 238, 0.6); margin-bottom: 0.9rem; }
+.alt-input {
+  width: 100%;
+  background: #0d1211;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  color: #e7f6ee;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.alt-input:focus { border-color: rgba(111, 227, 154, 0.6); box-shadow: 0 0 0 3px rgba(111, 227, 154, 0.15); }
+.alt-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem; }
+.alt-skip {
+  padding: 0.5rem 0.9rem; border-radius: 0.5rem; font-size: 0.85rem;
+  color: rgba(231, 246, 238, 0.7); border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.alt-skip:hover { color: #e7f6ee; border-color: rgba(255, 255, 255, 0.25); }
+.alt-save {
+  padding: 0.5rem 0.9rem; border-radius: 0.5rem; font-size: 0.85rem; font-weight: 600;
+  color: #06231a; background: #2dd4bf;
+  transition: background-color 0.15s ease;
+}
+.alt-save:hover { background: #6fe39a; }
+
+/* ---- Gallery drag-to-reorder ---- */
+.gallery-thumb { cursor: grab; }
+.gallery-thumb:active { cursor: grabbing; }
+.gallery-grip {
+  position: absolute;
+  top: 6px; left: 6px;
+  display: flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  color: rgba(255, 255, 255, 0.85);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.gallery-thumb:hover .gallery-grip { opacity: 1; }
+.gallery-cell.gallery-dragging { opacity: 0.4; }
+.gallery-cell.gallery-drop-target { outline: 2px solid rgba(111, 227, 154, 0.8); outline-offset: 2px; }
+
