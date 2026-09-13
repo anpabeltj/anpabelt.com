@@ -1,0 +1,155 @@
+---
+// Animated "dark green hour" storm-cloud background with light that
+// illuminates the cloud from within. Fixed, site-wide, behind all content.
+const CLOUD = "/assets/images/storm-clouds.jpg";
+---
+
+<div class="storm" aria-hidden="true">
+  <div class="storm-clouds" style={`background-image:url('${CLOUD}')`}></div>
+  <div class="storm-lit" id="storm-lit" style={`background-image:url('${CLOUD}')`}></div>
+  <canvas id="storm-bolt"></canvas>
+  <div class="storm-tone"></div>
+  <div class="storm-vignette"></div>
+  <div class="storm-grain"></div>
+</div>
+
+<style>
+  .storm { position: fixed; inset: 0; z-index: -10; overflow: hidden; pointer-events: none;
+    background-color: #020a07; }
+
+  /* crisp, un-blurred HD cloud artwork (darker + greener), slowly drifting */
+  .storm-clouds { position: absolute; inset: -4%; background-size: cover; background-position: center;
+    filter: brightness(0.82) saturate(1.15) contrast(1.05) hue-rotate(-6deg);
+    will-change: transform; animation: storm-drift 46s ease-in-out infinite; }
+
+  /* bright copy of the SAME cloud, revealed only where a strike lights it,
+     so the real cloud texture appears illuminated from within */
+  .storm-lit { position: absolute; inset: -4%; background-size: cover; background-position: center;
+    mix-blend-mode: screen; filter: brightness(2.9) saturate(0.72) hue-rotate(-4deg);
+    opacity: 0; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+    will-change: transform; animation: storm-drift 46s ease-in-out infinite; }
+
+  #storm-bolt { position: absolute; inset: 0; mix-blend-mode: screen; }
+
+  /* keep the storm dark, green & gloomy, protect the upper-left text pocket */
+  .storm-tone { position: absolute; inset: 0;
+    background:
+      radial-gradient(70% 55% at 33% 40%, rgba(2,10,7,0.78), transparent 70%),
+      linear-gradient(180deg, rgba(2,12,8,0.42), rgba(1,7,5,0.62)),
+      radial-gradient(120% 120% at 50% 120%, rgba(6,26,18,0.55), transparent 60%); }
+  .storm-vignette { position: absolute; inset: 0;
+    background: radial-gradient(120% 100% at 50% 44%, transparent 50%, rgba(0,4,3,0.85) 100%); }
+  .storm-grain { position: absolute; inset: 0; opacity: .05; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+  @keyframes storm-drift {
+    0%   { transform: scale(1.06) translate(0,0); }
+    50%  { transform: scale(1.09) translate(-1.6%, 0.9%); }
+    100% { transform: scale(1.06) translate(0,0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .storm-clouds, .storm-lit { animation: none; }
+  }
+</style>
+
+<script>
+  const lit = document.getElementById("storm-lit") as HTMLElement | null;
+  const cv = document.getElementById("storm-bolt") as HTMLCanvasElement | null;
+  if (lit && cv) {
+    const ctx = cv.getContext("2d")!;
+    const MINT = [127, 227, 187] as const;
+    let W = 0, H = 0, DPR = 1;
+
+    // illumination origins hidden inside dense cloud masses (percent of viewport),
+    // kept away from the upper-left text pocket
+    const cores = [
+      { x: 82, y: 34 }, { x: 88, y: 56 }, { x: 74, y: 60 },
+      { x: 66, y: 72 }, { x: 85, y: 80 }, { x: 70, y: 24 },
+    ];
+
+    function resize() {
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      W = cv!.width = innerWidth * DPR;
+      H = cv!.height = innerHeight * DPR;
+      cv!.style.width = innerWidth + "px";
+      cv!.style.height = innerHeight + "px";
+    }
+    addEventListener("resize", resize);
+    resize();
+
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let anim = 0, target = 0;
+    let active = cores[0];
+    let bolt: any = null;
+    let flickerQueue: { t: number; v: number }[] = [];
+    let nextAt = performance.now() + 900;
+
+    function strike(now: number, forceIdx?: number) {
+      active = cores[forceIdx !== undefined ? forceIdx : Math.floor(Math.random() * cores.length)];
+      const ox = (active.x / 100) * W, oy = (active.y / 100) * H;
+      const blobs = [{ dx: 0, dy: 0, r: 30, a: 1 }];
+      const extra = 3 + Math.floor(Math.random() * 3);
+      for (let i = 0; i < extra; i++) {
+        blobs.push({
+          dx: (Math.random() - 0.5) * 26,
+          dy: (Math.random() - 0.5) * 22,
+          r: 12 + Math.random() * 16,
+          a: 0.55 + Math.random() * 0.35,
+        });
+      }
+      bolt = { ox, oy, blobs, r: (160 + Math.random() * 120) * DPR };
+      const peak = 0.8 + Math.random() * 0.2;
+      let t = now; const seq: { t: number; v: number }[] = [];
+      seq.push({ t, v: peak * 0.45 }); t += 45;
+      seq.push({ t, v: 0.06 });        t += 40;
+      seq.push({ t, v: peak });        t += 80;
+      seq.push({ t, v: 0.3 });         t += 55;
+      seq.push({ t, v: peak * 0.85 }); t += 110;
+      seq.push({ t, v: 0.0 });
+      flickerQueue = seq;
+      nextAt = now + 2600 + Math.random() * 4200;
+    }
+
+    function paintLit() {
+      if (!bolt) { lit!.style.opacity = "0"; return; }
+      const gx = (bolt.ox / W) * 100, gy = (bolt.oy / H) * 100;
+      const parts = bolt.blobs.map((b: any) => {
+        const cx = gx + b.dx, cy = gy + b.dy, a = anim * b.a;
+        return `radial-gradient(${b.r}% ${b.r}% at ${cx}% ${cy}%,`
+          + `rgba(0,0,0,${a}) 0%, rgba(0,0,0,${a * 0.6}) 42%, transparent 74%)`;
+      });
+      const m = parts.join(",");
+      lit!.style.webkitMaskImage = m;
+      lit!.style.maskImage = m;
+      lit!.style.opacity = "1";
+    }
+
+    function drawBolt() {
+      ctx.clearRect(0, 0, W, H);
+      if (!bolt || anim < 0.02) return;
+      const R = bolt.r * 1.9;
+      const g = ctx.createRadialGradient(bolt.ox, bolt.oy, 0, bolt.ox, bolt.oy, R);
+      g.addColorStop(0, `rgba(${MINT},${0.16 * anim})`);
+      g.addColorStop(0.45, `rgba(70,160,120,${0.09 * anim})`);
+      g.addColorStop(1, `rgba(${MINT},0)`);
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(bolt.ox, bolt.oy, R, 0, 7); ctx.fill();
+    }
+
+    function tick(now: number) {
+      anim += (target - anim) * 0.3;
+      if (Math.abs(target - anim) < 0.003) anim = target;
+      paintLit();
+      drawBolt();
+      if (flickerQueue.length && now >= flickerQueue[0].t) target = flickerQueue.shift()!.v;
+      if (anim < 0.02 && target < 0.02 && flickerQueue.length === 0 && now > nextAt) strike(now);
+      requestAnimationFrame(tick);
+    }
+
+    if (!reduce) {
+      requestAnimationFrame(tick);
+    }
+  }
+</script>
