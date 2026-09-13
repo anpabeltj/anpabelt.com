@@ -48,6 +48,13 @@ const items = media.map((m) => ({ m, usage: usageFor(m.url) }));
           <option value="used">Used</option>
           <option value="unused">Unused</option>
         </select>
+        <select id="media-sort" data-testid="media-sort"
+          class="bg-elevated border border-white/10 rounded-lg px-3 py-2 text-sm text-retro-50 focus:outline-none focus:ring-2 focus:ring-teal-400/60 transition">
+          <option value="newest">Newest</option>
+          <option value="name">Name (A–Z)</option>
+          <option value="size">Size (largest)</option>
+          <option value="used">Most used</option>
+        </select>
         <span id="filter-count" class="text-xs text-retro-400"></span>
       </div>
 
@@ -64,7 +71,7 @@ const items = media.map((m) => ({ m, usage: usageFor(m.url) }));
 
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" data-testid="media-grid">
         {items.map(({ m, usage }) => (
-          <figure class="relative rounded-xl border border-white/10 bg-card overflow-hidden group" data-testid="media-item" data-media-id={m.id} data-used={usage.length} data-name={m.originalName.toLowerCase()}>
+          <figure class="relative rounded-xl border border-white/10 bg-card overflow-hidden group" data-testid="media-item" data-media-id={m.id} data-used={usage.length} data-name={m.originalName.toLowerCase()} data-created={new Date(m.createdAt).getTime()} data-size={m.size}>
             <label class="absolute top-2 left-2 z-10 flex items-center justify-center w-7 h-7 rounded-md bg-black/50 backdrop-blur-sm cursor-pointer">
               <input type="checkbox" class="media-select media-check" data-id={m.id} data-testid="media-select" />
             </label>
@@ -224,13 +231,55 @@ const items = media.map((m) => ({ m, usage: usageFor(m.url) }));
     });
   });
 
-  // ---- Replace file in place (same URL → all posts update) ----
+  // ---- Replace file in place (same URL → all posts update), with before/after confirm ----
+  function confirmReplace(beforeSrc: string, file: File): Promise<boolean> {
+    return new Promise((resolve) => {
+      const afterUrl = URL.createObjectURL(file);
+      const modal = document.createElement("div");
+      modal.className = "replace-modal";
+      modal.dataset.testid = "replace-modal";
+      modal.innerHTML =
+        `<div class="replace-backdrop" data-rep-cancel></div>` +
+        `<div class="replace-panel" role="dialog" aria-label="Confirm replacement">` +
+        `<h3>Replace this image?</h3>` +
+        `<p class="replace-help">The link stays the same, so every post using this image will show the new file.</p>` +
+        `<div class="replace-compare">` +
+        `<figure><span>Before</span><img src="${beforeSrc}" alt="current" /></figure>` +
+        `<div class="replace-arrow">→</div>` +
+        `<figure><span>After</span><img src="${afterUrl}" alt="new" /></figure>` +
+        `</div>` +
+        `<div class="replace-actions">` +
+        `<button type="button" class="replace-cancel" data-rep-cancel data-testid="replace-cancel">Cancel</button>` +
+        `<button type="button" class="replace-confirm" data-testid="replace-confirm">Confirm replace</button>` +
+        `</div></div>`;
+      document.body.appendChild(modal);
+      requestAnimationFrame(() => modal.classList.add("open"));
+      let settled = false;
+      function close(val: boolean) {
+        if (settled) return;
+        settled = true;
+        modal.classList.remove("open");
+        document.removeEventListener("keydown", onEsc);
+        setTimeout(() => { modal.remove(); URL.revokeObjectURL(afterUrl); }, 200);
+        resolve(val);
+      }
+      function onEsc(e: KeyboardEvent) { if (e.key === "Escape") { e.preventDefault(); close(false); } }
+      modal.querySelectorAll("[data-rep-cancel]").forEach((el) => el.addEventListener("click", () => close(false)));
+      (modal.querySelector(".replace-confirm") as HTMLElement).addEventListener("click", () => close(true));
+      document.addEventListener("keydown", onEsc);
+    });
+  }
+
   document.querySelectorAll<HTMLInputElement>(".replace-input").forEach((inp) => {
     inp.addEventListener("change", async () => {
       const file = inp.files?.[0];
       const id = inp.dataset.id!;
-      if (!file || !id) return;
+      if (!file || !id) { inp.value = ""; return; }
       const fig = inp.closest("[data-media-id]");
+      const img = fig?.querySelector("img") as HTMLImageElement | null;
+      const beforeSrc = img?.getAttribute("src") || "";
+      const ok = await confirmReplace(beforeSrc, file);
+      if (!ok) { inp.value = ""; return; }
       show("Replacing…");
       const fd = new FormData();
       fd.append("file", file);
@@ -238,7 +287,6 @@ const items = media.map((m) => ({ m, usage: usageFor(m.url) }));
         const res = await fetch(`/actions/media/${id}`, { method: "PUT", body: fd });
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || "Replace failed.");
-        const img = fig?.querySelector("img") as HTMLImageElement | null;
         if (img && json.asset) {
           const u = json.asset.url as string;
           img.src = u + (u.includes("?") ? "&" : "?") + "t=" + Date.now();
@@ -251,6 +299,23 @@ const items = media.map((m) => ({ m, usage: usageFor(m.url) }));
       }
     });
   });
+
+  // ---- Sort ----
+  const sortSel = document.getElementById("media-sort") as HTMLSelectElement | null;
+  function applySort() {
+    const grid = document.querySelector("[data-testid='media-grid']");
+    if (!grid || !sortSel) return;
+    const items = Array.from(grid.querySelectorAll<HTMLElement>("[data-testid='media-item']"));
+    const key = sortSel.value;
+    items.sort((a, b) => {
+      if (key === "name") return (a.dataset.name || "").localeCompare(b.dataset.name || "");
+      if (key === "size") return Number(b.dataset.size || 0) - Number(a.dataset.size || 0);
+      if (key === "used") return Number(b.dataset.used || 0) - Number(a.dataset.used || 0);
+      return Number(b.dataset.created || 0) - Number(a.dataset.created || 0);
+    });
+    items.forEach((el) => grid.appendChild(el));
+  }
+  sortSel?.addEventListener("change", applySort);
 
   // ---- Search + used/unused filter ----
   const search = document.getElementById("media-search") as HTMLInputElement | null;
@@ -279,4 +344,22 @@ const items = media.map((m) => ({ m, usage: usageFor(m.url) }));
 
 <style>
   .media-check { accent-color: #2dd4bf; width: 1rem; height: 1rem; cursor: pointer; }
+
+  .replace-modal { position: fixed; inset: 0; z-index: 70; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+  .replace-modal.open { opacity: 1; pointer-events: auto; }
+  .replace-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(2px); }
+  .replace-panel { position: relative; width: 460px; max-width: calc(100vw - 2rem); padding: 1.25rem; border-radius: 1rem; background: #131a19; border: 1px solid rgba(111,227,154,0.22); box-shadow: 0 20px 60px rgba(0,0,0,0.5); transform: translateY(8px) scale(0.98); transition: transform 0.2s ease; }
+  .replace-modal.open .replace-panel { transform: translateY(0) scale(1); }
+  .replace-panel h3 { font-size: 1rem; font-weight: 600; color: #e7f6ee; margin-bottom: 0.35rem; }
+  .replace-help { font-size: 0.78rem; color: rgba(231,246,238,0.6); margin-bottom: 1rem; }
+  .replace-compare { display: flex; align-items: center; gap: 0.75rem; }
+  .replace-compare figure { flex: 1 1 0; text-align: center; }
+  .replace-compare figure span { display: block; font-size: 0.7rem; color: rgba(231,246,238,0.55); margin-bottom: 0.35rem; }
+  .replace-compare img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 0.6rem; border: 1px solid rgba(255,255,255,0.1); background: #0d1211; }
+  .replace-arrow { color: rgba(111,227,154,0.8); font-size: 1.2rem; flex: 0 0 auto; }
+  .replace-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem; }
+  .replace-cancel { padding: 0.5rem 0.9rem; border-radius: 0.5rem; font-size: 0.85rem; color: rgba(231,246,238,0.7); border: 1px solid rgba(255,255,255,0.12); }
+  .replace-cancel:hover { color: #e7f6ee; border-color: rgba(255,255,255,0.25); }
+  .replace-confirm { padding: 0.5rem 0.9rem; border-radius: 0.5rem; font-size: 0.85rem; font-weight: 600; color: #06231a; background: #2dd4bf; }
+  .replace-confirm:hover { background: #6fe39a; }
 </style>

@@ -113,3 +113,13 @@ Emergent preview has no OIDC token and correctly still uses local disk).
   + used/unused/all dropdown with a live "N shown" count. Verified: "zebra" → 1 shown;
   Unused → only data-used=0 items. No console errors.
 
+## Feature — 2026-09-13 (Replace Confirmation + Sort Options)
+- Replace confirmation (`admin/media.astro`): choosing a replacement now opens a modal
+  showing Before (current) vs After (new file object URL) thumbnails; the PUT only fires on
+  "Confirm replace" (Cancel/Esc aborts, input reset). Verified: 2 compare imgs + labels;
+  cancel aborts; confirm → "Image replaced ✓".
+- Sort options (`admin/media.astro`): dropdown sorts the grid by Newest (data-created),
+  Name A–Z (data-name), Size largest (data-size), or Most used (data-used) by reordering
+  DOM nodes. Added data-created/data-size to each item. Verified: Name sort A–Z correct,
+  Most used sorted descending.
+
