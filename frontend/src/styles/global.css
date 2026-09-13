@@ -14,10 +14,10 @@
   --color-retro-900: hsl(153, 10%, 12%);
   --color-retro-950: hsl(155, 24%, 5%);
 
-  /* Accent matches the "Anpabelt." mint in the hero */
-  --color-mint: #7fe3bb;
-  --color-mint-bright: #9defcb;
-  --color-mint-dim: #5cc79e;
+  /* Soft spring-green accent (no teal/cyan cast) */
+  --color-mint: #6fe39a;
+  --color-mint-bright: #92efb2;
+  --color-mint-dim: #52c777;
 
   --font-display: "Fraunces", Georgia, "Times New Roman", serif;
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
@@ -49,7 +49,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 ::selection {
-  background: rgba(127, 227, 187, 0.25);
+  background: rgba(111, 227, 154, 0.25);
   color: #fff;
 }
 
@@ -260,7 +260,7 @@ h1, h2, h3, h4, h5, h6 {
 .article-content code {
   font-family: var(--font-mono);
   font-size: 0.82em;
-  background: rgba(127, 227, 187, 0.12);
+  background: rgba(111, 227, 154, 0.12);
   color: var(--color-mint-bright);
   padding: 0.15em 0.4em;
   border-radius: 0.35rem;
