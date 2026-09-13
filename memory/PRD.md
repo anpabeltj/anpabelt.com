@@ -214,3 +214,9 @@ Testing agent: 100% pass, no functional bugs (iteration_4.json).
   "Notify me" link to /contact, and close (Esc/backdrop/✕).
 - NOTE: The AI itself is intentionally NOT functional yet — this is a placeholder while the
   user builds their custom AI. No LLM/backend wired. Illustration generated via Gemini image.
+
+## 2026-09-13 — Favicon fix for Google Search
+- Root cause: site only had an SVG favicon; Google Search does not support SVG favicons (supports ICO/PNG/JPEG/GIF/BMP/PPM/TIFF), so it showed the default globe.
+- Fix: generated raster favicons from favicon.svg via sharp (favicon.ico multi-res 16/32/48, PNGs 16-512, apple-touch-icon 180). Added rel=icon links (ICO + 96x96 PNG + SVG + apple-touch-icon) with stable URLs (removed ?v=3) in BaseLayout.astro and AdminLayout.astro.
+- Regenerate: `node frontend/scripts/gen-favicons.mjs`.
+- Verified: all icon files return 200 with correct content-type locally.
