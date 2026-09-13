@@ -79,3 +79,10 @@ Added three enhancements to the rich text editor (`scripts/postEditor.ts`):
   (their app is under Unsplash review, 5–10 business days). Add `UNSPLASH_ACCESS_KEY=<key>` to
   `frontend/.env` and restart to activate.
 - Verified via browser: emoji insert (🔥), table + Tab row-add, modal opens with friendly "not set up" message.
+
+## Task done (2026-09-13) — Table row/column controls
+- Hovering any table cell reveals a floating toolbar (`.rte-table-tools`) with: add row below,
+  delete row, add column right, delete column. Header cells stay <th>, body <td>.
+- Deleting the last row/column replaces the table with an empty paragraph (no broken table).
+- Implemented in `scripts/postEditor.ts` (floating control, cell-hover positioning); styles in `global.css`.
+- Verified via browser: add-row 3→4 rows, add-col 3→4 cols, del-col 4→3 cols; no console errors.

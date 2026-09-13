@@ -612,3 +612,35 @@ h1, h2, h3, h4, h5, h6 {
 .unsplash-cell:hover .unsplash-cred { opacity: 1; }
 .unsplash-foot { padding: 0.6rem 1rem; border-top: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.72rem; color: rgba(213, 219, 215, 0.5); }
 @media (max-width: 520px) { .unsplash-results { grid-template-columns: repeat(2, 1fr); } }
+
+/* ------------------------------------------------------------------ */
+/* Table row/column controls                                           */
+/* ------------------------------------------------------------------ */
+.rte-table-tools {
+  position: fixed;
+  z-index: 56;
+  display: none;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 8px;
+  background: rgba(8, 15, 11, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+.rte-table-tools button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  color: rgba(213, 219, 215, 0.8);
+  background: transparent;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.rte-table-tools button:hover { background: rgba(111, 227, 154, 0.16); color: var(--color-mint-bright); }
+.rte-table-tools .tt-del:hover { background: rgba(239, 68, 68, 0.18); color: #fca5a5; }
+.rte-table-tools .tt-sep { width: 1px; height: 16px; background: rgba(255, 255, 255, 0.14); margin: 0 2px; }

@@ -1069,3 +1069,98 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     enhanceEditor();
     showMsg("Photo inserted \u2713");
   }
+
+
+  // ---- Table row/column controls (floating, on cell hover) ----
+  const tableTools = document.createElement("div");
+  tableTools.className = "rte-table-tools";
+  tableTools.dataset.testid = "table-tools";
+  tableTools.style.display = "none";
+  const svgAddRow = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="6" rx="1"/><line x1="12" y1="14" x2="12" y2="21"/><line x1="8.5" y1="17.5" x2="15.5" y2="17.5"/></svg>`;
+  const svgDelRow = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="6" rx="1"/><line x1="8.5" y1="17.5" x2="15.5" y2="17.5"/></svg>`;
+  const svgAddCol = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="3" width="6" height="18" rx="1"/><line x1="18" y1="8.5" x2="18" y2="15.5"/><line x1="14.5" y1="12" x2="21.5" y2="12"/></svg>`;
+  const svgDelCol = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="3" width="6" height="18" rx="1"/><line x1="14.5" y1="12" x2="21.5" y2="12"/></svg>`;
+  tableTools.innerHTML =
+    `<button type="button" data-tt="add-row" title="Add row below" data-testid="tt-add-row">${svgAddRow}</button>` +
+    `<button type="button" class="tt-del" data-tt="del-row" title="Delete row" data-testid="tt-del-row">${svgDelRow}</button>` +
+    `<span class="tt-sep"></span>` +
+    `<button type="button" data-tt="add-col" title="Add column right" data-testid="tt-add-col">${svgAddCol}</button>` +
+    `<button type="button" class="tt-del" data-tt="del-col" title="Delete column" data-testid="tt-del-col">${svgDelCol}</button>`;
+  document.body.appendChild(tableTools);
+
+  let ttCell = null;
+  let ttHideTimer = null;
+
+  function cellFromNode(node) {
+    while (node && node !== editor) { if (node.tagName === "TD" || node.tagName === "TH") return node; node = node.parentNode; }
+    return null;
+  }
+  function positionTableTools(cell) {
+    const r = cell.getBoundingClientRect();
+    tableTools.style.top = `${Math.max(6, r.top - 30)}px`;
+    tableTools.style.left = `${Math.min(window.innerWidth - 150, r.right - 132)}px`;
+    tableTools.style.display = "flex";
+  }
+  editor.addEventListener("mousemove", (e) => {
+    if (dragging) return;
+    const cell = cellFromNode(e.target);
+    if (cell) { ttCell = cell; if (ttHideTimer) clearTimeout(ttHideTimer); positionTableTools(cell); }
+  });
+  function scheduleTtHide() { ttHideTimer = setTimeout(() => { tableTools.style.display = "none"; }, 400); }
+  editor.addEventListener("mouseleave", scheduleTtHide);
+  tableTools.addEventListener("mouseenter", () => { if (ttHideTimer) clearTimeout(ttHideTimer); });
+  tableTools.addEventListener("mouseleave", scheduleTtHide);
+  window.addEventListener("scroll", () => { tableTools.style.display = "none"; }, true);
+
+  function colIndexOf(cell) { return Array.from(cell.parentElement.children).indexOf(cell); }
+  function tableEmptyGuard(table) {
+    if (!table.querySelector("th, td")) {
+      const p = makeEl("<p><br></p>");
+      table.replaceWith(p);
+      placeCaret(p);
+      return true;
+    }
+    return false;
+  }
+  tableTools.querySelectorAll("[data-tt]").forEach((btn) => {
+    btn.addEventListener("mousedown", (e) => e.preventDefault());
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (!ttCell || !editor.contains(ttCell)) return;
+      const table = ttCell.closest("table");
+      const act = btn.dataset.tt;
+      if (act === "add-row") {
+        const row = ttCell.closest("tr");
+        const cols = row.children.length;
+        const tr = document.createElement("tr");
+        for (let i = 0; i < cols; i++) { const td = document.createElement("td"); td.innerHTML = "<br>"; tr.appendChild(td); }
+        if (row.parentElement.tagName === "THEAD") {
+          const tbody = table.querySelector("tbody") || table;
+          tbody.insertBefore(tr, tbody.firstChild);
+        } else { row.after(tr); }
+      } else if (act === "del-row") {
+        const row = ttCell.closest("tr");
+        const section = row.parentElement;
+        row.remove();
+        if (section && section.tagName === "THEAD" && !section.children.length) section.remove();
+        tableTools.style.display = "none";
+        if (!tableEmptyGuard(table)) ttCell = null;
+      } else if (act === "add-col") {
+        const idx = colIndexOf(ttCell);
+        Array.from(table.rows).forEach((r) => {
+          const isHead = r.parentElement.tagName === "THEAD";
+          const cell = document.createElement(isHead ? "th" : "td");
+          cell.innerHTML = "<br>";
+          const ref = r.children[idx];
+          if (ref) ref.after(cell); else r.appendChild(cell);
+        });
+      } else if (act === "del-col") {
+        const idx = colIndexOf(ttCell);
+        Array.from(table.rows).forEach((r) => { const c = r.children[idx]; if (c) c.remove(); });
+        tableTools.style.display = "none";
+        if (!tableEmptyGuard(table)) ttCell = null;
+      }
+      updateWordCount();
+      scheduleAutosave();
+    });
+  });
