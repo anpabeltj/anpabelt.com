@@ -169,6 +169,31 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     } catch { /* selection spanned block boundaries; ignore */ }
   }
 
+  // Toggle inline <code>: unwrap when the caret/selection is already inside code, else wrap.
+  function toggleInlineCode() {
+    editor.focus();
+    if (!selectionInEditor()) restoreSelection();
+    const code = closestTag("CODE");
+    if (!code) { wrapSelection("code"); return; }
+    const parent = code.parentNode;
+    if (!parent) return;
+    const frag = document.createDocumentFragment();
+    while (code.firstChild) frag.appendChild(code.firstChild);
+    const first = frag.firstChild;
+    const last = frag.lastChild;
+    parent.replaceChild(frag, code);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    const r = document.createRange();
+    if (first && last) { r.setStartBefore(first); r.setEndAfter(last); }
+    else { r.selectNodeContents(parent); r.collapse(true); }
+    sel.addRange(r);
+    savedRange = r;
+    if (parent.normalize) parent.normalize();
+    updateToolbarState();
+    scheduleAutosave();
+  }
+
   // ---- Toolbar active-state feedback ----
   function closestTag(tag) {
     const sel = window.getSelection();
@@ -255,7 +280,7 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
         const url = prompt("Link URL:", "https://");
         if (url) exec("createLink", url);
       } else if (cmd === "inlineCode") {
-        wrapSelection("code");
+        toggleInlineCode();
       } else {
         exec(cmd);
       }
