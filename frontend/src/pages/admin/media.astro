@@ -1,9 +1,25 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
 import { listMedia } from "../../lib/media";
+import { listPosts } from "../../lib/posts";
 import { formatDate } from "../../lib/markdown";
 
 const media = await listMedia();
+const posts = await listPosts({ status: "all" });
+
+// Which posts reference a given image URL (cover, inline content, or gallery item).
+function usageFor(url: string) {
+  return posts
+    .filter(
+      (p) =>
+        p.coverImage === url ||
+        (p.content && p.content.includes(url)) ||
+        (p.images && p.images.some((i) => i.url === url))
+    )
+    .map((p) => ({ id: p.id, title: p.title, status: p.status }));
+}
+
+const items = media.map((m) => ({ m, usage: usageFor(m.url) }));
 ---
 
 <AdminLayout title="Media" active="media">
@@ -22,23 +38,46 @@ const media = await listMedia();
       <p class="text-retro-400">No images uploaded yet.</p>
     </div>
   ) : (
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" data-testid="media-grid">
-      {media.map((m) => (
-        <figure class="rounded-xl border border-white/10 bg-card overflow-hidden group" data-testid="media-item">
-          <div class="aspect-square bg-elevated overflow-hidden">
-            <img src={m.url} alt={m.originalName} loading="lazy" class="w-full h-full object-cover" />
-          </div>
-          <figcaption class="p-3 space-y-2">
-            <p class="text-xs font-mono text-retro-50/70 truncate" title={m.originalName}>{m.originalName}</p>
-            <p class="text-[10px] font-mono text-retro-400">{formatDate(m.createdAt)} · {(m.size / 1024).toFixed(0)} KB</p>
-            <div class="flex gap-2">
-              <button data-url={m.url} class="copy-url-btn flex-1 text-xs rounded-md border border-white/10 py-1.5 hover:border-teal-500/40 hover:text-teal-300 transition-colors" data-testid="media-copy-button">Copy URL</button>
-              <button data-id={m.id} class="delete-media-btn text-xs rounded-md border border-red-500/30 text-red-300 px-2.5 py-1.5 hover:bg-red-500/10 transition-colors" data-testid="media-delete-button" title="Delete image">Delete</button>
+    <>
+      <div id="media-toolbar" class="flex items-center justify-between gap-4 mb-4">
+        <label class="flex items-center gap-2 text-sm text-retro-400 cursor-pointer">
+          <input type="checkbox" id="select-all" class="media-check" data-testid="media-select-all" /> Select all
+        </label>
+        <div id="bulk-actions" class="hidden items-center gap-3">
+          <span id="bulk-count" class="text-sm text-retro-50/80"></span>
+          <button id="bulk-delete" data-testid="media-bulk-delete"
+            class="text-sm rounded-lg border border-red-500/30 text-red-300 px-3 py-1.5 hover:bg-red-500/10 transition-colors">Delete selected</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" data-testid="media-grid">
+        {items.map(({ m, usage }) => (
+          <figure class="relative rounded-xl border border-white/10 bg-card overflow-hidden group" data-testid="media-item" data-media-id={m.id} data-used={usage.length}>
+            <label class="absolute top-2 left-2 z-10 flex items-center justify-center w-7 h-7 rounded-md bg-black/50 backdrop-blur-sm cursor-pointer">
+              <input type="checkbox" class="media-select media-check" data-id={m.id} data-testid="media-select" />
+            </label>
+            <div class="aspect-square bg-elevated overflow-hidden">
+              <img src={m.url} alt={m.originalName} loading="lazy" class="w-full h-full object-cover" />
             </div>
-          </figcaption>
-        </figure>
-      ))}
-    </div>
+            <figcaption class="p-3 space-y-2">
+              <p class="text-xs font-mono text-retro-50/70 truncate" title={m.originalName}>{m.originalName}</p>
+              <p class="text-[10px] font-mono text-retro-400">{formatDate(m.createdAt)} · {(m.size / 1024).toFixed(0)} KB</p>
+              {usage.length > 0 ? (
+                <p class="text-[10px] text-amber-300/80" data-testid="media-usage" title={usage.map((u) => u.title).join(", ")}>
+                  Used in {usage.length} post{usage.length > 1 ? "s" : ""}
+                </p>
+              ) : (
+                <p class="text-[10px] text-retro-400/60" data-testid="media-usage">Not used</p>
+              )}
+              <div class="flex gap-2">
+                <button data-url={m.url} class="copy-url-btn flex-1 text-xs rounded-md border border-white/10 py-1.5 hover:border-teal-500/40 hover:text-teal-300 transition-colors" data-testid="media-copy-button">Copy URL</button>
+                <button data-id={m.id} class="delete-media-btn text-xs rounded-md border border-red-500/30 text-red-300 px-2.5 py-1.5 hover:bg-red-500/10 transition-colors" data-testid="media-delete-button" title="Delete image">Delete</button>
+              </div>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </>
   )}
 </AdminLayout>
 
@@ -81,10 +120,73 @@ const media = await listMedia();
     });
   });
 
+  // ---- Selection + bulk delete ----
+  const selected = new Set<string>();
+  const bulkActions = document.getElementById("bulk-actions");
+  const bulkCount = document.getElementById("bulk-count");
+  const bulkDelete = document.getElementById("bulk-delete") as HTMLButtonElement | null;
+  const selectAll = document.getElementById("select-all") as HTMLInputElement | null;
+
+  function refreshBulk() {
+    const boxes = Array.from(document.querySelectorAll<HTMLInputElement>(".media-select"));
+    if (bulkActions) bulkActions.classList.toggle("hidden", selected.size === 0);
+    if (bulkActions) bulkActions.classList.toggle("flex", selected.size > 0);
+    if (bulkCount) bulkCount.textContent = `${selected.size} selected`;
+    if (selectAll) selectAll.checked = boxes.length > 0 && selected.size === boxes.length;
+  }
+
+  document.querySelectorAll<HTMLInputElement>(".media-select").forEach((cb) => {
+    cb.addEventListener("change", () => {
+      const id = cb.dataset.id!;
+      if (cb.checked) selected.add(id); else selected.delete(id);
+      refreshBulk();
+    });
+  });
+
+  selectAll?.addEventListener("change", () => {
+    document.querySelectorAll<HTMLInputElement>(".media-select").forEach((cb) => {
+      cb.checked = selectAll.checked;
+      const id = cb.dataset.id!;
+      if (selectAll.checked) selected.add(id); else selected.delete(id);
+    });
+    refreshBulk();
+  });
+
+  function usedCountOf(ids: string[]) {
+    return ids.filter((id) => Number(document.querySelector(`[data-media-id='${id}']`)?.getAttribute("data-used") || 0) > 0).length;
+  }
+
+  bulkDelete?.addEventListener("click", async () => {
+    const ids = [...selected];
+    if (!ids.length) return;
+    const used = usedCountOf(ids);
+    let warn = `Delete ${ids.length} selected image${ids.length > 1 ? "s" : ""} permanently?`;
+    if (used) warn += `\n\n${used} of them ${used > 1 ? "are" : "is"} still used in posts and will show broken images.`;
+    if (!confirm(warn)) return;
+    bulkDelete.textContent = "Deleting…";
+    bulkDelete.disabled = true;
+    let ok = 0, fail = 0;
+    for (const id of ids) {
+      try {
+        const res = await fetch(`/actions/media/${id}`, { method: "DELETE" });
+        if (res.ok) { document.querySelector(`[data-media-id='${id}']`)?.remove(); selected.delete(id); ok++; }
+        else fail++;
+      } catch { fail++; }
+    }
+    bulkDelete.textContent = "Delete selected";
+    bulkDelete.disabled = false;
+    show(`Deleted ${ok} image${ok !== 1 ? "s" : ""}${fail ? `, ${fail} failed` : " ✓"}`, fail === 0);
+    refreshBulk();
+    if (!document.querySelector("[data-testid='media-item']")) window.location.reload();
+  });
+
   document.querySelectorAll(".delete-media-btn").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const id = (btn as HTMLButtonElement).dataset.id!;
-      if (!id || !confirm("Delete this image permanently? Posts still using it will show a broken image.")) return;
+      const used = Number(btn.closest("[data-media-id]")?.getAttribute("data-used") || 0);
+      let warn = "Delete this image permanently?";
+      if (used) warn += `\n\nIt is still used in ${used} post${used > 1 ? "s" : ""} and will show a broken image.`;
+      if (!id || !confirm(warn)) return;
       const original = btn.textContent;
       btn.textContent = "Deleting…";
       (btn as HTMLButtonElement).disabled = true;
@@ -92,7 +194,9 @@ const media = await listMedia();
         const res = await fetch(`/actions/media/${id}`, { method: "DELETE" });
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || "Delete failed.");
+        selected.delete(id);
         btn.closest("[data-testid='media-item']")?.remove();
+        refreshBulk();
         show("Image deleted ✓");
         if (!document.querySelector("[data-testid='media-item']")) window.location.reload();
       } catch (err) {
@@ -103,3 +207,7 @@ const media = await listMedia();
     });
   });
 </script>
+
+<style>
+  .media-check { accent-color: #2dd4bf; width: 1rem; height: 1rem; cursor: pointer; }
+</style>

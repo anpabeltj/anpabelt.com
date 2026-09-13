@@ -93,3 +93,13 @@ Emergent preview has no OIDC token and correctly still uses local disk).
   removes the card on success and reloads when the last item is deleted. Verified: 19 → 18
   items with "Image deleted ✓", no console errors.
 
+## Feature — 2026-09-13 (Media Bulk Delete + Usage Indicator)
+- Usage indicator (`admin/media.astro`): each media item is matched against all posts
+  (coverImage === url, content includes url, or gallery images url) and shows
+  "Used in N post(s)" (amber, with titles tooltip) or "Not used". Single + bulk delete
+  warn when a used image is being removed.
+- Bulk select delete: per-item checkbox overlay + "Select all"; a toolbar shows
+  "N selected" and "Delete selected" which loops the DELETE action, removes cards, and
+  reports success/failures. Verified: usage labels correct; selecting 2 → "2 selected" →
+  delete → grid 20 → 18, "Deleted 2 images ✓", no console errors.
+
