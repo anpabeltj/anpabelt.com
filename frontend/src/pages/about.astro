@@ -11,20 +11,57 @@ import { experiences, education, techStack, site } from "../lib/site";
     </h1>
 
     <div class="reveal mt-12 flex flex-col sm:flex-row items-center sm:items-start gap-8 sm:gap-12" style="animation-delay:100ms">
-      <img src="/assets/images/profile-image-3.png" alt="Anpabelt Trah Javala" class="w-32 h-32 sm:w-44 sm:h-44 rounded-full object-cover border border-white/10 shrink-0" />
-      <div class="text-center sm:text-left">
-        <h2 class="font-display text-2xl font-bold text-white">Anpabelt Trah Javala</h2>
-        <p class="mt-4 text-retro-50/80 leading-relaxed">
-          Hi, I'm Anpabelt — you can call me Ann. I'm a full-time student at Universiti Teknologi
-          Petronas (UTP), Malaysia, with a passion for blending creativity and technology. My
-          journey revolves around web development, data science and design.
-        </p>
-        <ul class="mt-5 space-y-3 text-left text-retro-50/80">
-          <li><span class="font-semibold text-white">⚛️ Web Development:</span> I build intuitive websites that (mostly) don't break — from portfolios to complex projects.</li>
-          <li><span class="font-semibold text-white">📈 Data Science:</span> I dive into datasets with Python, turning raw numbers into stories and visualisations.</li>
-          <li><span class="font-semibold text-white">🎨 Design:</span> I explore modern aesthetics, balancing function and creativity to craft designs that feel right.</li>
-        </ul>
+      <div class="profile-wrap shrink-0">
+        <img src="/assets/images/profile-image-3.png" alt="Anpabelt Trah Javala" class="profile-img w-32 h-32 sm:w-44 sm:h-44 rounded-full object-cover border border-white/10" />
       </div>
+      <div class="io-reveal text-center sm:text-left">
+        <h2 class="font-display text-2xl sm:text-3xl font-bold text-white">Anpabelt Trah Javala</h2>
+        <p class="mt-4 text-retro-50/80 leading-relaxed max-w-xl">
+          Hi, I'm Anpabelt — you can call me <span class="name-accent">Ann</span>. I'm a full-time
+          student at Universiti Teknologi Petronas (UTP), Malaysia, with a passion for blending
+          creativity and technology. My journey revolves around web development, data science and design.
+        </p>
+      </div>
+    </div>
+
+    <!-- What I do — animated skill cards -->
+    <div class="mt-14 grid grid-cols-1 md:grid-cols-3 gap-5">
+      {[
+        {
+          n: "01",
+          title: "Web Development",
+          body: "I build intuitive websites that (mostly) don't break — from portfolios to complex projects.",
+          icon: `<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>`,
+        },
+        {
+          n: "02",
+          title: "Data Science",
+          body: "I dive into datasets with Python, turning raw numbers into stories and visualisations.",
+          icon: `<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>`,
+        },
+        {
+          n: "03",
+          title: "Design",
+          body: "I explore modern aesthetics, balancing function and creativity to craft designs that feel right.",
+          icon: `<path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/>`,
+        },
+      ].map((s, i) => (
+        <article
+          class="skill-card io-reveal group relative rounded-2xl border border-white/5 bg-card/50 backdrop-blur-sm p-6 transition-all duration-500 hover:-translate-y-1.5 hover:border-mint/40 hover:shadow-[0_28px_55px_-28px_rgba(0,0,0,0.75)]"
+          style={`transition-delay:${i * 110}ms`}
+          data-testid={`skill-card-${i}`}
+        >
+          <div class="flex items-center justify-between">
+            <div class="w-12 h-12 rounded-xl grid place-items-center bg-mint/10 text-mint transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" set:html={s.icon} />
+            </div>
+            <span class="font-mono text-xs text-retro-400 group-hover:text-mint transition-colors">{s.n}</span>
+          </div>
+          <h3 class="mt-5 font-display text-lg font-semibold text-white">{s.title}</h3>
+          <p class="mt-2 text-sm text-retro-50/70 leading-relaxed">{s.body}</p>
+          <span class="skill-glow" aria-hidden="true"></span>
+        </article>
+      ))}
     </div>
 
     <!-- Tech marquee -->
