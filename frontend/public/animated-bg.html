@@ -20,7 +20,7 @@
      real cloud texture appears to be lit up from within */
   .clouds-lit{position:absolute;inset:-4%;background-size:cover;background-position:center;
     background-image:url("https://static.prod-images.emergentagent.com/jobs/592f7c1b-810b-4f6d-a521-d08447fcd56f/images/8718a6eda1d383a35e1e5f601ea794239d494cb46ab00044988b003758c061d0.jpeg");
-    mix-blend-mode:screen; filter:brightness(2.4) saturate(0.7) hue-rotate(-4deg);
+    mix-blend-mode:screen; filter:brightness(2.9) saturate(0.72) hue-rotate(-4deg);
     opacity:0; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
     will-change:transform;animation:drift 46s ease-in-out infinite;}
 
@@ -97,8 +97,19 @@ let nextAt=performance.now()+900;
 function strike(now, forceIdx){
   active=cores[forceIdx!==undefined?forceIdx:Math.floor(Math.random()*cores.length)];
   const ox=active.x/100*W, oy=active.y/100*H;
-  // pure light source inside the cloud (no lines) with a randomised spread
-  bolt={ox,oy, r:(150+Math.random()*120)*DPR};
+  // an irregular illuminated region made of several soft zones, so the CLOUD
+  // itself appears lit rather than a single glowing point
+  const blobs=[{dx:0,dy:0,r:30,a:1}];
+  const extra=3+Math.floor(Math.random()*3);
+  for(let i=0;i<extra;i++){
+    blobs.push({
+      dx:(Math.random()-0.5)*26,
+      dy:(Math.random()-0.5)*22,
+      r:12+Math.random()*16,
+      a:0.55+Math.random()*0.35
+    });
+  }
+  bolt={ox,oy,blobs, r:(160+Math.random()*120)*DPR};
   // natural stutter: small pre-flash, dark, big flash, decay
   const peak=0.8+Math.random()*0.2;
   let t=now; const seq=[];
@@ -115,29 +126,29 @@ function strike(now, forceIdx){
 function paintLit(){
   if(!bolt){lit.style.opacity=0;return;}
   const gx=bolt.ox/W*100, gy=bolt.oy/H*100;
-  const rr=Math.min(50, Math.max(24, bolt.r/Math.min(W,H)*100+10));
-  const m='radial-gradient('+rr+'% '+rr+'% at '+gx+'% '+gy+'%,'
-    +'rgba(0,0,0,'+anim+') 0%, rgba(0,0,0,'+(anim*0.55)+') 45%, transparent 72%)';
+  // build an irregular mask from several offset zones -> lights up a spread of
+  // real cloud texture instead of a clean circle
+  const parts=bolt.blobs.map(b=>{
+    const cx=gx+b.dx, cy=gy+b.dy, a=anim*b.a;
+    return 'radial-gradient('+b.r+'% '+b.r+'% at '+cx+'% '+cy+'%,'
+      +'rgba(0,0,0,'+a+') 0%, rgba(0,0,0,'+(a*0.6)+') 42%, transparent 74%)';
+  });
+  const m=parts.join(',');
   lit.style.webkitMaskImage=m; lit.style.maskImage=m;
-  lit.style.opacity=anim;
+  lit.style.opacity=1;   // intensity carried by the mask alpha
 }
 
 function drawBolt(){
   ctx.clearRect(0,0,W,H);
   if(!bolt||anim<0.02)return;
-  // soft light glowing from inside the cloud — light only, no lines
-  const R=bolt.r;
+  // only a faint, very large ambient haze so the surrounding air glows a touch.
+  // the actual illumination is the lit cloud texture (paintLit), not this disc.
+  const R=bolt.r*1.9;
   const g=ctx.createRadialGradient(bolt.ox,bolt.oy,0,bolt.ox,bolt.oy,R);
-  g.addColorStop(0,'rgba(232,255,247,'+(0.85*anim)+')');
-  g.addColorStop(0.3,'rgba('+MINT+','+(0.55*anim)+')');
-  g.addColorStop(0.62,'rgba(70,160,120,'+(0.24*anim)+')');
+  g.addColorStop(0,'rgba('+MINT+','+(0.16*anim)+')');
+  g.addColorStop(0.45,'rgba(70,160,120,'+(0.09*anim)+')');
   g.addColorStop(1,'rgba('+MINT+',0)');
   ctx.fillStyle=g;ctx.beginPath();ctx.arc(bolt.ox,bolt.oy,R,0,7);ctx.fill();
-  // small hot core
-  const g2=ctx.createRadialGradient(bolt.ox,bolt.oy,0,bolt.ox,bolt.oy,R*0.32);
-  g2.addColorStop(0,'rgba(240,255,250,'+(0.9*anim)+')');
-  g2.addColorStop(1,'rgba(240,255,250,0)');
-  ctx.fillStyle=g2;ctx.beginPath();ctx.arc(bolt.ox,bolt.oy,R*0.32,0,7);ctx.fill();
 }
 
 function tick(now){
