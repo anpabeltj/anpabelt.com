@@ -104,3 +104,12 @@ export async function deleteProject(id: string): Promise<boolean> {
   const rs = await c.execute({ sql: "DELETE FROM projects WHERE id = ?", args: [id] });
   return rs.rowsAffected > 0;
 }
+
+export async function reorderProjects(ids: string[]): Promise<void> {
+  if (!ids.length) return;
+  const c = await db();
+  await c.batch(
+    ids.map((id, i) => ({ sql: "UPDATE projects SET sort_order = ? WHERE id = ?", args: [i, id] })),
+    "write"
+  );
+}

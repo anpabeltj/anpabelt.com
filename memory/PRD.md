@@ -148,3 +148,25 @@ Implemented:
 Verified end-to-end (authenticated curl): nav shows Projects and no longer New Post; list
 has the 7 seeded rows; create (201, tech stacks parsed) → published project appears on
 public /projects; update to draft hides it publicly; delete restores count to 7.
+
+## Feature — 2026-09-13 (Projects: tech filter chips + drag reorder + blog-parity editor)
+Requested: (1) filter chips on public /projects to browse by tech; (2) drag-and-drop
+reorder in admin; (3) make the admin Projects UI match the admin Blog (no difference).
+
+Implemented:
+- Public filter chips (`projects.astro` + `ProjectCard.astro data-tech`): "All" + one chip
+  per unique published tech stack; single-select client filter toggles `.hidden` on cards
+  (exact token match on the pipe-joined data-tech), with an empty-state message.
+- Drag reorder: `lib/projects.ts reorderProjects(ids)` + `actions/projects/reorder.ts`
+  (POST, auth-protected). `admin/projects/index.astro` rows are draggable (grip handle)
+  only on the All tab; on drop the new id order is POSTed and persisted to sort_order
+  ("Order saved ✓"). Public /projects already orders by sort_order.
+- Blog parity: `ProjectEditor.astro` restructured to match `PostEditor.astro` — borderless
+  big title + content-style description block in the main column; sidebar Status card
+  (Save draft / Publish / Unpublish), Project image card (upload + drag-drop + paste URL),
+  and a Details card (tech stacks + optional GitHub + optional live). List page mirrors the
+  Posts list (status tabs, rows, delete).
+
+Verified: public shows 21 filter chips (All + 20 techs) with All active; reorder POST
+reverses then restores order (200, order changes persist); admin list has data-reorder="1"
++ 7 drag handles on the All tab.

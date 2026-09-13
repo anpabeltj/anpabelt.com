@@ -14,6 +14,11 @@ const projects = records.map((p) => ({
     ...(p.githubUrl ? [{ label: "GitHub", href: p.githubUrl }] : []),
   ],
 }));
+
+const allTech = Array.from(new Set(records.flatMap((r) => r.techStacks))).sort((a, b) =>
+  a.localeCompare(b)
+);
+const chipId = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 ---
 
 <BaseLayout title="Projects" description="A curated selection of things Anpabelt has designed, built and analysed — web, data and everything between.">
@@ -27,8 +32,69 @@ const projects = records.map((p) => ({
       usually the hard way.
     </p>
 
-    <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+    {allTech.length > 0 && (
+      <div class="reveal mt-10 flex flex-wrap items-center gap-2" data-testid="project-filters" style="animation-delay:140ms">
+        <span class="mr-1 font-mono text-xs uppercase tracking-widest text-retro-50/40">Filter</span>
+        <button type="button" class="project-chip chip-active" data-tech="__all__" data-testid="project-filter-all">All</button>
+        {allTech.map((t) => (
+          <button type="button" class="project-chip" data-tech={t.toLowerCase()} data-testid={`project-filter-${chipId(t)}`}>{t}</button>
+        ))}
+      </div>
+    )}
+
+    <div id="projects-grid" class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
       {projects.map((p, i) => <ProjectCard project={p} index={i} />)}
     </div>
+
+    <p id="projects-empty" class="hidden mt-12 text-center text-retro-400" data-testid="projects-empty">
+      No projects match that filter yet.
+    </p>
   </section>
 </BaseLayout>
+
+<style>
+  .project-chip {
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--card, rgba(255, 255, 255, 0.03));
+    padding: 0.35rem 0.85rem;
+    font-size: 0.85rem;
+    color: rgba(231, 246, 238, 0.7);
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    cursor: pointer;
+  }
+  .project-chip:hover {
+    color: #fff;
+    border-color: rgba(94, 234, 212, 0.35);
+  }
+  .project-chip.chip-active {
+    background: rgba(45, 212, 191, 0.15);
+    color: #5eead4;
+    border-color: rgba(45, 212, 191, 0.45);
+  }
+</style>
+
+<script>
+  const chips = Array.from(document.querySelectorAll<HTMLButtonElement>(".project-chip"));
+  const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-testid="project-card"]'));
+  const empty = document.getElementById("projects-empty");
+
+  function apply(token: string) {
+    let shown = 0;
+    cards.forEach((c) => {
+      const techs = (c.getAttribute("data-tech") || "").split("|").filter(Boolean);
+      const visible = token === "__all__" || techs.includes(token);
+      c.classList.toggle("hidden", !visible);
+      if (visible) shown++;
+    });
+    if (empty) empty.classList.toggle("hidden", shown > 0);
+  }
+
+  chips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      chips.forEach((x) => x.classList.remove("chip-active"));
+      chip.classList.add("chip-active");
+      apply(chip.getAttribute("data-tech") || "__all__");
+    });
+  });
+</script>

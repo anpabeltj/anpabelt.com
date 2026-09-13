@@ -12,6 +12,7 @@ const counts = {
   published: all.filter((p) => p.status === "published").length,
   draft: all.filter((p) => p.status === "draft").length,
 };
+const canReorder = filter === "all" && projects.length > 1;
 const tab = (key: "all" | "published" | "draft", label: string) =>
   `<a href="/admin/projects?status=${key}" data-testid="project-tab-${key}" class="px-3 py-1.5 rounded-lg text-sm transition-colors ${filter === key ? "bg-teal-500/15 text-teal-300" : "text-retro-50/70 hover:bg-white/5"}">${label} <span class="text-retro-400">${counts[key]}</span></a>`;
 ---
@@ -22,7 +23,14 @@ const tab = (key: "all" | "published" | "draft", label: string) =>
     <a href="/admin/projects/new" data-testid="new-project-button" class="rounded-lg bg-teal-500 hover:bg-teal-400 text-canvas font-semibold px-4 py-2 text-sm transition-colors">+ New Project</a>
   </div>
 
-  <div class="flex items-center gap-1 mb-6" set:html={tab("all", "All") + tab("published", "Published") + tab("draft", "Drafts")}></div>
+  <div class="flex items-center justify-between gap-3 mb-6 flex-wrap">
+    <div class="flex items-center gap-1" set:html={tab("all", "All") + tab("published", "Published") + tab("draft", "Drafts")}></div>
+    {projects.length > 1 && (
+      <p class="text-xs font-mono text-retro-400" data-testid="reorder-hint">
+        {canReorder ? "Drag rows to reorder how they appear on your site." : "Switch to All to reorder projects."}
+      </p>
+    )}
+  </div>
 
   {projects.length === 0 ? (
     <div class="rounded-2xl border border-white/10 bg-card p-12 text-center">
@@ -30,9 +38,14 @@ const tab = (key: "all" | "published" | "draft", label: string) =>
       <a href="/admin/projects/new" class="mt-4 inline-flex text-teal-300 hover:text-teal-200">Add your first project →</a>
     </div>
   ) : (
-    <div class="rounded-2xl border border-white/10 bg-card overflow-hidden" data-testid="admin-project-list">
+    <div class="rounded-2xl border border-white/10 bg-card overflow-hidden" data-testid="admin-project-list" data-reorder={canReorder ? "1" : "0"}>
       {projects.map((project) => (
-        <div class="flex items-center gap-4 px-4 sm:px-6 py-4 border-b border-white/5 last:border-0 hover:bg-white/[0.02]" data-testid="admin-project-row">
+        <div class="admin-project-row flex items-center gap-4 px-4 sm:px-6 py-4 border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-opacity" data-testid="admin-project-row" data-id={project.id} draggable={canReorder}>
+          {canReorder && (
+            <span class="drag-handle shrink-0 cursor-grab text-retro-400 hover:text-teal-300 transition-colors" title="Drag to reorder" data-testid="project-drag-handle">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>
+            </span>
+          )}
           <div class="w-14 h-14 shrink-0 rounded-lg overflow-hidden bg-elevated border border-white/10">
             {project.image && <img src={project.image} alt={project.title} class="w-full h-full object-cover" loading="lazy" />}
           </div>
@@ -57,9 +70,11 @@ const tab = (key: "all" | "published" | "draft", label: string) =>
       ))}
     </div>
   )}
+  <p id="reorder-msg" class="mt-3 text-xs text-teal-300 hidden" role="status" data-testid="reorder-status"></p>
 </AdminLayout>
 
 <script>
+  // ---- Delete ----
   document.querySelectorAll(".admin-project-delete-btn").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const el = btn as HTMLButtonElement;
@@ -71,4 +86,56 @@ const tab = (key: "all" | "published" | "draft", label: string) =>
       else { alert("Failed to delete project."); el.disabled = false; }
     });
   });
+
+  // ---- Drag reorder ----
+  const list = document.querySelector('[data-testid="admin-project-list"]') as HTMLElement | null;
+  const msg = document.getElementById("reorder-msg");
+  if (list && list.dataset.reorder === "1") {
+    let dragEl: HTMLElement | null = null;
+
+    function rows(): HTMLElement[] {
+      return Array.from(list!.querySelectorAll<HTMLElement>('[data-testid="admin-project-row"]'));
+    }
+    function afterElement(y: number): HTMLElement | null {
+      const els = rows().filter((r) => r !== dragEl);
+      let closest: { offset: number; el: HTMLElement | null } = { offset: Number.NEGATIVE_INFINITY, el: null };
+      for (const child of els) {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) closest = { offset, el: child };
+      }
+      return closest.el;
+    }
+
+    rows().forEach((row) => {
+      row.addEventListener("dragstart", () => {
+        dragEl = row;
+        setTimeout(() => row.classList.add("opacity-40"), 0);
+      });
+      row.addEventListener("dragend", async () => {
+        row.classList.remove("opacity-40");
+        dragEl = null;
+        const ids = rows().map((r) => r.dataset.id);
+        try {
+          const res = await fetch("/actions/projects/reorder", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ids }),
+          });
+          if (!res.ok) throw new Error();
+          if (msg) { msg.textContent = "Order saved ✓"; msg.classList.remove("hidden"); setTimeout(() => msg.classList.add("hidden"), 1800); }
+        } catch {
+          if (msg) { msg.textContent = "Failed to save order."; msg.className = "mt-3 text-xs text-red-400"; msg.classList.remove("hidden"); }
+        }
+      });
+    });
+
+    list.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      if (!dragEl) return;
+      const after = afterElement((e as DragEvent).clientY);
+      if (after == null) list!.appendChild(dragEl);
+      else list!.insertBefore(dragEl, after);
+    });
+  }
 </script>

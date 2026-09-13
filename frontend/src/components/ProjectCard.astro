@@ -6,12 +6,14 @@ export interface Props {
   index?: number;
 }
 const { project, index = 0 } = Astro.props;
+const techAttr = project.tags.map((t) => t.name.toLowerCase()).join("|");
 ---
 
 <article
   class="reveal group relative flex flex-col rounded-2xl border border-white/5 bg-card p-6 sm:p-7 shadow-xl transition-all duration-300 hover:border-mint/30 hover:-translate-y-1"
   style={`animation-delay:${index * 80}ms`}
   data-testid="project-card"
+  data-tech={techAttr}
 >
   <div class="overflow-hidden rounded-xl mb-5 aspect-[16/10] bg-elevated">
     <img
