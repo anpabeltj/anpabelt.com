@@ -235,6 +235,38 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     updatePlaceholder();
     scheduleAutosave();
   }
+  function insertTable(block) {
+    const cols = 3, rows = 2;
+    let html = "<table><thead><tr>";
+    for (let c = 0; c < cols; c++) html += "<th><br></th>";
+    html += "</tr></thead><tbody>";
+    for (let r = 0; r < rows; r++) { html += "<tr>"; for (let c = 0; c < cols; c++) html += "<td><br></td>"; html += "</tr>"; }
+    html += "</tbody></table>";
+    const table = makeEl(html);
+    const p = makeEl("<p><br></p>");
+    block.replaceWith(table);
+    table.after(p);
+    placeCaret(table.querySelector("th"));
+    updatePlaceholder();
+    scheduleAutosave();
+  }
+  function getCurrentCell() {
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return null;
+    let n: any = sel.anchorNode;
+    if (n && n.nodeType === 3) n = n.parentNode;
+    while (n && n !== editor) { if (n.tagName === "TD" || n.tagName === "TH") return n; n = n.parentNode; }
+    return null;
+  }
+  function addTableRow(table) {
+    const tbody = table.querySelector("tbody") || table;
+    const cols = table.querySelector("tr").children.length;
+    const tr = document.createElement("tr");
+    for (let c = 0; c < cols; c++) { const td = document.createElement("td"); td.innerHTML = "<br>"; tr.appendChild(td); }
+    tbody.appendChild(tr);
+    scheduleAutosave();
+    return tr;
+  }
   const SLASH_COMMANDS = [
     { key: "H1", title: "Heading 1", desc: "Large section title", kw: "h1 title heading big", run: (b) => slashBlock(b, "<h1><br></h1>") },
     { key: "H2", title: "Heading 2", desc: "Medium section title", kw: "h2 subtitle heading", run: (b) => slashBlock(b, "<h2><br></h2>") },
@@ -244,8 +276,10 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     { key: "</>", title: "Code block", desc: "Monospace block", kw: "code pre snippet", run: (b) => slashBlock(b, "<pre><br></pre>") },
     { key: "\u2022", title: "Bullet list", desc: "Unordered list", kw: "ul bullet list unordered", run: (b) => slashBlock(b, "<ul><li></li></ul>", "li") },
     { key: "1.", title: "Numbered list", desc: "Ordered list", kw: "ol number ordered list", run: (b) => slashBlock(b, "<ol><li></li></ol>", "li") },
+    { key: "\u25A6", title: "Table", desc: "3-column table (Tab adds rows)", kw: "table grid rows columns", run: (b) => insertTable(b) },
     { key: "\u2014", title: "Divider", desc: "Horizontal rule", kw: "hr divider rule line separator", run: (b) => { const hr = makeEl("<hr>"); const p = makeEl("<p><br></p>"); b.replaceWith(hr); hr.after(p); placeCaret(p); scheduleAutosave(); } },
     { key: "\uD83D\uDDBC", title: "Image", desc: "Upload from your device", kw: "image img photo picture upload", run: (b) => { placeCaret(b); $("f-inline-image").click(); } },
+    { key: "\uD83D\uDD0D", title: "Unsplash photo", desc: "Search free stock photos", kw: "unsplash photo stock image search", run: (b) => { placeCaret(b); openUnsplash(); } },
   ];
   let slashMenu = null;
   let slashOpen = false;
@@ -330,7 +364,14 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     else closeSlash();
   }
 
-  editor.addEventListener("input", () => { maybeSlash(); updatePlaceholder(); enhanceEditor(); scheduleAutosave(); });
+  editor.addEventListener("input", () => {
+    const emoji = maybeEmoji();
+    if (emoji) closeSlash();
+    else maybeSlash();
+    updatePlaceholder();
+    enhanceEditor();
+    scheduleAutosave();
+  });
   editor.addEventListener("keydown", (e) => {
     if (!slashOpen) return;
     if (e.key === "ArrowDown") { e.preventDefault(); if (slashItems.length) { slashActive = (slashActive + 1) % slashItems.length; renderMenu(); } }
@@ -338,8 +379,206 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     else if (e.key === "Enter") { if (slashItems.length) { e.preventDefault(); chooseSlash(slashActive); } else closeSlash(); }
     else if (e.key === "Escape") { e.preventDefault(); closeSlash(); }
   });
-  document.addEventListener("scroll", () => { if (slashOpen) closeSlash(); }, true);
-  editor.addEventListener("blur", () => setTimeout(closeSlash, 150));
+  // Emoji ":" menu keyboard navigation.
+  editor.addEventListener("keydown", (e) => {
+    if (!emojiOpen) return;
+    if (e.key === "ArrowDown" || e.key === "ArrowRight") { e.preventDefault(); emojiActive = (emojiActive + 1) % emojiItems.length; renderEmoji(); }
+    else if (e.key === "ArrowUp" || e.key === "ArrowLeft") { e.preventDefault(); emojiActive = (emojiActive - 1 + emojiItems.length) % emojiItems.length; renderEmoji(); }
+    else if (e.key === "Enter" || e.key === "Tab") { e.preventDefault(); chooseEmoji(emojiActive); }
+    else if (e.key === "Escape") { e.preventDefault(); closeEmoji(); }
+  });
+  // Table: Tab / Shift+Tab move between cells; Tab in the last cell adds a row.
+  editor.addEventListener("keydown", (e) => {
+    if (e.key !== "Tab" || emojiOpen || slashOpen) return;
+    const cell = getCurrentCell();
+    if (!cell) return;
+    e.preventDefault();
+    const table = cell.closest("table");
+    const cells = Array.from(table.querySelectorAll("th,td"));
+    const idx = cells.indexOf(cell);
+    if (e.shiftKey) { if (idx > 0) placeCaret(cells[idx - 1]); return; }
+    if (idx < cells.length - 1) { placeCaret(cells[idx + 1]); }
+    else { addTableRow(table); placeCaret(table.querySelectorAll("th,td")[idx + 1]); }
+  });
+  document.addEventListener("scroll", () => { if (slashOpen) closeSlash(); if (emojiOpen) closeEmoji(); }, true);
+  editor.addEventListener("blur", () => setTimeout(() => { closeSlash(); closeEmoji(); }, 150));
+
+  // ---- Emoji ":" menu ----
+  const EMOJI = [
+    { c: "\uD83D\uDE00", n: "grinning", kw: "smile happy grin" },
+    { c: "\uD83D\uDE01", n: "beaming", kw: "smile happy grin" },
+    { c: "\uD83D\uDE02", n: "joy", kw: "laugh cry funny lol" },
+    { c: "\uD83E\uDD23", n: "rofl", kw: "laugh rolling funny lol" },
+    { c: "\uD83D\uDE03", n: "smiley", kw: "happy smile" },
+    { c: "\uD83D\uDE04", n: "smile", kw: "happy grin" },
+    { c: "\uD83D\uDE09", n: "wink", kw: "flirt" },
+    { c: "\uD83D\uDE0A", n: "blush", kw: "happy smile" },
+    { c: "\uD83D\uDE0D", n: "heart eyes", kw: "love like" },
+    { c: "\uD83D\uDE18", n: "kiss", kw: "love" },
+    { c: "\uD83D\uDE1C", n: "tongue", kw: "playful silly" },
+    { c: "\uD83E\uDD14", n: "thinking", kw: "hmm think" },
+    { c: "\uD83D\uDE10", n: "neutral", kw: "meh" },
+    { c: "\uD83D\uDE44", n: "eye roll", kw: "annoyed" },
+    { c: "\uD83D\uDE0E", n: "cool", kw: "sunglasses awesome" },
+    { c: "\uD83E\uDD70", n: "smiling heart", kw: "love adore" },
+    { c: "\uD83D\uDE22", n: "cry", kw: "sad tear" },
+    { c: "\uD83D\uDE2D", n: "sob", kw: "cry sad bawl" },
+    { c: "\uD83D\uDE20", n: "angry", kw: "mad" },
+    { c: "\uD83D\uDE31", n: "scream", kw: "shock fear" },
+    { c: "\uD83D\uDE33", n: "flushed", kw: "embarrassed" },
+    { c: "\uD83E\uDD73", n: "party face", kw: "celebrate hooray" },
+    { c: "\uD83D\uDE34", n: "sleep", kw: "tired zzz" },
+    { c: "\uD83E\uDD2F", n: "mind blown", kw: "wow shock" },
+    { c: "\uD83D\uDE07", n: "angel", kw: "innocent halo" },
+    { c: "\uD83D\uDC4D", n: "thumbs up", kw: "yes like approve ok +1" },
+    { c: "\uD83D\uDC4E", n: "thumbs down", kw: "no dislike -1" },
+    { c: "\uD83D\uDC4F", n: "clap", kw: "applause bravo" },
+    { c: "\uD83D\uDE4C", n: "raised hands", kw: "praise celebrate hooray" },
+    { c: "\uD83D\uDC4B", n: "wave", kw: "hi hello bye" },
+    { c: "\uD83D\uDCAA", n: "muscle", kw: "strong flex" },
+    { c: "\uD83D\uDE4F", n: "pray", kw: "thanks please hope" },
+    { c: "\u270C\uFE0F", n: "peace", kw: "victory" },
+    { c: "\uD83E\uDD1D", n: "handshake", kw: "deal agree" },
+    { c: "\u2764\uFE0F", n: "red heart", kw: "love like" },
+    { c: "\uD83E\uDDE1", n: "orange heart", kw: "love" },
+    { c: "\uD83D\uDC9B", n: "yellow heart", kw: "love" },
+    { c: "\uD83D\uDC9A", n: "green heart", kw: "love" },
+    { c: "\uD83D\uDC99", n: "blue heart", kw: "love" },
+    { c: "\uD83D\uDC9C", n: "purple heart", kw: "love" },
+    { c: "\uD83D\uDC94", n: "broken heart", kw: "sad heartbreak" },
+    { c: "\uD83D\uDD25", n: "fire", kw: "lit hot flame awesome" },
+    { c: "\u2B50", n: "star", kw: "favorite" },
+    { c: "\u2728", n: "sparkles", kw: "shiny magic new clean" },
+    { c: "\uD83C\uDF89", n: "tada", kw: "party celebrate launch" },
+    { c: "\uD83C\uDF8A", n: "confetti", kw: "party celebrate" },
+    { c: "\uD83D\uDCA1", n: "bulb", kw: "idea tip light" },
+    { c: "\u2705", n: "check", kw: "done yes correct ok tick" },
+    { c: "\u274C", n: "cross", kw: "no wrong error x" },
+    { c: "\u26A0\uFE0F", n: "warning", kw: "caution alert" },
+    { c: "\uD83D\uDEA8", n: "siren", kw: "alert emergency warning" },
+    { c: "\uD83D\uDCCC", n: "pin", kw: "note important" },
+    { c: "\uD83D\uDCCD", n: "location", kw: "place map pin" },
+    { c: "\uD83D\uDCC8", n: "chart up", kw: "growth increase stats" },
+    { c: "\uD83D\uDCC9", n: "chart down", kw: "decrease loss stats" },
+    { c: "\uD83D\uDCB0", n: "money bag", kw: "cash rich profit" },
+    { c: "\uD83D\uDE80", n: "rocket", kw: "launch fast ship startup" },
+    { c: "\uD83C\uDFAF", n: "target", kw: "goal aim bullseye" },
+    { c: "\uD83D\uDD14", n: "bell", kw: "notification alert" },
+    { c: "\uD83D\uDCE7", n: "email", kw: "mail message" },
+    { c: "\uD83D\uDCF1", n: "phone", kw: "mobile device" },
+    { c: "\uD83D\uDCBB", n: "laptop", kw: "computer code work" },
+    { c: "\u2699\uFE0F", n: "gear", kw: "settings config" },
+    { c: "\uD83D\uDD12", n: "lock", kw: "secure private" },
+    { c: "\uD83D\uDD11", n: "key", kw: "password access" },
+    { c: "\uD83D\uDCDD", n: "memo", kw: "note write edit" },
+    { c: "\uD83D\uDCDA", n: "books", kw: "read study learn" },
+    { c: "\uD83C\uDF1F", n: "glowing star", kw: "special favorite" },
+    { c: "\u2615", n: "coffee", kw: "cafe tea break" },
+    { c: "\uD83C\uDF55", n: "pizza", kw: "food" },
+    { c: "\uD83C\uDF82", n: "cake", kw: "birthday celebrate" },
+    { c: "\uD83C\uDF08", n: "rainbow", kw: "colorful pride" },
+    { c: "\u2600\uFE0F", n: "sun", kw: "sunny weather" },
+    { c: "\uD83C\uDF19", n: "moon", kw: "night" },
+    { c: "\u26A1", n: "zap", kw: "lightning fast power" },
+    { c: "\uD83C\uDF0A", n: "wave", kw: "ocean sea water" },
+    { c: "\uD83D\uDC31", n: "cat", kw: "animal pet" },
+    { c: "\uD83D\uDC36", n: "dog", kw: "animal pet puppy" },
+    { c: "\uD83E\uDD84", n: "unicorn", kw: "magic special" },
+    { c: "\uD83D\uDC40", n: "eyes", kw: "look watch see" },
+    { c: "\uD83E\uDDE0", n: "brain", kw: "smart think mind" },
+    { c: "\uD83D\uDC96", n: "sparkling heart", kw: "love" },
+    { c: "\uD83D\uDE4B", n: "raising hand", kw: "question me pick" },
+    { c: "\uD83E\uDD37", n: "shrug", kw: "dunno idk whatever" },
+    { c: "\uD83D\uDC80", n: "skull", kw: "dead lol" },
+    { c: "\uD83D\uDC7B", n: "ghost", kw: "boo spooky" },
+    { c: "\uD83E\uDD16", n: "robot", kw: "ai bot" },
+  ];
+  let emojiMenu = null;
+  let emojiOpen = false;
+  let emojiItems: any[] = [];
+  let emojiActive = 0;
+  let currentColon: any = null;
+
+  function emojiEl() {
+    if (emojiMenu) return emojiMenu;
+    emojiMenu = document.createElement("div");
+    emojiMenu.className = "emoji-menu";
+    emojiMenu.dataset.testid = "emoji-menu";
+    emojiMenu.style.display = "none";
+    document.body.appendChild(emojiMenu);
+    return emojiMenu;
+  }
+  function getColonQuery() {
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount || !sel.isCollapsed) return null;
+    const node = sel.anchorNode;
+    if (!node || node.nodeType !== 3 || !editor.contains(node)) return null;
+    const offset = sel.anchorOffset;
+    const before = node.textContent.slice(0, offset);
+    const m = before.match(/(?:^|\s)(:([a-z0-9_+-]{1,24}))$/i);
+    if (!m) return null;
+    return { node, start: offset - m[1].length, end: offset, query: m[2] };
+  }
+  function renderEmoji() {
+    const m = emojiEl();
+    m.innerHTML = "";
+    emojiItems.forEach((em, i) => {
+      const row = document.createElement("button");
+      row.type = "button";
+      row.className = `emoji-item${i === emojiActive ? " active" : ""}`;
+      row.dataset.testid = "emoji-item";
+      row.title = em.n;
+      row.innerHTML = `<span class="emoji-char">${em.c}</span><span class="emoji-name">${escapeHtml(em.n)}</span>`;
+      row.addEventListener("mousedown", (e) => { e.preventDefault(); chooseEmoji(i); });
+      m.appendChild(row);
+    });
+  }
+  function positionEmoji() {
+    const m = emojiEl();
+    const sel = window.getSelection();
+    let rect = null;
+    if (sel && sel.rangeCount) {
+      const r = sel.getRangeAt(0).getBoundingClientRect();
+      if (r && (r.width || r.height || r.top)) rect = r;
+    }
+    if (!rect) rect = editor.getBoundingClientRect();
+    m.style.top = `${Math.max(8, Math.min(rect.bottom + 6, window.innerHeight - 240))}px`;
+    m.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - 300))}px`;
+  }
+  function maybeEmoji() {
+    const info = getColonQuery();
+    if (!info) { closeEmoji(); return false; }
+    currentColon = info;
+    const q = info.query.toLowerCase();
+    emojiItems = EMOJI.filter((e) => e.n.includes(q) || e.kw.includes(q)).slice(0, 36);
+    if (!emojiItems.length) { closeEmoji(); return false; }
+    emojiActive = 0;
+    renderEmoji();
+    positionEmoji();
+    emojiEl().style.display = "grid";
+    emojiOpen = true;
+    return true;
+  }
+  function closeEmoji() { if (emojiMenu) emojiMenu.style.display = "none"; emojiOpen = false; }
+  function chooseEmoji(i) {
+    const em = emojiItems[i];
+    const info = currentColon;
+    closeEmoji();
+    if (!em || !info || !editor.contains(info.node)) return;
+    const range = document.createRange();
+    range.setStart(info.node, info.start);
+    range.setEnd(info.node, Math.min(info.end, info.node.textContent.length));
+    range.deleteContents();
+    const tn = document.createTextNode(em.c);
+    range.insertNode(tn);
+    const sel = window.getSelection();
+    const r2 = document.createRange();
+    r2.setStartAfter(tn); r2.collapse(true);
+    sel.removeAllRanges(); sel.addRange(r2);
+    savedRange = r2;
+    updateWordCount();
+    scheduleAutosave();
+  }
 
   // ---- Gallery management ----
   function renderGallery() {
@@ -769,3 +1008,64 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
 
   // Initial enhancement pass (cards + word count) for freshly loaded content.
   enhanceEditor();
+
+  // ---- Unsplash search modal ----
+  const unsplashModal = $("unsplash-modal");
+  const unsplashInput = $("unsplash-input");
+  const unsplashResults = $("unsplash-results");
+  const unsplashStatus = $("unsplash-status");
+  let unsplashTimer = null;
+
+  function openUnsplash() {
+    saveSelection();
+    unsplashModal.classList.remove("hidden");
+    setTimeout(() => unsplashInput.focus(), 30);
+  }
+  function closeUnsplash() { unsplashModal.classList.add("hidden"); }
+
+  $("btn-unsplash").addEventListener("click", (e) => { e.preventDefault(); openUnsplash(); });
+  unsplashModal.querySelectorAll("[data-unsplash-close]").forEach((el) => el.addEventListener("click", closeUnsplash));
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !unsplashModal.classList.contains("hidden")) closeUnsplash(); });
+  unsplashInput.addEventListener("input", () => { clearTimeout(unsplashTimer); unsplashTimer = setTimeout(runUnsplash, 450); });
+  unsplashInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); clearTimeout(unsplashTimer); runUnsplash(); } });
+
+  async function runUnsplash() {
+    const q = unsplashInput.value.trim();
+    if (!q) { unsplashResults.innerHTML = ""; unsplashStatus.textContent = "Search for a photo to insert."; unsplashStatus.style.display = "block"; return; }
+    unsplashStatus.textContent = "Searching\u2026"; unsplashStatus.style.display = "block"; unsplashResults.innerHTML = "";
+    try {
+      const res = await fetch(`/actions/unsplash/search?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      if (!res.ok) { unsplashStatus.textContent = data.error || "Search failed."; return; }
+      if (!data.results.length) { unsplashStatus.textContent = "No photos found. Try another term."; return; }
+      unsplashStatus.style.display = "none";
+      renderUnsplash(data.results);
+    } catch {
+      unsplashStatus.textContent = "Unable to reach Unsplash.";
+    }
+  }
+  function renderUnsplash(results) {
+    unsplashResults.innerHTML = "";
+    results.forEach((p) => {
+      const cell = document.createElement("button");
+      cell.type = "button";
+      cell.className = "unsplash-cell";
+      cell.dataset.testid = "unsplash-photo";
+      cell.style.background = p.color;
+      cell.innerHTML = `<img src="${escapeAttr(p.thumb)}" alt="${escapeAttr(p.alt)}" loading="lazy" /><span class="unsplash-cred">${escapeHtml(p.name)}</span>`;
+      cell.addEventListener("click", () => insertUnsplash(p));
+      unsplashResults.appendChild(cell);
+    });
+  }
+  function insertUnsplash(p) {
+    const userUrl = `https://unsplash.com/@${p.username}?utm_source=anpabelt&utm_medium=referral`;
+    const unsplashUrl = `https://unsplash.com/?utm_source=anpabelt&utm_medium=referral`;
+    const html = `<figure><img src="${escapeAttr(p.regular)}" alt="${escapeAttr(p.alt)}" /><figcaption>Photo by <a href="${escapeAttr(userUrl)}">${escapeHtml(p.name)}</a> on <a href="${escapeAttr(unsplashUrl)}">Unsplash</a></figcaption></figure><p><br></p>`;
+    closeUnsplash();
+    insertHtmlAtCursor(html);
+    if (p.downloadLocation) {
+      fetch("/actions/unsplash/track-download", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ downloadLocation: p.downloadLocation }) }).catch(() => {});
+    }
+    enhanceEditor();
+    showMsg("Photo inserted \u2713");
+  }

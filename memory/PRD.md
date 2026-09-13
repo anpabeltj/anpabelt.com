@@ -64,3 +64,18 @@ Added three enhancements to the rich text editor (`scripts/postEditor.ts`):
 - All in `scripts/postEditor.ts`; UI in `PostEditor.astro`; styles in `global.css`.
 - Verified via browser (desktop + mobile): word count updates, card title edit + clean serialize,
   block drag reorder (ALPHA→end), no console errors.
+
+## Task done (2026-09-13) — Emoji picker, Table block, Unsplash (pending key)
+- **Emoji picker**: type ":" + text for a filtered emoji menu (~90 emojis w/ keywords), arrow/Enter to
+  insert; replaces the ":query" text with the glyph. (`postEditor.ts` EMOJI menu.)
+- **Table block**: "/table" slash command inserts a styled 3-col table (header + 2 rows). Tab / Shift+Tab
+  move between cells; Tab in the last cell appends a new row. Table styles in `global.css`
+  (`.article-content table` + `.rte-editor`).
+- **Unsplash search**: toolbar button + "/unsplash" slash command open a search modal; results insert as
+  a `<figure>` with hotlinked photo + auto photographer/Unsplash attribution (utm), and fire the required
+  download-tracking call. Endpoints: `actions/unsplash/search.ts`, `actions/unsplash/track-download.ts`
+  (both auth-protected, key server-side via `UNSPLASH_ACCESS_KEY`).
+  STATUS: code-complete + verified to degrade gracefully; **awaiting the user's Unsplash Access Key**
+  (their app is under Unsplash review, 5–10 business days). Add `UNSPLASH_ACCESS_KEY=<key>` to
+  `frontend/.env` and restart to activate.
+- Verified via browser: emoji insert (🔥), table + Tab row-add, modal opens with friendly "not set up" message.
