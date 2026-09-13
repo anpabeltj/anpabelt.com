@@ -4,7 +4,7 @@ import "../styles/global.css";
 import { site } from "../lib/site";
 export interface Props {
   title?: string;
-  active?: "posts" | "media" | "new";
+  active?: "posts" | "media" | "projects";
 }
 const { title = "Dashboard", active } = Astro.props;
 const user = Astro.locals.user;
@@ -32,8 +32,8 @@ const linkCls = (key: string) =>
             <a href="/admin" class="font-display font-bold text-sm mr-2">ann<span class="text-teal-400">.admin</span></a>
             <nav class="flex items-center gap-1">
               <a href="/admin" class={linkCls("posts")} data-testid="admin-nav-posts">Posts</a>
+              <a href="/admin/projects" class={linkCls("projects")} data-testid="admin-nav-projects">Projects</a>
               <a href="/admin/media" class={linkCls("media")} data-testid="admin-nav-media">Media</a>
-              <a href="/admin/posts/new" class={linkCls("new")} data-testid="admin-nav-new">New Post</a>
             </nav>
           </div>
           <div class="flex items-center gap-3">

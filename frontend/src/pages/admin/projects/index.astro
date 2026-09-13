@@ -1,0 +1,74 @@
+---
+declare const Astro: any;
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { listProjects } from "../../../lib/projects";
+import { formatDate } from "../../../lib/markdown";
+
+const filter = (Astro.url.searchParams.get("status") ?? "all") as "all" | "published" | "draft";
+const all = await listProjects({ status: "all" });
+const projects = filter === "all" ? all : all.filter((p) => p.status === filter);
+const counts = {
+  all: all.length,
+  published: all.filter((p) => p.status === "published").length,
+  draft: all.filter((p) => p.status === "draft").length,
+};
+const tab = (key: "all" | "published" | "draft", label: string) =>
+  `<a href="/admin/projects?status=${key}" data-testid="project-tab-${key}" class="px-3 py-1.5 rounded-lg text-sm transition-colors ${filter === key ? "bg-teal-500/15 text-teal-300" : "text-retro-50/70 hover:bg-white/5"}">${label} <span class="text-retro-400">${counts[key]}</span></a>`;
+---
+
+<AdminLayout title="Projects" active="projects">
+  <div class="flex items-center justify-between gap-4 mb-6">
+    <h1 class="font-display text-2xl font-bold">Projects</h1>
+    <a href="/admin/projects/new" data-testid="new-project-button" class="rounded-lg bg-teal-500 hover:bg-teal-400 text-canvas font-semibold px-4 py-2 text-sm transition-colors">+ New Project</a>
+  </div>
+
+  <div class="flex items-center gap-1 mb-6" set:html={tab("all", "All") + tab("published", "Published") + tab("draft", "Drafts")}></div>
+
+  {projects.length === 0 ? (
+    <div class="rounded-2xl border border-white/10 bg-card p-12 text-center">
+      <p class="text-retro-400">No projects here yet.</p>
+      <a href="/admin/projects/new" class="mt-4 inline-flex text-teal-300 hover:text-teal-200">Add your first project →</a>
+    </div>
+  ) : (
+    <div class="rounded-2xl border border-white/10 bg-card overflow-hidden" data-testid="admin-project-list">
+      {projects.map((project) => (
+        <div class="flex items-center gap-4 px-4 sm:px-6 py-4 border-b border-white/5 last:border-0 hover:bg-white/[0.02]" data-testid="admin-project-row">
+          <div class="w-14 h-14 shrink-0 rounded-lg overflow-hidden bg-elevated border border-white/10">
+            {project.image && <img src={project.image} alt={project.title} class="w-full h-full object-cover" loading="lazy" />}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <span class={`inline-block w-2 h-2 rounded-full ${project.status === "published" ? "bg-emerald-400" : "bg-amber-400"}`}></span>
+              <a href={`/admin/projects/${project.id}/edit`} class="font-medium text-white hover:text-teal-300 truncate" data-testid="admin-project-edit-link">{project.title}</a>
+            </div>
+            <p class="mt-1 text-xs font-mono text-retro-400 truncate">
+              {project.status === "published" ? "Published" : "Draft"} · updated {formatDate(project.updatedAt)}
+              {project.techStacks.length > 0 && ` · ${project.techStacks.join(", ")}`}
+            </p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            {project.liveUrl && (
+              <a href={project.liveUrl} target="_blank" class="text-xs text-retro-50/60 hover:text-white px-2 py-1">Live ↗</a>
+            )}
+            <a href={`/admin/projects/${project.id}/edit`} class="text-xs rounded-md border border-white/10 px-3 py-1.5 hover:border-teal-500/40 hover:text-teal-300 transition-colors">Edit</a>
+            <button data-id={project.id} data-title={project.title} class="admin-project-delete-btn text-xs rounded-md border border-white/10 px-3 py-1.5 hover:border-red-500/40 hover:text-red-300 transition-colors" data-testid="admin-project-delete-button">Delete</button>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</AdminLayout>
+
+<script>
+  document.querySelectorAll(".admin-project-delete-btn").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const el = btn as HTMLButtonElement;
+      const id = el.dataset.id;
+      if (!id || !confirm(`Delete "${el.dataset.title}"? This cannot be undone.`)) return;
+      el.disabled = true;
+      const res = await fetch(`/actions/projects/${id}`, { method: "DELETE" });
+      if (res.ok) window.location.reload();
+      else { alert("Failed to delete project."); el.disabled = false; }
+    });
+  });
+</script>

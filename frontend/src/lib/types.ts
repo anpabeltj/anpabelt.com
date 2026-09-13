@@ -62,3 +62,29 @@ export interface ContactMessage {
   createdAt: string;
   read: boolean;
 }
+
+export type ProjectStatus = "draft" | "published";
+
+export interface ProjectRecord {
+  id: string;
+  title: string;
+  description: string;
+  image: string | null;
+  techStacks: string[];
+  githubUrl: string | null;
+  liveUrl: string | null;
+  status: ProjectStatus;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProjectInput {
+  title: string;
+  description?: string;
+  image?: string | null;
+  techStacks?: string[];
+  githubUrl?: string | null;
+  liveUrl?: string | null;
+  status?: ProjectStatus;
+}

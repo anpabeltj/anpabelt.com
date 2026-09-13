@@ -1,0 +1,12 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import ProjectEditor from "../../../components/ProjectEditor.astro";
+---
+
+<AdminLayout title="New Project" active="projects">
+  <div class="flex items-center gap-3 mb-6">
+    <a href="/admin/projects" class="text-sm text-retro-50/70 hover:text-white">← Projects</a>
+    <h1 class="font-display text-xl font-bold">New Project</h1>
+  </div>
+  <ProjectEditor />
+</AdminLayout>

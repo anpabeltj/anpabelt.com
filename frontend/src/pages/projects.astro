@@ -1,7 +1,19 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ProjectCard from "../components/ProjectCard.astro";
-import { projects } from "../lib/site";
+import { listProjects } from "../lib/projects";
+
+const records = await listProjects({ status: "published" });
+const projects = records.map((p) => ({
+  title: p.title,
+  description: p.description,
+  image: p.image ?? "/assets/images/dummy-image-project.jpg",
+  tags: p.techStacks.map((name) => ({ name })),
+  links: [
+    ...(p.liveUrl ? [{ label: "View Live", href: p.liveUrl }] : []),
+    ...(p.githubUrl ? [{ label: "GitHub", href: p.githubUrl }] : []),
+  ],
+}));
 ---
 
 <BaseLayout title="Projects" description="A curated selection of things Anpabelt has designed, built and analysed — web, data and everything between.">

@@ -4,6 +4,7 @@ import { join } from "node:path";
 import bcrypt from "bcryptjs";
 import { nanoid } from "nanoid";
 import { getEnv } from "./env";
+import { projects as seedProjectData } from "./site";
 
 // Uploaded-image dir is only used for local (non-Vercel) disk storage.
 const DATA_DIR = join(process.cwd(), "data");
@@ -53,13 +54,38 @@ async function init(c: Client): Promise<void> {
       `CREATE TABLE IF NOT EXISTS contact_messages (
         id TEXT PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL, message TEXT NOT NULL,
         created_at TEXT NOT NULL, read INTEGER NOT NULL DEFAULT 0)`,
+      `CREATE TABLE IF NOT EXISTS projects (
+        id TEXT PRIMARY KEY, title TEXT NOT NULL, description TEXT NOT NULL DEFAULT '',
+        image TEXT, tech_stacks TEXT NOT NULL DEFAULT '[]', github_url TEXT, live_url TEXT,
+        status TEXT NOT NULL DEFAULT 'published', sort_order INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL, updated_at TEXT NOT NULL)`,
       `CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status, published_at)`,
       `CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts(slug)`,
+      `CREATE INDEX IF NOT EXISTS idx_projects_status ON projects(status, sort_order)`,
     ],
     "write"
   );
   await seedAdmin(c);
   await seedSamplePosts(c);
+  await seedProjects(c);
+}
+
+async function seedProjects(c: Client): Promise<void> {
+  const rs = await c.execute("SELECT COUNT(*) AS n FROM projects");
+  if (Number((rs.rows[0] as unknown as { n: number }).n) > 0) return;
+
+  const now = new Date().toISOString();
+  for (let i = 0; i < seedProjectData.length; i++) {
+    const p = seedProjectData[i];
+    const techStacks = p.tags.map((t) => t.name);
+    const github = p.links.find((l) => /github/i.test(l.label))?.href ?? null;
+    const live = p.links.find((l) => !/github/i.test(l.label))?.href ?? null;
+    await c.execute({
+      sql: `INSERT INTO projects (id, title, description, image, tech_stacks, github_url, live_url, status, sort_order, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'published', ?, ?, ?)`,
+      args: [nanoid(), p.title, p.description, p.image, JSON.stringify(techStacks), github, live, i, now, now],
+    });
+  }
 }
 
 async function seedAdmin(c: Client): Promise<void> {

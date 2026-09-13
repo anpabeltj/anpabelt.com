@@ -123,3 +123,28 @@ Emergent preview has no OIDC token and correctly still uses local disk).
   DOM nodes. Added data-created/data-size to each item. Verified: Name sort A–Z correct,
   Most used sorted descending.
 
+
+## Feature — 2026-09-13 (Admin Projects tab — DB-backed projects)
+Requested: (1) remove the "New Post" nav tab (redundant with the + New Post button on the
+Posts page); (2) add an admin tab to manage projects (image, description, tech stacks,
+optional GitHub link, optional live preview) with draft/published toggle.
+
+Implemented:
+- New `projects` table (`lib/db.ts`) + one-time seed of the 7 existing hardcoded projects
+  from `lib/site.ts` (tech-stack names, github vs live link derived from link labels).
+- `lib/projects.ts`: full CRUD (list/get/create/update/delete, sort_order).
+- Actions `pages/actions/projects/index.ts` (POST) + `[id].ts` (PUT/DELETE), auth-protected
+  by existing middleware. Tech stacks accept comma-separated string or array.
+- Admin UI: `admin/projects/index.astro` (list + status tabs + delete),
+  `admin/projects/new.astro`, `admin/projects/[id]/edit.astro`, and
+  `components/ProjectEditor.astro` (title, description, comma tech stacks, optional
+  github/live URLs, blog-style image upload w/ drag-drop + paste URL, draft/publish/
+  unpublish, delete).
+- `AdminLayout.astro`: removed "New Post" nav link, added "Projects" (active union updated:
+  posts|media|projects). `admin/posts/new.astro` now active="posts".
+- Public `projects.astro` now reads published projects from the DB (was static site.ts).
+  Homepage featured projects still use static site.ts (unchanged, out of scope).
+
+Verified end-to-end (authenticated curl): nav shows Projects and no longer New Post; list
+has the 7 seeded rows; create (201, tech stacks parsed) → published project appears on
+public /projects; update to draft hides it publicly; delete restores count to 7.
