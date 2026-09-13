@@ -403,6 +403,54 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     ).observe(sentinel);
   }
 
+  // ---- Keyboard shortcut cheatsheet ("?" or the help button) ----
+  const IS_MAC = /Mac|iPhone|iPad/i.test((navigator as any).platform || navigator.userAgent);
+  const MOD = IS_MAC ? "\u2318" : "Ctrl";
+  const SHORTCUTS = [
+    { label: "Bold", keys: [MOD, "B"] },
+    { label: "Italic", keys: [MOD, "I"] },
+    { label: "Underline", keys: [MOD, "U"] },
+    { label: "Open block menu", keys: ["/"] },
+    { label: "Emoji picker", keys: [":"] },
+    { label: "Paste a link \u2192 rich card", keys: [MOD, "V"] },
+    { label: "Next / previous table cell", keys: ["Tab", "\u21E7 Tab"] },
+    { label: "Add row (in last table cell)", keys: ["Tab"] },
+    { label: "Close menu / dialog", keys: ["Esc"] },
+    { label: "Show this cheatsheet", keys: ["?"] },
+  ];
+  let helpModal: any = null;
+  function buildHelp() {
+    if (helpModal) return helpModal;
+    helpModal = document.createElement("div");
+    helpModal.className = "rte-help-modal";
+    helpModal.dataset.testid = "rte-help-modal";
+    const rows = SHORTCUTS.map((s) =>
+      `<div class="rte-help-row"><span class="rte-help-label">${escapeHtml(s.label)}</span>` +
+      `<span class="rte-help-keys">${s.keys.map((k) => `<kbd class="rte-kbd">${escapeHtml(k)}</kbd>`).join("")}</span></div>`
+    ).join("");
+    helpModal.innerHTML =
+      `<div class="rte-help-backdrop" data-help-close></div>` +
+      `<div class="rte-help-panel" role="dialog" aria-label="Keyboard shortcuts">` +
+      `<h3>Keyboard shortcuts` +
+      `<button type="button" class="rte-btn rte-help-close" data-help-close title="Close" data-testid="rte-help-close">` +
+      `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button></h3>` +
+      rows + `</div>`;
+    document.body.appendChild(helpModal);
+    helpModal.querySelectorAll("[data-help-close]").forEach((el) => el.addEventListener("click", closeHelp));
+    return helpModal;
+  }
+  function openHelp() { buildHelp().classList.add("open"); }
+  function closeHelp() { if (helpModal) helpModal.classList.remove("open"); }
+  $("btn-help").addEventListener("click", (e) => { e.preventDefault(); buildHelp().classList.toggle("open"); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && helpModal && helpModal.classList.contains("open")) { e.preventDefault(); closeHelp(); return; }
+    if (e.key !== "?") return;
+    const t: any = e.target;
+    if (t && (t.isContentEditable || t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+    e.preventDefault();
+    openHelp();
+  });
+
   // ---- Slash command menu ----
   function makeEl(html) {
     const t = document.createElement("template");
