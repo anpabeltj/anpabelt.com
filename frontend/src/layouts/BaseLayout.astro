@@ -3,7 +3,7 @@ declare const Astro: any;
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import StormBackground from "../components/StormBackground.astro";
-import { site } from "../lib/site";
+import { site, socials } from "../lib/site";
 import "../styles/global.css";
 
 export interface Props {
@@ -29,6 +29,26 @@ const {
 const fullTitle = title ? `${title} — ${site.shortName}` : `${site.name} — Personal Website`;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin).toString();
 const ogImage = new URL(image, Astro.site ?? Astro.url.origin).toString();
+const origin = (Astro.site ?? new URL(Astro.url.origin)).toString();
+
+const personLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: site.name,
+  alternateName: site.shortName,
+  description: site.description,
+  jobTitle: site.role,
+  email: `mailto:${site.email}`,
+  url: origin,
+  image: ogImage,
+  sameAs: socials.map((s) => s.href),
+};
+const websiteLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: site.name,
+  url: origin,
+};
 ---
 
 <!doctype html>
@@ -39,8 +59,10 @@ const ogImage = new URL(image, Astro.site ?? Astro.url.origin).toString();
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    <meta name="author" content={site.name} />
+    <meta name="theme-color" content="#05140f" />
+    <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow"} />
     <link rel="canonical" href={canonical} />
-    {noindex && <meta name="robots" content="noindex, nofollow" />}
 
     <!-- Open Graph -->
     <meta property="og:type" content={type} />
@@ -49,6 +71,7 @@ const ogImage = new URL(image, Astro.site ?? Astro.url.origin).toString();
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
+    <meta property="og:image:alt" content={fullTitle} />
     {publishedTime && <meta property="article:published_time" content={publishedTime} />}
     {tags.map((t) => <meta property="article:tag" content={t} />)}
 
@@ -57,6 +80,11 @@ const ogImage = new URL(image, Astro.site ?? Astro.url.origin).toString();
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={fullTitle} />
+
+    <!-- Structured data -->
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(personLd)} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(websiteLd)} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

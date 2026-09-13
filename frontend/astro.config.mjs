@@ -11,6 +11,7 @@ const onVercel = Boolean(process.env.VERCEL);
 export default defineConfig({
   site: SITE_URL,
   output: "server",
+  prefetch: { prefetchAll: true, defaultStrategy: "viewport" },
   // Disable Astro's built-in CSRF origin check. Behind a reverse proxy (Vercel /
   // Cloudflare) the reconstructed request host does not match the browser Origin,
   // so multipart uploads were rejected with a plain-text "Cross-site POST form

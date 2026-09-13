@@ -139,19 +139,6 @@ h1, h2, h3, h4, h5, h6 {
 @keyframes float-y { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
 .profile-wrap { position: relative; width: max-content; }
-.profile-wrap::before {
-  content: "";
-  position: absolute;
-  inset: -7px;
-  border-radius: 9999px;
-  background: conic-gradient(from 0deg,
-    var(--color-mint), transparent 35%,
-    var(--color-mint-dim) 55%, transparent 80%, var(--color-mint));
-  filter: blur(3px);
-  opacity: 0.8;
-  z-index: 0;
-  animation: spin-slow 9s linear infinite;
-}
 .profile-img { position: relative; z-index: 1; animation: float-y 6s ease-in-out infinite; }
 
 .name-accent { color: var(--color-mint); position: relative; white-space: nowrap; }
@@ -181,7 +168,7 @@ h1, h2, h3, h4, h5, h6 {
 
 @media (prefers-reduced-motion: reduce) {
   .io-reveal { opacity: 1; transform: none; transition: none; }
-  .profile-img, .profile-wrap::before { animation: none; }
+  .profile-img { animation: none; }
   .name-accent::after { transition: none; transform: scaleX(1); }
 }
 

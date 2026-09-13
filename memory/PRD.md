@@ -170,3 +170,15 @@ Implemented:
 Verified: public shows 21 filter chips (All + 20 techs) with All active; reorder POST
 reverses then restores order (200, order changes persist); admin list has data-reorder="1"
 + 7 drag handles on the All tab.
+
+## Public side — 2026-09-13 (green glow removal + speed/SEO; React proposal pending)
+- Removed the mint conic-gradient glow ring around the About profile photo
+  (`.profile-wrap::before` deleted from `global.css`); kept the plain circle + thin border.
+- Speed: profile image compressed 424KB PNG -> 13KB WebP (sharp, 440px), img now has
+  width/height + decoding=async + fetchpriority=high; enabled Astro viewport `prefetch`
+  (prefetchAll) for faster navigation.
+- SEO: added JSON-LD Person + WebSite structured data, theme-color, author meta, explicit
+  robots index/follow, og:image:alt + twitter:image:alt in BaseLayout. No visual change.
+- React.js: user asked for a proposed list of features to convert to React before deciding.
+  Proposal delivered (projects filter, contact form, blog search, ⌘K command palette,
+  project/blog image lightbox, skills hover cards). Awaiting user's pick — NOT yet built.
