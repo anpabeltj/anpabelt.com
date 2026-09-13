@@ -37,11 +37,40 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     }
   }
 
+  // Shrink large photos in-browser before upload (resize to <=1920px, re-encode as
+  // WebP ~0.82) so posts load faster. Skips vector/animated (SVG/GIF) and already-small
+  // files, and only keeps the result if it's actually smaller.
+  async function compressImage(file) {
+    const COMPRESSIBLE = ["image/jpeg", "image/png", "image/webp"];
+    if (!COMPRESSIBLE.includes(file.type)) return file;
+    if (file.size <= 300 * 1024) return file;
+    try {
+      const bitmap = await createImageBitmap(file);
+      const MAX_DIM = 1920;
+      const scale = Math.min(1, MAX_DIM / Math.max(bitmap.width, bitmap.height));
+      const w = Math.max(1, Math.round(bitmap.width * scale));
+      const h = Math.max(1, Math.round(bitmap.height * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return file;
+      ctx.drawImage(bitmap, 0, 0, w, h);
+      if (bitmap.close) bitmap.close();
+      const blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, "image/webp", 0.82));
+      if (!blob || blob.size >= file.size) return file;
+      const name = file.name.replace(/\.[^.]+$/, "") + ".webp";
+      return new File([blob], name, { type: "image/webp" });
+    } catch {
+      return file;
+    }
+  }
+
   // Upload a file to /actions/upload via XHR so we can report real upload progress.
-  function uploadWithProgress(file, onProgress) {
-    return new Promise((resolve, reject) => {
+  async function uploadWithProgress(file, onProgress) {
+    const prepared = await compressImage(file);
+    return await new Promise((resolve, reject) => {
       const fd = new FormData();
-      fd.append("file", file);
+      fd.append("file", prepared);
       const xhr = new XMLHttpRequest();
       xhr.open("POST", "/actions/upload");
       xhr.upload.addEventListener("progress", (e) => {
@@ -1054,14 +1083,13 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
   }
   $("btn-clear-cover").addEventListener("click", () => { $("f-cover-url").value = ""; setCover(""); scheduleAutosave(); });
 
-  $("f-cover-file").addEventListener("change", async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    $("upload-label").textContent = "Uploading…";
+  // Upload one file and set it as the cover (instant local preview, revert on failure).
+  async function uploadCoverFile(file) {
     const prev = $("f-cover-url").value.trim();
     const localUrl = URL.createObjectURL(file);
-    setCover(localUrl); // instant thumbnail preview
+    setCover(localUrl);
     const toast = createUploadToast(file);
+    $("upload-label").textContent = "Uploading…";
     try {
       const asset = await uploadWithProgress(file, toast.set);
       toast.done(true);
@@ -1069,16 +1097,67 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
       setCover(asset.url);
       showMsg("Cover uploaded \u2713");
       scheduleAutosave();
+      return asset.url;
     } catch (err) {
       toast.done(false);
-      setCover(prev); // revert on failure
+      setCover(prev);
       showMsg(err.message || "Upload failed.", false);
+      return null;
     } finally {
       URL.revokeObjectURL(localUrl);
       $("upload-label").textContent = "Upload";
-      e.target.value = "";
     }
+  }
+
+  // Upload one image straight into the gallery grid.
+  async function uploadGalleryFile(file) {
+    const toast = createUploadToast(file);
+    try {
+      const asset = await uploadWithProgress(file, toast.set);
+      toast.done(true);
+      images.push({ url: asset.url, caption: "" });
+      return asset.url;
+    } catch {
+      toast.done(false);
+      return null;
+    }
+  }
+
+  // Drop of N images on the cover box: first becomes the cover; extras go to the
+  // gallery (gallery posts) or are inserted into the article body.
+  async function handleCoverDrop(files) {
+    if (!files.length) return;
+    await uploadCoverFile(files[0]);
+    for (const f of files.slice(1)) {
+      if (currentType === "gallery") await uploadGalleryFile(f);
+      else await embedImage(f);
+    }
+    if (currentType === "gallery") renderGallery();
+    scheduleAutosave();
+  }
+
+  $("f-cover-file").addEventListener("change", async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length) await handleCoverDrop(files);
+    e.target.value = "";
   });
+
+  const coverZone = $("cover-dropzone");
+  if (coverZone) {
+    ["dragenter", "dragover"].forEach((ev) =>
+      coverZone.addEventListener(ev, (e) => { e.preventDefault(); coverZone.classList.add("cover-drop-active"); })
+    );
+    ["dragleave", "dragend"].forEach((ev) =>
+      coverZone.addEventListener(ev, (e) => { if (!coverZone.contains(e.relatedTarget)) coverZone.classList.remove("cover-drop-active"); })
+    );
+    coverZone.addEventListener("drop", async (e) => {
+      coverZone.classList.remove("cover-drop-active");
+      const files = Array.from(e.dataTransfer?.files || []).filter((f) => f.type.startsWith("image/"));
+      if (!files.length) return;
+      e.preventDefault();
+      await handleCoverDrop(files);
+    });
+  }
 
   // ---- In-body image insertion (toolbar button, drag & drop, paste) ----
   async function uploadImage(file) {

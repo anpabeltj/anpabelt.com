@@ -51,3 +51,15 @@ the @vercel/blob SDK (v2.8.0, OIDC-capable) authenticates automatically. Static
 Requires: push to GitHub + Vercel redeploy. OIDC path only verifiable on Vercel (the
 Emergent preview has no OIDC token and correctly still uses local disk).
 
+## Feature — 2026-09-13 (Image Compression + Drag-to-Upload)
+- Image compression (`postEditor.ts compressImage`): resizes photos to <=1920px and
+  re-encodes to WebP q0.82 in-browser before upload; skips SVG/GIF + already-small
+  (<300KB) files, and only keeps the result if smaller. Wired into `uploadWithProgress`
+  so ALL upload paths (cover/inline/gallery/card) benefit. Verified: a 6.6MB PNG stored
+  as .webp.
+- Drag-to-upload (`PostEditor.astro` cover-dropzone + `postEditor.ts`): the Cover box is
+  now a drop zone (dashed mint highlight on dragover); cover file input is `multiple`.
+  Dropping N images uploads all — first becomes the cover, extras go to the gallery
+  (gallery posts) or are inserted into the article body. Verified: 2-file drop → 1 cover
+  + 1 inline, no console errors. Styles in `global.css`.
+

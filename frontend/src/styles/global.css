@@ -805,3 +805,17 @@ kbd.rte-kbd {
 .upload-toast.is-error .upload-toast-fill { background: #f28b82; }
 .upload-toast.is-error .upload-toast-pct { color: #f28b82; }
 
+
+/* ---- Cover image drop zone ---- */
+.cover-dropzone {
+  border-radius: 0.75rem;
+  outline: 2px dashed transparent;
+  outline-offset: 4px;
+  transition: outline-color 0.2s ease, background-color 0.2s ease;
+}
+.cover-dropzone.cover-drop-active {
+  outline-color: rgba(111, 227, 154, 0.7);
+  background: rgba(111, 227, 154, 0.06);
+}
+.cover-dropzone.cover-drop-active * { pointer-events: none; }
+
