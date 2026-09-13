@@ -32,3 +32,16 @@ cursor inserts the image; no console errors.
 ## Backlog / Next
 - Redeploy to Vercel so the checkOrigin fix takes effect in production.
 - Unsplash search awaits an Unsplash Access Key.
+
+## Bug Fix #2 — 2026-09-13 (production upload ENOENT + progress UI)
+Reported: uploads on Vercel failed with `ENOENT ... open '/var/task/data/uploads/...'`.
+Root cause: Vercel Lambda filesystem is read-only and `BLOB_READ_WRITE_TOKEN` is not set,
+so `saveUpload()` fell back to local disk (`process.cwd()/data/uploads`) which cannot be
+written on Vercel. ACTION REQUIRED BY USER: add a Vercel Blob store to the project (Vercel
+dashboard → Storage → Create → Blob) which injects `BLOB_READ_WRITE_TOKEN`, then redeploy.
+The code already uses `@vercel/blob` when that token exists (`lib/media.ts useBlob()`).
+- `lib/media.ts`: disk write now throws a clear, actionable message on Vercel instead of ENOENT.
+- Added upload progress + live thumbnail toast (`postEditor.ts` `uploadWithProgress` +
+  `createUploadToast`, styles in `global.css`), wired into cover, inline insert-at-cursor,
+  and gallery uploads. Verified in preview (toast shows thumbnail, green bar to 100%).
+

@@ -738,3 +738,70 @@ kbd.rte-kbd {
 .rte-table-tools button:hover { background: rgba(111, 227, 154, 0.16); color: var(--color-mint-bright); }
 .rte-table-tools .tt-del:hover { background: rgba(239, 68, 68, 0.18); color: #fca5a5; }
 .rte-table-tools .tt-sep { width: 1px; height: 16px; background: rgba(255, 255, 255, 0.14); margin: 0 2px; }
+
+/* ---- Upload progress toast (cover / inline / gallery) ---- */
+.upload-toast {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 320px;
+  max-width: calc(100vw - 2rem);
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(17, 24, 24, 0.92);
+  border: 1px solid rgba(111, 227, 154, 0.22);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(14px);
+  color: #e7f6ee;
+  transform: translateY(16px);
+  opacity: 0;
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+.upload-toast.show { transform: translateY(0); opacity: 1; }
+.upload-toast-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 0.5rem;
+  object-fit: cover;
+  flex: 0 0 auto;
+  background: rgba(255, 255, 255, 0.05);
+}
+.upload-toast-body { flex: 1 1 auto; min-width: 0; }
+.upload-toast-name {
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.35rem;
+  color: rgba(231, 246, 238, 0.85);
+}
+.upload-toast-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+.upload-toast-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2dd4bf, #6fe39a);
+  transition: width 0.2s ease;
+}
+.upload-toast-pct {
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+  color: rgba(111, 227, 154, 0.9);
+  flex: 0 0 auto;
+  min-width: 2.5rem;
+  text-align: right;
+}
+.upload-toast.is-done { border-color: rgba(111, 227, 154, 0.5); }
+.upload-toast.is-error { border-color: rgba(242, 139, 130, 0.6); }
+.upload-toast.is-error .upload-toast-fill { background: #f28b82; }
+.upload-toast.is-error .upload-toast-pct { color: #f28b82; }
+

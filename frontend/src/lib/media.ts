@@ -43,7 +43,14 @@ export async function saveUpload(file: File): Promise<MediaAsset> {
     url = blob.url;
   } else {
     // Local/dev: write to disk, served via /media/[filename].
-    await writeFile(join(UPLOADS_DIR, filename), buf);
+    try {
+      await writeFile(join(UPLOADS_DIR, filename), buf);
+    } catch (err) {
+      if (getEnv("VERCEL", "")) {
+        throw new Error("Image storage isn't configured for production. Add a Vercel Blob store to the project (which sets BLOB_READ_WRITE_TOKEN) and redeploy.");
+      }
+      throw err;
+    }
     url = `/media/${filename}`;
   }
 

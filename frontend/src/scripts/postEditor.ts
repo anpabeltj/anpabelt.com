@@ -37,6 +37,61 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     }
   }
 
+  // Upload a file to /actions/upload via XHR so we can report real upload progress.
+  function uploadWithProgress(file, onProgress) {
+    return new Promise((resolve, reject) => {
+      const fd = new FormData();
+      fd.append("file", file);
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "/actions/upload");
+      xhr.upload.addEventListener("progress", (e) => {
+        if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100));
+      });
+      xhr.addEventListener("load", () => {
+        let data;
+        try { data = JSON.parse(xhr.responseText); }
+        catch {
+          const snippet = (xhr.responseText || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 120);
+          data = { error: snippet || `Upload failed (${xhr.status}).` };
+        }
+        if (xhr.status >= 200 && xhr.status < 300) resolve(data.asset);
+        else reject(new Error(data.error || "Upload failed."));
+      });
+      xhr.addEventListener("error", () => reject(new Error("Network error during upload.")));
+      xhr.send(fd);
+    });
+  }
+
+  // Floating toast with a live thumbnail + progress bar, shared by cover / inline / gallery uploads.
+  function createUploadToast(file) {
+    const thumb = URL.createObjectURL(file);
+    const el = document.createElement("div");
+    el.className = "upload-toast";
+    el.dataset.testid = "upload-toast";
+    el.innerHTML =
+      `<img class="upload-toast-thumb" src="${thumb}" alt="" />` +
+      `<div class="upload-toast-body">` +
+      `<div class="upload-toast-name">${escapeHtml(file.name)}</div>` +
+      `<div class="upload-toast-track"><div class="upload-toast-fill" data-testid="upload-toast-fill"></div></div>` +
+      `</div>` +
+      `<div class="upload-toast-pct" data-testid="upload-toast-pct">0%</div>`;
+    document.body.appendChild(el);
+    const fill = el.querySelector(".upload-toast-fill") as HTMLElement;
+    const pct = el.querySelector(".upload-toast-pct") as HTMLElement;
+    requestAnimationFrame(() => el.classList.add("show"));
+    return {
+      set(p) { const v = Math.max(0, Math.min(100, p)); fill.style.width = `${v}%`; pct.textContent = `${v}%`; },
+      done(ok) {
+        el.classList.add(ok ? "is-done" : "is-error");
+        if (ok) { fill.style.width = "100%"; pct.textContent = "100%"; }
+        setTimeout(() => {
+          el.classList.remove("show");
+          setTimeout(() => { el.remove(); URL.revokeObjectURL(thumb); }, 320);
+        }, ok ? 700 : 2200);
+      },
+    };
+  }
+
   // Auto-fill slug from title until the user edits the slug manually.
   let slugTouched = Boolean(initial.slug);
   $("f-slug").addEventListener("input", () => { slugTouched = true; });
@@ -906,16 +961,15 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     if (!files.length) return;
     $("gallery-upload-label").textContent = "Uploading…";
     for (const file of files) {
-      const fd = new FormData();
-      fd.append("file", file);
+      const toast = createUploadToast(file);
       try {
-        const res = await fetch("/actions/upload", { method: "POST", body: fd });
-        const j = await readJson(res);
-        if (res.ok) {
-          images.push({ url: j.asset.url, caption: "" });
-          if (!$("f-cover-url").value.trim()) { $("f-cover-url").value = j.asset.url; setCover(j.asset.url); }
-        }
-      } catch { /* ignore individual failures */ }
+        const asset = await uploadWithProgress(file, toast.set);
+        toast.done(true);
+        images.push({ url: asset.url, caption: "" });
+        if (!$("f-cover-url").value.trim()) { $("f-cover-url").value = asset.url; setCover(asset.url); }
+      } catch {
+        toast.done(false);
+      }
     }
     e.target.value = "";
     $("gallery-upload-label").textContent = "+ Add photos";
@@ -1004,31 +1058,39 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     const file = e.target.files?.[0];
     if (!file) return;
     $("upload-label").textContent = "Uploading…";
-    const fd = new FormData();
-    fd.append("file", file);
+    const prev = $("f-cover-url").value.trim();
+    const localUrl = URL.createObjectURL(file);
+    setCover(localUrl); // instant thumbnail preview
+    const toast = createUploadToast(file);
     try {
-      const res = await fetch("/actions/upload", { method: "POST", body: fd });
-      const json = await readJson(res);
-      if (!res.ok) throw new Error(json.error || "Upload failed.");
-      $("f-cover-url").value = json.asset.url;
-      setCover(json.asset.url);
+      const asset = await uploadWithProgress(file, toast.set);
+      toast.done(true);
+      $("f-cover-url").value = asset.url;
+      setCover(asset.url);
       showMsg("Cover uploaded \u2713");
       scheduleAutosave();
     } catch (err) {
+      toast.done(false);
+      setCover(prev); // revert on failure
       showMsg(err.message || "Upload failed.", false);
     } finally {
+      URL.revokeObjectURL(localUrl);
       $("upload-label").textContent = "Upload";
+      e.target.value = "";
     }
   });
 
   // ---- In-body image insertion (toolbar button, drag & drop, paste) ----
   async function uploadImage(file) {
-    const fd = new FormData();
-    fd.append("file", file);
-    const res = await fetch("/actions/upload", { method: "POST", body: fd });
-    const json = await readJson(res);
-    if (!res.ok) throw new Error(json.error || "Upload failed.");
-    return json.asset.url;
+    const toast = createUploadToast(file);
+    try {
+      const asset = await uploadWithProgress(file, toast.set);
+      toast.done(true);
+      return asset.url;
+    } catch (err) {
+      toast.done(false);
+      throw err;
+    }
   }
 
   function insertHtmlAtCursor(html) {
