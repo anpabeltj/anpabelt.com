@@ -5,6 +5,7 @@ import Footer from "../components/Footer.astro";
 import StormBackground from "../components/StormBackground.astro";
 import CommandPalette from "../components/react/CommandPalette.tsx";
 import Lightbox from "../components/react/Lightbox.tsx";
+import AIAssistant from "../components/react/AIAssistant.tsx";
 import { site, socials, navLinks } from "../lib/site";
 import { listPosts } from "../lib/posts";
 import "../styles/global.css";
@@ -125,5 +126,6 @@ const commandItems = [
     </script>
     <CommandPalette client:idle items={commandItems} />
     <Lightbox client:idle />
+    <AIAssistant client:idle />
   </body>
 </html>

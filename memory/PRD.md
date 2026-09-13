@@ -205,3 +205,12 @@ Testing agent: 100% pass, no functional bugs (iteration_4.json).
   into each slide and, for project images, renders tech pills + a "View Live" button
   (data-testid lightbox-meta / lightbox-live-link) below the caption. Blog images (no such
   attrs) show nothing extra. Verified compiled into the served island bundles; no errors.
+
+## Public side — 2026-09-13 (AI Assistant — coming-soon placeholder, React)
+- New AIAssistant.tsx React island (client:idle, global via BaseLayout): floating "Ask AI"
+  launcher (bottom-left, sparkle + ping). Clicking (or window event 'open-ai-assistant')
+  opens a modal showing a generated illustration (/assets/images/ai-coming-soon.webp),
+  an "In development" badge, a coming-soon message, a decorative DISABLED chat input, a
+  "Notify me" link to /contact, and close (Esc/backdrop/✕).
+- NOTE: The AI itself is intentionally NOT functional yet — this is a placeholder while the
+  user builds their custom AI. No LLM/backend wired. Illustration generated via Gemini image.
