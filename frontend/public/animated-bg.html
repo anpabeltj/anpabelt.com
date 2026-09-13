@@ -3,38 +3,54 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Anpabelt — Dark Green Hour</title>
+<title>Anpabelt — Storm Clouds</title>
 <style>
   :root{ --mint:127,227,187; }
   *{margin:0;padding:0;box-sizing:border-box;}
   html,body{height:100%;overflow:hidden;background:#03100b;}
-  .stage{position:fixed;inset:0;}
-  canvas{position:absolute;inset:0;display:block;}
-  /* atmospheric "green hour" vertical wash on top of clouds */
-  .sky{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;opacity:.9;
+  .stage{position:fixed;inset:0;overflow:hidden;}
+
+  /* crisp, un-blurred cloud artwork */
+  .clouds{position:absolute;inset:0;background-size:cover;background-position:center;
+    background-image:url("https://static.prod-images.emergentagent.com/jobs/592f7c1b-810b-4f6d-a521-d08447fcd56f/images/66bccb9f71fcede713d37f25b19708ca17ec8f6b75e851c2683d9d73d836a75a.jpeg");
+    filter:saturate(1.05) contrast(1.02);}
+
+  /* a second copy sits on top and only becomes visible where a flash lights it,
+     so the actual cloud texture appears to glow from within */
+  .clouds-lit{position:absolute;inset:0;background-size:cover;background-position:center;
+    background-image:url("https://static.prod-images.emergentagent.com/jobs/592f7c1b-810b-4f6d-a521-d08447fcd56f/images/66bccb9f71fcede713d37f25b19708ca17ec8f6b75e851c2683d9d73d836a75a.jpeg");
+    mix-blend-mode:screen; filter:brightness(2.1) saturate(0.6);
+    opacity:0; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+    -webkit-mask-position:center; mask-position:center;}
+
+  /* soft internal glow bloom layer (colour of the lightning) */
+  .glow{position:absolute;inset:0;mix-blend-mode:screen;opacity:0;pointer-events:none;}
+
+  /* keep the storm dark & gloomy, protect the text pocket */
+  .tone{position:absolute;inset:0;pointer-events:none;
     background:
-      radial-gradient(120% 70% at 50% 118%, rgba(40,120,90,0.30), transparent 60%),
-      linear-gradient(180deg, rgba(3,14,10,0.0) 30%, rgba(10,40,28,0.25) 100%);}
-  /* vignette to keep it gloomy & focus center */
+      radial-gradient(70% 55% at 34% 40%, rgba(3,12,9,0.72), transparent 70%),
+      linear-gradient(180deg, rgba(3,14,10,0.35), rgba(2,8,6,0.55));}
   .vignette{position:absolute;inset:0;pointer-events:none;
-    background:radial-gradient(115% 95% at 50% 42%, transparent 45%, rgba(1,6,4,0.85) 100%);}
-  /* film grain */
-  .grain{position:absolute;inset:0;opacity:.06;pointer-events:none;mix-blend-mode:overlay;
+    background:radial-gradient(120% 100% at 50% 44%, transparent 52%, rgba(1,5,4,0.8) 100%);}
+  .grain{position:absolute;inset:0;opacity:.05;pointer-events:none;mix-blend-mode:overlay;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
-  /* demo typography to check readability */
+
   .demo{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
     padding-left:8%;pointer-events:none;font-family:Georgia,'Times New Roman',serif;color:#eef4f0;
-    text-shadow:0 2px 30px rgba(0,0,0,0.55);}
+    text-shadow:0 2px 34px rgba(0,0,0,0.7);}
   .demo small{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.25em;
-    text-transform:uppercase;font-size:12px;color:rgb(150,170,160);}
+    text-transform:uppercase;font-size:12px;color:rgb(160,180,170);}
   .demo h1{font-size:clamp(40px,6vw,84px);line-height:1.02;margin-top:22px;font-weight:600;}
   .demo h1 em{font-style:italic;color:rgb(var(--mint));}
 </style>
 </head>
 <body>
   <div class="stage">
-    <canvas id="c"></canvas>
-    <div class="sky"></div>
+    <div class="clouds"></div>
+    <div class="clouds-lit" id="lit"></div>
+    <div class="glow" id="glow"></div>
+    <div class="tone"></div>
     <div class="vignette"></div>
     <div class="grain"></div>
     <div class="demo">
@@ -44,189 +60,79 @@
   </div>
 
 <script>
-const cv=document.getElementById('c');const ctx=cv.getContext('2d');
-let W,H,DPR;
-const MINT=[127,227,187];
+const lit=document.getElementById('lit');
+const glow=document.getElementById('glow');
+const MINT='127,227,187';
 
-// ---- cloud model -------------------------------------------------
-// several layered clouds; each cloud is a cluster of soft puffs.
-let clouds=[];
-function makeCloud(cx,cy,scale,speed,depth){
-  const puffs=[];
-  const n=10+Math.floor(Math.random()*8);
-  for(let i=0;i<n;i++){
-    puffs.push({
-      dx:(Math.random()-0.5)*260*scale,
-      dy:(Math.random()-0.5)*90*scale,
-      r:(70+Math.random()*130)*scale
-    });
-  }
-  return {cx,cy,scale,speed,depth,puffs,
-          x:cx, drift:(Math.random()*Math.PI*2)};
+// lightning cores hidden deep inside dense cloud regions.
+// (kept away from the upper-left text pocket)
+const cores=[
+  {x:78,y:38,s:34},
+  {x:62,y:70,s:40},
+  {x:88,y:64,s:30},
+  {x:40,y:82,s:38},
+  {x:18,y:60,s:28},
+  {x:70,y:20,s:26}
+];
+
+let anim=0;               // 0..1 current illumination
+let target=0;             // where anim eases toward
+let active=cores[0];
+let flickerQueue=[];      // sequence of target levels for a strike
+let nextAt=performance.now()+900;
+
+function paint(){
+  // radial glow gradient centred on the active core
+  const gx=active.x, gy=active.y, gs=active.s;
+  glow.style.background=
+    'radial-gradient('+gs+'% '+(gs*0.9)+'% at '+gx+'% '+gy+'%,'
+    +'rgba(220,255,242,'+(0.9*anim)+') 0%,'
+    +'rgba('+MINT+','+(0.55*anim)+') 26%,'
+    +'rgba(70,150,120,'+(0.18*anim)+') 55%, transparent 72%)';
+  glow.style.opacity=1;
+
+  // reveal the bright cloud copy only around the core -> "lit from within"
+  const m='radial-gradient('+(gs+8)+'% '+(gs*0.9+8)+'% at '+gx+'% '+gy+'%,'
+    +'rgba(0,0,0,'+anim+') 0%, rgba(0,0,0,'+(anim*0.5)+') 40%, transparent 70%)';
+  lit.style.webkitMaskImage=m; lit.style.maskImage=m;
+  lit.style.opacity=anim;
 }
-function buildClouds(){
-  clouds=[];
-  // back layer (far, slow, dim)
-  clouds.push(makeCloud(W*0.18,H*0.30,1.0*DPR,0.10*DPR,0.35));
-  clouds.push(makeCloud(W*0.80,H*0.24,1.1*DPR,0.08*DPR,0.30));
-  // mid layer
-  clouds.push(makeCloud(W*0.30,H*0.70,1.25*DPR,0.16*DPR,0.55));
-  clouds.push(makeCloud(W*0.72,H*0.66,1.3*DPR,0.14*DPR,0.55));
-  // near layer (bottom, big, darker, faster)
-  clouds.push(makeCloud(W*0.50,H*0.98,1.7*DPR,0.22*DPR,0.85));
-  clouds.push(makeCloud(W*0.05,H*0.92,1.4*DPR,0.20*DPR,0.80));
-  clouds.push(makeCloud(W*0.95,H*0.90,1.5*DPR,0.18*DPR,0.80));
-}
 
-// ---- lightning ---------------------------------------------------
-let flash=0;                 // global ambient flash 0..1
-let bolts=[];                // active bolt segments
-let nextStrike=0;
+function tick(now){
+  // ease current illumination toward target
+  anim += (target-anim)*0.25;
+  if(Math.abs(target-anim)<0.003) anim=target;
+  paint();
 
-function scheduleStrike(now){ nextStrike = now + 2200 + Math.random()*4200; }
-
-function makeBolt(x,y){
-  // jagged vertical-ish bolt inside/under a cloud
-  const segs=[];
-  let px=x, py=y;
-  const steps=7+Math.floor(Math.random()*5);
-  const dir=(Math.random()-0.5);
-  for(let i=0;i<steps;i++){
-    const nx=px+(Math.random()-0.5)*60*DPR+dir*22*DPR;
-    const ny=py+(34+Math.random()*58)*DPR;
-    segs.push({x1:px,y1:py,x2:nx,y2:ny});
-    // occasional branch
-    if(Math.random()<0.35){
-      const bx=nx+(Math.random()-0.5)*90*DPR;
-      const by=ny+(30+Math.random()*50)*DPR;
-      segs.push({x1:nx,y1:ny,x2:bx,y2:by,branch:true});
-    }
-    px=nx;py=ny;
+  // consume flicker steps
+  if(flickerQueue.length && now>=flickerQueue[0].t){
+    target=flickerQueue.shift().v;
   }
-  return {segs,x,y,life:1};
+
+  // schedule a new strike when idle
+  if(anim<0.02 && target<0.02 && flickerQueue.length===0 && now>nextAt){
+    strike(now);
+  }
+  requestAnimationFrame(tick);
 }
 
 function strike(now){
-  // choose a cloud, prefer mid/upper so the bolt sits in the visible band
-  const pool=[clouds[0],clouds[1],clouds[2],clouds[3]];
-  const c=pool[Math.floor(Math.random()*pool.length)];
-  const ox=c.x+(Math.random()-0.5)*180*c.scale;
-  let oy=c.cy+(Math.random()-0.5)*40*c.scale;
-  oy=Math.max(H*0.14, Math.min(oy, H*0.5));   // keep origin in upper-mid band
-  // flicker sequence
-  flash=Math.max(flash,0.9);
-  bolts.push(makeBolt(ox,oy));
-  if(Math.random()<0.5) bolts.push(makeBolt(ox+(Math.random()-0.5)*120*DPR,oy));
-  // secondary quick flicker
-  setTimeout(()=>{flash=Math.max(flash,0.6);},70+Math.random()*60);
-  lastGlow={x:ox,y:oy,r:(260+Math.random()*180)*c.scale};
-  scheduleStrike(now);
-}
-let lastGlow=null;
-
-// ---- rendering ---------------------------------------------------
-function resize(){
-  DPR=Math.min(window.devicePixelRatio||1,2);
-  W=cv.width=innerWidth*DPR;H=cv.height=innerHeight*DPR;
-  cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';
-  buildClouds();
+  active=cores[Math.floor(Math.random()*cores.length)];
+  // a natural lightning stutter: quick rises & falls, then a bigger flash, then decay
+  const seq=[];
+  let t=now;
+  const peak=0.75+Math.random()*0.25;
+  seq.push({t:t, v:peak*0.5}); t+=50;
+  seq.push({t:t, v:0.08});     t+=45;
+  seq.push({t:t, v:peak});     t+=70;
+  seq.push({t:t, v:0.25});     t+=55;
+  seq.push({t:t, v:peak*0.8}); t+=90;
+  seq.push({t:t, v:0.0});
+  flickerQueue=seq;
+  nextAt = now + 2600 + Math.random()*4000;   // gap till next storm flash
 }
 
-function drawCloud(c,lit){
-  // base cloud color: cool dark green, slightly lifted by depth
-  const base=18+c.depth*22;
-  for(const p of c.puffs){
-    const x=c.x+p.dx, y=c.cy+p.dy;
-    const g=ctx.createRadialGradient(x,y,0,x,y,p.r);
-    // ambient body
-    const r=Math.round(base*0.5+lit*90*MINT[0]/255);
-    const gg=Math.round((base+18)+lit*90);
-    const b=Math.round((base+6)+lit*70*MINT[2]/255);
-    g.addColorStop(0,'rgba('+r+','+gg+','+b+','+(0.16+c.depth*0.10)+')');
-    g.addColorStop(1,'rgba('+r+','+gg+','+b+',0)');
-    ctx.fillStyle=g;
-    ctx.beginPath();ctx.arc(x,y,p.r,0,7);ctx.fill();
-  }
-}
-
-let last=performance.now();
-function frame(now){
-  const dt=Math.min(now-last,50);last=now;
-
-  // background sky (green hour gradient painted on canvas so lightning can add to it)
-  const sky=ctx.createLinearGradient(0,0,0,H);
-  sky.addColorStop(0,'#03100b');
-  sky.addColorStop(0.55,'#051a12');
-  sky.addColorStop(1,'#082418');
-  ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
-
-  // lightning ambient glow behind clouds
-  if(flash>0.001 && lastGlow){
-    const gg=ctx.createRadialGradient(lastGlow.x,lastGlow.y,0,lastGlow.x,lastGlow.y,lastGlow.r);
-    gg.addColorStop(0,'rgba('+MINT[0]+','+MINT[1]+','+MINT[2]+','+(0.55*flash)+')');
-    gg.addColorStop(0.5,'rgba(90,180,140,'+(0.25*flash)+')');
-    gg.addColorStop(1,'rgba(90,180,140,0)');
-    ctx.save();ctx.globalCompositeOperation='screen';
-    ctx.fillStyle=gg;ctx.beginPath();ctx.arc(lastGlow.x,lastGlow.y,lastGlow.r,0,7);ctx.fill();
-    ctx.restore();
-  }
-
-  // drifting clouds, back-to-front
-  ctx.save();ctx.globalCompositeOperation='screen';
-  for(const c of clouds){
-    c.x+=c.speed;
-    c.drift+=0.0006*dt;
-    c.cy+=Math.sin(c.drift)*0.05*DPR;
-    const span=W+600*DPR;
-    if(c.x-400*DPR>W) c.x=-400*DPR;      // wrap
-    // clouds nearest to the flash get lit more
-    let lit=0;
-    if(flash>0.001 && lastGlow){
-      const d=Math.hypot(c.x-lastGlow.x,c.cy-lastGlow.y);
-      lit=Math.max(0, flash*(1-Math.min(d/(600*DPR),1)));
-    }
-    drawCloud(c,lit);
-  }
-  ctx.restore();
-
-  // bolts
-  ctx.save();ctx.globalCompositeOperation='screen';
-  for(let i=bolts.length-1;i>=0;i--){
-    const bl=bolts[i];bl.life-=dt/420;
-    if(bl.life<=0){bolts.splice(i,1);continue;}
-    const a=Math.max(0,bl.life);
-    // outer mint glow pass
-    for(const s of bl.segs){
-      ctx.strokeStyle='rgba('+MINT[0]+','+MINT[1]+','+MINT[2]+','+(a*(s.branch?0.4:0.7))+')';
-      ctx.lineWidth=(s.branch?3:6)*DPR;
-      ctx.shadowColor='rgba('+MINT[0]+','+MINT[1]+','+MINT[2]+','+a+')';
-      ctx.shadowBlur=22*DPR;
-      ctx.beginPath();ctx.moveTo(s.x1,s.y1);ctx.lineTo(s.x2,s.y2);ctx.stroke();
-    }
-    // bright near-white core pass
-    ctx.shadowBlur=6*DPR;
-    for(const s of bl.segs){
-      ctx.strokeStyle='rgba(226,255,244,'+(a*(s.branch?0.65:0.98))+')';
-      ctx.lineWidth=(s.branch?1:1.8)*DPR;
-      ctx.beginPath();ctx.moveTo(s.x1,s.y1);ctx.lineTo(s.x2,s.y2);ctx.stroke();
-    }
-  }
-  ctx.restore();
-
-  // decay flash
-  flash*=Math.pow(0.90, dt/16);
-  if(flash<0.002)flash=0;
-
-  // schedule strikes
-  if(now>nextStrike) strike(now);
-
-  requestAnimationFrame(frame);
-}
-
-addEventListener('resize',resize);
-resize();
-scheduleStrike(performance.now()+800);
-requestAnimationFrame(frame);
+requestAnimationFrame(tick);
 </script>
 </body>
 </html>
