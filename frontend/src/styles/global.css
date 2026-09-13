@@ -166,6 +166,23 @@ h1, h2, h3, h4, h5, h6 {
 }
 .skill-card:hover .skill-glow { opacity: 1; }
 
+/* React islands: projects explorer */
+@keyframes cardIn { from { opacity: 0; transform: translateY(14px) scale(0.985); } to { opacity: 1; transform: none; } }
+.project-card-anim { animation: cardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.project-chip {
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--color-card, rgba(255, 255, 255, 0.03));
+  padding: 0.35rem 0.85rem;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  color: rgba(231, 246, 238, 0.7);
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  cursor: pointer;
+}
+.project-chip:hover { color: #fff; border-color: rgba(94, 234, 212, 0.35); }
+.project-chip.chip-active { background: rgba(45, 212, 191, 0.15); color: #5eead4; border-color: rgba(45, 212, 191, 0.45); }
+
 @media (prefers-reduced-motion: reduce) {
   .io-reveal { opacity: 1; transform: none; transition: none; }
   .profile-img { animation: none; }

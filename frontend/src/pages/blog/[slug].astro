@@ -55,7 +55,7 @@ const next = idx > 0 ? published[idx - 1] : null;
     </header>
 
     {post.coverImage && (
-      <img src={post.coverImage} alt={post.title} class="mt-8 w-full rounded-2xl border border-white/10 aspect-[16/9] object-cover" />
+      <img src={post.coverImage} alt={post.title} data-zoomable="true" data-gallery="article" data-caption={post.title} class="mt-8 w-full rounded-2xl border border-white/10 aspect-[16/9] object-cover cursor-zoom-in" />
     )}
 
     {isGallery ? (

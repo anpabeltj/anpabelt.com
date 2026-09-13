@@ -25,6 +25,28 @@ const isActive = (href: string) =>
     </nav>
 
     <button
+      type="button"
+      data-command-open
+      data-testid="nav-search-button"
+      aria-label="Open quick search"
+      class="hidden md:inline-flex items-center gap-2 rounded-full border border-white/10 bg-card/60 px-3 py-1.5 text-xs text-retro-50/60 hover:text-white hover:border-mint/30 transition-colors"
+    >
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+      Search
+      <kbd class="font-mono border border-white/10 rounded px-1 py-0.5 text-[10px]">⌘K</kbd>
+    </button>
+
+    <button
+      type="button"
+      data-command-open
+      data-testid="nav-search-button-mobile"
+      aria-label="Open quick search"
+      class="md:hidden text-white/80 hover:text-white"
+    >
+      <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+    </button>
+
+    <button
       id="nav-toggle"
       class="ham md:hidden relative w-7 h-7 text-white"
       aria-label="Toggle menu"
@@ -140,4 +162,8 @@ const isActive = (href: string) =>
   };
   document.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
+
+  document.querySelectorAll("[data-command-open]").forEach((btn) =>
+    btn.addEventListener("click", () => window.dispatchEvent(new CustomEvent("open-command-palette")))
+  );
 </script>

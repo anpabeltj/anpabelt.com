@@ -182,3 +182,20 @@ reverses then restores order (200, order changes persist); admin list has data-r
 - React.js: user asked for a proposed list of features to convert to React before deciding.
   Proposal delivered (projects filter, contact form, blog search, ⌘K command palette,
   project/blog image lightbox, skills hover cards). Awaiting user's pick — NOT yet built.
+
+## Public side — 2026-09-13 (React islands: 4 interactive features)
+Added @astrojs/react@4 (Node 20 / React 19) integration. Four islands built:
+- ProjectsExplorer.tsx (client:load, /projects): multi-select tech chips (AND logic),
+  animated card entrance (cardIn keyframe), live match count (project-match-count),
+  empty state. Replaced the old vanilla filter. Project images are data-zoomable.
+- CommandPalette.tsx (client:idle, global via BaseLayout): Cmd/Ctrl+K + nav search button
+  (Nav.astro dispatches 'open-command-palette'); searches Pages + published blog posts,
+  keyboard nav + Enter to navigate, Esc to close.
+- ContactForm.tsx (client:load, /contact): live validation (email regex, message min 10),
+  submit states, success/error toast. Submit enabled unless sending (empty submit reveals
+  errors). Posts to existing /actions/contact.
+- Lightbox.tsx (client:idle, global): document click delegation on img[data-zoomable],
+  grouped by data-gallery ('projects' and 'article'), zoom (click/wheel) + pan + prev/next
+  + counter + Esc/backdrop close. Blog cover + markdown content images tagged data-zoomable
+  (markdown.ts img transform + sanitize allowedAttributes updated); blog/[slug].astro cover.
+Testing agent: 100% pass, no functional bugs (iteration_4.json).

@@ -15,7 +15,7 @@ const SANITIZE_OPTS: sanitizeHtml.IOptions = {
   allowedTags: ALLOWED_TAGS,
   allowedAttributes: {
     a: ["href", "title", "target", "rel", "class"],
-    img: ["src", "alt", "title", "loading", "width", "height", "class"],
+    img: ["src", "alt", "title", "loading", "width", "height", "class", "data-zoomable", "data-gallery", "data-caption"],
     code: ["class"],
     span: ["class", "style"],
     p: ["style"],
@@ -39,7 +39,7 @@ const SANITIZE_OPTS: sanitizeHtml.IOptions = {
         ? { ...attribs, target: "_blank", rel: "noopener noreferrer" }
         : attribs,
     }),
-    img: (tagName, attribs) => ({ tagName, attribs: { ...attribs, loading: "lazy" } }),
+    img: (tagName, attribs) => ({ tagName, attribs: { ...attribs, loading: "lazy", "data-zoomable": "true", "data-gallery": "article", class: `${attribs.class ?? ""} cursor-zoom-in`.trim() } }),
   },
   allowedSchemes: ["http", "https", "mailto", "data"],
 };

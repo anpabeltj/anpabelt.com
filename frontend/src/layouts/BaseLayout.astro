@@ -3,7 +3,10 @@ declare const Astro: any;
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import StormBackground from "../components/StormBackground.astro";
-import { site, socials } from "../lib/site";
+import CommandPalette from "../components/react/CommandPalette.tsx";
+import Lightbox from "../components/react/Lightbox.tsx";
+import { site, socials, navLinks } from "../lib/site";
+import { listPosts } from "../lib/posts";
 import "../styles/global.css";
 
 export interface Props {
@@ -49,6 +52,12 @@ const websiteLd = {
   name: site.name,
   url: origin,
 };
+
+const publishedPosts = await listPosts({ status: "published" });
+const commandItems = [
+  ...navLinks.map((l) => ({ label: l.label, href: l.href, group: "Pages", hint: "Page" })),
+  ...publishedPosts.map((p) => ({ label: p.title, href: `/blog/${p.slug}`, group: "Writing", hint: "Post" })),
+];
 ---
 
 <!doctype html>
@@ -114,5 +123,7 @@ const websiteLd = {
       );
       document.querySelectorAll(".io-reveal").forEach((el) => io.observe(el));
     </script>
+    <CommandPalette client:idle items={commandItems} />
+    <Lightbox client:idle />
   </body>
 </html>
