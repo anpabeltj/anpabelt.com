@@ -23,8 +23,23 @@ function rowToMedia(r: Rec): MediaAsset {
   };
 }
 
+// Resolve the Vercel Blob read-write token. When a Blob store is connected with a
+// custom "Environment Variable Prefix", Vercel names it "<PREFIX>_READ_WRITE_TOKEN"
+// instead of the default BLOB_READ_WRITE_TOKEN — accept either so uploads work
+// regardless of the prefix chosen at connect time.
+function blobToken(): string {
+  const direct = getEnv("BLOB_READ_WRITE_TOKEN", "");
+  if (direct) return direct;
+  if (typeof process !== "undefined" && process.env) {
+    for (const [k, v] of Object.entries(process.env)) {
+      if (v && /_READ_WRITE_TOKEN$/.test(k)) return v;
+    }
+  }
+  return "";
+}
+
 function useBlob(): boolean {
-  return Boolean(getEnv("BLOB_READ_WRITE_TOKEN", ""));
+  return Boolean(blobToken());
 }
 
 export async function saveUpload(file: File): Promise<MediaAsset> {
@@ -39,7 +54,7 @@ export async function saveUpload(file: File): Promise<MediaAsset> {
   if (useBlob()) {
     // Production (Vercel): store in Vercel Blob and reference its public URL.
     const { put } = await import("@vercel/blob");
-    const blob = await put(`uploads/${filename}`, buf, { access: "public", contentType: file.type });
+    const blob = await put(`uploads/${filename}`, buf, { access: "public", contentType: file.type, token: blobToken() });
     url = blob.url;
   } else {
     // Local/dev: write to disk, served via /media/[filename].
