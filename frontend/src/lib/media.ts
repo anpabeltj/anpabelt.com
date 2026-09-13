@@ -117,6 +117,41 @@ export async function deleteMedia(id: string): Promise<boolean> {
   return res.rowsAffected > 0;
 }
 
+// Replace a media asset's file in place (keeps the SAME url so every post using it updates
+// at once). Overwrites Blob at the same pathname in prod, or the same file on disk in dev.
+export async function replaceMedia(id: string, file: File): Promise<MediaAsset | null> {
+  if (!ALLOWED_MIME[file.type]) throw new Error("Unsupported file type. Use JPG, PNG, WEBP, GIF, SVG or AVIF.");
+  const buf = Buffer.from(await file.arrayBuffer());
+  if (buf.byteLength > MAX_BYTES) throw new Error("File too large (max 8MB).");
+
+  const c = await db();
+  const rs = await c.execute({ sql: "SELECT filename, url FROM media WHERE id = ?", args: [id] });
+  if (rs.rows.length === 0) return null;
+  const row = rs.rows[0] as Rec;
+  const filename = String(row.filename);
+  const url = String(row.url);
+
+  if (useBlob() && /^https?:\/\//.test(url)) {
+    const { put } = await import("@vercel/blob");
+    const pathname = new URL(url).pathname.replace(/^\/+/, "");
+    const token = blobToken();
+    const opts: { access: "public"; contentType: string; addRandomSuffix: boolean; allowOverwrite: boolean; token?: string } =
+      { access: "public", contentType: file.type, addRandomSuffix: false, allowOverwrite: true };
+    if (token) opts.token = token;
+    await put(pathname, buf, opts);
+  } else {
+    await writeFile(join(UPLOADS_DIR, filename), buf);
+  }
+
+  // url stays the same (original extension retained); refresh size/mime/original name.
+  await c.execute({
+    sql: "UPDATE media SET original_name = ?, mime = ?, size = ? WHERE id = ?",
+    args: [file.name, file.type, buf.byteLength, id],
+  });
+  const updated = await c.execute({ sql: "SELECT * FROM media WHERE id = ?", args: [id] });
+  return rowToMedia(updated.rows[0] as Rec);
+}
+
 const CONTENT_TYPES: Record<string, string> = {
   ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp",
   ".gif": "image/gif", ".svg": "image/svg+xml", ".avif": "image/avif",

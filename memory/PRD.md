@@ -103,3 +103,13 @@ Emergent preview has no OIDC token and correctly still uses local disk).
   reports success/failures. Verified: usage labels correct; selecting 2 → "2 selected" →
   delete → grid 20 → 18, "Deleted 2 images ✓", no console errors.
 
+## Feature — 2026-09-13 (Media Replace-in-place + Search/Filter)
+- Replace in place (`lib/media.ts replaceMedia` + PUT in `actions/media/[id].ts` + Replace
+  button in `admin/media.astro`): overwrites the file while KEEPING the same url (Blob
+  `put` same pathname with allowOverwrite+addRandomSuffix:false in prod; disk overwrite in
+  dev), updating size/mime/name — so every post referencing it updates at once. Preview img
+  gets a cache-bust query. Verified: url stayed `/media/…WFhQJUSa.png`, thumbnail swapped.
+- Search + filter (`admin/media.astro`): client-side search box (matches original filename)
+  + used/unused/all dropdown with a live "N shown" count. Verified: "zebra" → 1 shown;
+  Unused → only data-used=0 items. No console errors.
+

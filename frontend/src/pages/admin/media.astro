@@ -39,6 +39,18 @@ const items = media.map((m) => ({ m, usage: usageFor(m.url) }));
     </div>
   ) : (
     <>
+      <div class="flex flex-wrap items-center gap-3 mb-4">
+        <input id="media-search" type="search" placeholder="Search images…" data-testid="media-search"
+          class="flex-1 min-w-[200px] bg-elevated border border-white/10 rounded-lg px-3 py-2 text-sm text-retro-50 focus:outline-none focus:ring-2 focus:ring-teal-400/60 transition" />
+        <select id="media-filter" data-testid="media-filter"
+          class="bg-elevated border border-white/10 rounded-lg px-3 py-2 text-sm text-retro-50 focus:outline-none focus:ring-2 focus:ring-teal-400/60 transition">
+          <option value="all">All images</option>
+          <option value="used">Used</option>
+          <option value="unused">Unused</option>
+        </select>
+        <span id="filter-count" class="text-xs text-retro-400"></span>
+      </div>
+
       <div id="media-toolbar" class="flex items-center justify-between gap-4 mb-4">
         <label class="flex items-center gap-2 text-sm text-retro-400 cursor-pointer">
           <input type="checkbox" id="select-all" class="media-check" data-testid="media-select-all" /> Select all
@@ -52,7 +64,7 @@ const items = media.map((m) => ({ m, usage: usageFor(m.url) }));
 
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" data-testid="media-grid">
         {items.map(({ m, usage }) => (
-          <figure class="relative rounded-xl border border-white/10 bg-card overflow-hidden group" data-testid="media-item" data-media-id={m.id} data-used={usage.length}>
+          <figure class="relative rounded-xl border border-white/10 bg-card overflow-hidden group" data-testid="media-item" data-media-id={m.id} data-used={usage.length} data-name={m.originalName.toLowerCase()}>
             <label class="absolute top-2 left-2 z-10 flex items-center justify-center w-7 h-7 rounded-md bg-black/50 backdrop-blur-sm cursor-pointer">
               <input type="checkbox" class="media-select media-check" data-id={m.id} data-testid="media-select" />
             </label>
@@ -71,6 +83,10 @@ const items = media.map((m) => ({ m, usage: usageFor(m.url) }));
               )}
               <div class="flex gap-2">
                 <button data-url={m.url} class="copy-url-btn flex-1 text-xs rounded-md border border-white/10 py-1.5 hover:border-teal-500/40 hover:text-teal-300 transition-colors" data-testid="media-copy-button">Copy URL</button>
+                <label class="replace-btn cursor-pointer text-xs rounded-md border border-white/15 px-2.5 py-1.5 hover:border-teal-500/40 hover:text-teal-300 transition-colors" title="Replace file (keeps the same link)">
+                  Replace
+                  <input type="file" accept="image/*" class="replace-input hidden" data-id={m.id} data-testid="media-replace-input" />
+                </label>
                 <button data-id={m.id} class="delete-media-btn text-xs rounded-md border border-red-500/30 text-red-300 px-2.5 py-1.5 hover:bg-red-500/10 transition-colors" data-testid="media-delete-button" title="Delete image">Delete</button>
               </div>
             </figcaption>
@@ -197,6 +213,7 @@ const items = media.map((m) => ({ m, usage: usageFor(m.url) }));
         selected.delete(id);
         btn.closest("[data-testid='media-item']")?.remove();
         refreshBulk();
+        applyFilter();
         show("Image deleted ✓");
         if (!document.querySelector("[data-testid='media-item']")) window.location.reload();
       } catch (err) {
@@ -206,6 +223,58 @@ const items = media.map((m) => ({ m, usage: usageFor(m.url) }));
       }
     });
   });
+
+  // ---- Replace file in place (same URL → all posts update) ----
+  document.querySelectorAll<HTMLInputElement>(".replace-input").forEach((inp) => {
+    inp.addEventListener("change", async () => {
+      const file = inp.files?.[0];
+      const id = inp.dataset.id!;
+      if (!file || !id) return;
+      const fig = inp.closest("[data-media-id]");
+      show("Replacing…");
+      const fd = new FormData();
+      fd.append("file", file);
+      try {
+        const res = await fetch(`/actions/media/${id}`, { method: "PUT", body: fd });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || "Replace failed.");
+        const img = fig?.querySelector("img") as HTMLImageElement | null;
+        if (img && json.asset) {
+          const u = json.asset.url as string;
+          img.src = u + (u.includes("?") ? "&" : "?") + "t=" + Date.now();
+        }
+        show("Image replaced ✓ — posts using it now show the new file");
+      } catch (err) {
+        show(err instanceof Error ? err.message : "Replace failed.", false);
+      } finally {
+        inp.value = "";
+      }
+    });
+  });
+
+  // ---- Search + used/unused filter ----
+  const search = document.getElementById("media-search") as HTMLInputElement | null;
+  const filter = document.getElementById("media-filter") as HTMLSelectElement | null;
+  const filterCount = document.getElementById("filter-count");
+  function applyFilter() {
+    if (!search || !filter) return;
+    const q = search.value.trim().toLowerCase();
+    const mode = filter.value;
+    let shown = 0;
+    document.querySelectorAll<HTMLElement>("[data-testid='media-item']").forEach((fig) => {
+      const name = fig.getAttribute("data-name") || "";
+      const used = Number(fig.getAttribute("data-used") || 0) > 0;
+      const matchQ = !q || name.includes(q);
+      const matchMode = mode === "all" || (mode === "used" && used) || (mode === "unused" && !used);
+      const visible = matchQ && matchMode;
+      fig.classList.toggle("hidden", !visible);
+      if (visible) shown++;
+    });
+    if (filterCount) filterCount.textContent = `${shown} shown`;
+  }
+  search?.addEventListener("input", applyFilter);
+  filter?.addEventListener("change", applyFilter);
+  applyFilter();
 </script>
 
 <style>
