@@ -106,7 +106,11 @@ const initialHtml = initial.content.trim() ? toEditableHtml(initial.content) : "
       <div id="f-content" contenteditable="true" role="textbox" aria-multiline="true" data-testid="editor-content-input"
         data-placeholder="Tell your story…"
         class="rte-editor article-content w-full bg-elevated border border-white/10 rounded-b-xl px-4 py-4 min-h-[420px] focus:outline-none focus:ring-2 focus:ring-teal-400/50 transition overflow-y-auto" set:html={initialHtml}></div>
-      <p class="mt-2 text-xs text-retro-400">Format with the toolbar above — or drag &amp; drop / paste an image straight into the editor to upload and embed it.</p>
+      <input id="f-card-image" type="file" accept="image/*" class="hidden" />
+      <div class="mt-2 flex items-center justify-between gap-3 text-xs text-retro-400">
+        <p>Type <span class="font-mono text-teal-300">/</span> for blocks · drag the handle to reorder · paste a link for a card</p>
+        <p id="rte-wordcount" class="font-mono whitespace-nowrap" data-testid="editor-word-count">0 words · 1 min read</p>
+      </div>
     </div>
 
     <!-- Gallery manager -->

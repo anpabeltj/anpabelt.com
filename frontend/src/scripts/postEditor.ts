@@ -42,12 +42,30 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     ? initial.images.map((im) => ({ url: im.url, caption: im.caption || "" }))
     : [];
 
+  // Serialize a cleaned copy of the editor: strip drag/edit affordances so stored HTML stays tidy.
+  function cleanContent() {
+    const clone = editor.cloneNode(true) as HTMLElement;
+    clone.querySelectorAll("[data-rte-control]").forEach((n) => n.remove());
+    clone.querySelectorAll("[contenteditable]").forEach((n) => n.removeAttribute("contenteditable"));
+    clone.querySelectorAll(".link-card-desc").forEach((n) => { if (!(n.textContent || "").trim()) n.remove(); });
+    clone.querySelectorAll(".link-card-loading").forEach((n) => n.classList.remove("link-card-loading"));
+    clone.querySelectorAll("[data-enhanced]").forEach((n) => n.removeAttribute("data-enhanced"));
+    clone.querySelectorAll("[data-placeholder-desc]").forEach((n) => n.removeAttribute("data-placeholder-desc"));
+    clone.querySelectorAll(".rte-dragging").forEach((n) => n.classList.remove("rte-dragging"));
+    clone.querySelectorAll("[id^='lc-']").forEach((n) => n.removeAttribute("id"));
+    return clone.innerHTML.trim();
+  }
+
+  function plainText() {
+    const clone = editor.cloneNode(true) as HTMLElement;
+    clone.querySelectorAll("[data-rte-control]").forEach((n) => n.remove());
+    return (clone.textContent || "").replace(/\u200B/g, "").trim();
+  }
+
   // Read editor HTML; treat visually-empty content as an empty string.
   function getContentHtml() {
-    const html = editor.innerHTML.trim();
-    const text = (editor.textContent || "").trim();
-    if (!text && !editor.querySelector("img, .link-card")) return "";
-    return html;
+    if (!plainText() && !editor.querySelector("img, .link-card")) return "";
+    return cleanContent();
   }
 
   function collect(status) {
@@ -312,7 +330,7 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     else closeSlash();
   }
 
-  editor.addEventListener("input", () => { maybeSlash(); updatePlaceholder(); scheduleAutosave(); });
+  editor.addEventListener("input", () => { maybeSlash(); updatePlaceholder(); enhanceEditor(); scheduleAutosave(); });
   editor.addEventListener("keydown", (e) => {
     if (!slashOpen) return;
     if (e.key === "ArrowDown") { e.preventDefault(); if (slashItems.length) { slashActive = (slashActive + 1) % slashItems.length; renderMenu(); } }
@@ -546,6 +564,7 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     } catch { /* fall back to bare card */ }
     const el = document.getElementById(id);
     if (el) el.outerHTML = buildLinkCard(data);
+    enhanceEditor();
     saveSelection();
     scheduleAutosave();
   }
@@ -582,3 +601,171 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
       }
     }
   });
+
+
+  // ---- Word count + reading time ----
+  function updateWordCount() {
+    const el = $("rte-wordcount");
+    if (!el) return;
+    const text = plainText();
+    const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+    const mins = Math.max(1, Math.round(words / 200));
+    el.textContent = `${words.toLocaleString()} word${words === 1 ? "" : "s"} · ${mins} min read`;
+  }
+
+  // ---- Inline link-card editing (editable title/description, swap image, remove) ----
+  function enhanceCards() {
+    editor.querySelectorAll(".link-card").forEach((card) => {
+      if (card.getAttribute("data-enhanced")) return;
+      card.setAttribute("data-enhanced", "1");
+      card.setAttribute("contenteditable", "false");
+      const body = card.querySelector(".link-card-body");
+      const titleEl = card.querySelector(".link-card-title");
+      let descEl = card.querySelector(".link-card-desc");
+      const domainEl = card.querySelector(".link-card-domain");
+      if (titleEl) titleEl.setAttribute("contenteditable", "true");
+      if (!descEl && body) {
+        descEl = document.createElement("span");
+        descEl.className = "link-card-desc";
+        body.insertBefore(descEl, domainEl || null);
+      }
+      if (descEl) {
+        descEl.setAttribute("contenteditable", "true");
+        descEl.setAttribute("data-placeholder-desc", "Add a description…");
+      }
+      const controls = document.createElement("span");
+      controls.className = "link-card-controls";
+      controls.setAttribute("data-rte-control", "1");
+      controls.setAttribute("contenteditable", "false");
+      controls.innerHTML =
+        `<button type="button" data-card-act="image" title="Change image" data-testid="card-change-image">` +
+        `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></button>` +
+        `<button type="button" data-card-act="remove" title="Remove card" data-testid="card-remove">` +
+        `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>`;
+      card.appendChild(controls);
+    });
+  }
+
+  let pendingCard = null;
+  function handleCardAction(card, act) {
+    if (act === "remove") { card.remove(); enhanceEditor(); scheduleAutosave(); return; }
+    if (act === "image") { pendingCard = card; $("f-card-image").click(); }
+  }
+
+  $("f-card-image").addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !pendingCard) { e.target.value = ""; return; }
+    try {
+      const url = await uploadImage(file);
+      let img = pendingCard.querySelector(".link-card-thumb");
+      if (!img) { img = document.createElement("img"); img.className = "link-card-thumb"; img.alt = ""; pendingCard.appendChild(img); }
+      img.src = url;
+      showMsg("Card image updated \u2713");
+      scheduleAutosave();
+    } catch (err) {
+      showMsg(err.message || "Upload failed.", false);
+    } finally {
+      e.target.value = ""; pendingCard = null;
+    }
+  });
+
+  // Prevent card links from navigating while editing; route control-button clicks.
+  editor.addEventListener("click", (e) => {
+    const card = e.target.closest && e.target.closest(".link-card");
+    if (!card) return;
+    const actBtn = e.target.closest("[data-card-act]");
+    if (actBtn) { e.preventDefault(); e.stopPropagation(); handleCardAction(card, actBtn.dataset.cardAct); return; }
+    e.preventDefault();
+  });
+
+  function enhanceEditor() { enhanceCards(); updateWordCount(); }
+
+  // ---- Drag to reorder top-level blocks ----
+  const dragHandle = document.createElement("button");
+  dragHandle.type = "button";
+  dragHandle.className = "rte-drag-handle";
+  dragHandle.setAttribute("data-testid", "rte-drag-handle");
+  dragHandle.title = "Drag to move";
+  dragHandle.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>`;
+  dragHandle.style.display = "none";
+  document.body.appendChild(dragHandle);
+
+  const dropLine = document.createElement("div");
+  dropLine.className = "rte-drop-line";
+  dropLine.style.display = "none";
+  document.body.appendChild(dropLine);
+
+  let hoverBlock = null;
+  let dragging = null;
+  let dropTargetBlock = null;
+  let dropBefore = true;
+  let hideTimer = null;
+
+  function topLevelFrom(node) {
+    if (!node || !editor.contains(node)) return null;
+    if (node.nodeType === 3) node = node.parentNode;
+    while (node && node.parentNode !== editor) node = node.parentNode;
+    return node && node.parentNode === editor ? node : null;
+  }
+  function positionHandle(block) {
+    const r = block.getBoundingClientRect();
+    const er = editor.getBoundingClientRect();
+    dragHandle.style.top = `${r.top + 3}px`;
+    dragHandle.style.left = `${Math.max(4, er.left - 26)}px`;
+    dragHandle.style.display = "flex";
+  }
+  editor.addEventListener("mousemove", (e) => {
+    if (dragging) return;
+    const block = topLevelFrom(e.target);
+    if (block) { hoverBlock = block; positionHandle(block); }
+  });
+  function scheduleHide() { hideTimer = setTimeout(() => { if (!dragging) dragHandle.style.display = "none"; }, 350); }
+  editor.addEventListener("mouseleave", scheduleHide);
+  dragHandle.addEventListener("mouseenter", () => { if (hideTimer) clearTimeout(hideTimer); });
+  dragHandle.addEventListener("mouseleave", scheduleHide);
+
+  dragHandle.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    if (!hoverBlock) return;
+    dragging = hoverBlock;
+    dragging.classList.add("rte-dragging");
+    document.addEventListener("mousemove", onDragMove);
+    document.addEventListener("mouseup", onDragUp);
+  });
+  function onDragMove(e) {
+    const blocks = Array.from(editor.children).filter((b) => b !== dragging);
+    let target = null, before = true;
+    for (const b of blocks) {
+      const r = b.getBoundingClientRect();
+      if (e.clientY < r.top + r.height / 2) { target = b; before = true; break; }
+      target = b; before = false;
+    }
+    dropTargetBlock = target; dropBefore = before;
+    if (target) {
+      const r = target.getBoundingClientRect();
+      const er = editor.getBoundingClientRect();
+      dropLine.style.left = `${er.left + 10}px`;
+      dropLine.style.width = `${er.width - 20}px`;
+      dropLine.style.top = `${(before ? r.top : r.bottom) - 1}px`;
+      dropLine.style.display = "block";
+    } else {
+      dropLine.style.display = "none";
+    }
+  }
+  function onDragUp() {
+    document.removeEventListener("mousemove", onDragMove);
+    document.removeEventListener("mouseup", onDragUp);
+    dropLine.style.display = "none";
+    dragHandle.style.display = "none";
+    if (dragging && dropTargetBlock && dropTargetBlock !== dragging) {
+      if (dropBefore) editor.insertBefore(dragging, dropTargetBlock);
+      else editor.insertBefore(dragging, dropTargetBlock.nextSibling);
+      scheduleAutosave();
+    }
+    if (dragging) dragging.classList.remove("rte-dragging");
+    dragging = null; dropTargetBlock = null;
+  }
+  window.addEventListener("scroll", () => { if (!dragging) dragHandle.style.display = "none"; }, true);
+
+  // Initial enhancement pass (cards + word count) for freshly loaded content.
+  enhanceEditor();

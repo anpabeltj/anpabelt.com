@@ -432,3 +432,58 @@ h1, h2, h3, h4, h5, h6 {
 .slash-title { font-size: 0.9rem; }
 .slash-desc { font-size: 0.72rem; color: rgba(213, 219, 215, 0.5); }
 .slash-empty { padding: 0.6rem; font-size: 0.85rem; color: rgba(213, 219, 215, 0.5); }
+
+/* ------------------------------------------------------------------ */
+/* Drag-to-reorder + inline card editing                              */
+/* ------------------------------------------------------------------ */
+.rte-drag-handle {
+  position: fixed;
+  z-index: 55;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  color: rgba(213, 219, 215, 0.55);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: grab;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.rte-drag-handle:hover { color: var(--color-mint-bright); background: rgba(111, 227, 154, 0.16); }
+.rte-drag-handle:active { cursor: grabbing; }
+.rte-drop-line {
+  position: fixed;
+  z-index: 55;
+  height: 2px;
+  background: var(--color-mint);
+  border-radius: 2px;
+  pointer-events: none;
+  box-shadow: 0 0 8px rgba(111, 227, 154, 0.6);
+}
+.rte-dragging { opacity: 0.4; outline: 1px dashed rgba(111, 227, 154, 0.5); outline-offset: 2px; }
+
+.link-card { position: relative; }
+.link-card-controls { position: absolute; top: 6px; right: 6px; display: none; gap: 4px; }
+.rte-editor .link-card:hover .link-card-controls { display: flex; }
+.link-card-controls button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 27px;
+  height: 27px;
+  border-radius: 6px;
+  background: rgba(8, 15, 11, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #fff;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.link-card-controls button:hover { border-color: var(--color-mint); color: var(--color-mint-bright); }
+.rte-editor .link-card-title[contenteditable="true"],
+.rte-editor .link-card-desc[contenteditable="true"] { outline: none; cursor: text; border-radius: 3px; }
+.rte-editor .link-card-title[contenteditable="true"]:focus,
+.rte-editor .link-card-desc[contenteditable="true"]:focus { box-shadow: 0 0 0 2px rgba(111, 227, 154, 0.35); }
+.rte-editor .link-card-desc:empty::before { content: attr(data-placeholder-desc); color: rgba(213, 219, 215, 0.4); }

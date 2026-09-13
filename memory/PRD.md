@@ -52,3 +52,15 @@ Added three enhancements to the rich text editor (`scripts/postEditor.ts`):
   `lib/markdown.ts`; styles + `.slash-menu` in `global.css`.
 - Verified via browser: slash blocks produce clean HTML, autosave draft creation, link card
   rendering on the public blog page (mobile). Test posts cleaned up.
+
+## Task done (2026-09-13) — Editor: drag reorder, card editing, word count
+- **Drag reorder**: hover shows a grip handle in the left gutter; drag any top-level block
+  (paragraph, heading, image, list, quote, link card) up/down with a live drop indicator line.
+- **Inline card editing**: link-card title & description are contenteditable; hover controls to
+  swap the thumbnail (upload) or remove the card. Editing affordances (controls, contenteditable
+  attrs) are stripped from stored HTML via `cleanContent()` so saved content stays clean.
+- **Word count**: live "N words · M min read" under the editor (`#rte-wordcount`), computed from
+  `plainText()` excluding control chrome; updates on every edit and on load.
+- All in `scripts/postEditor.ts`; UI in `PostEditor.astro`; styles in `global.css`.
+- Verified via browser (desktop + mobile): word count updates, card title edit + clean serialize,
+  block drag reorder (ALPHA→end), no console errors.
