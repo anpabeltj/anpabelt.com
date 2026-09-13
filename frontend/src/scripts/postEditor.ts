@@ -24,6 +24,18 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
   function domainOf(u) {
     try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; }
   }
+  // Parse a fetch Response as JSON, but degrade gracefully when a proxy returns
+  // plain text/HTML (e.g. a CSRF or gateway error) so we never throw a cryptic
+  // "Unexpected token" at the user.
+  async function readJson(res) {
+    const text = await res.text();
+    try {
+      return JSON.parse(text);
+    } catch {
+      const snippet = text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 120);
+      return { error: snippet || `Request failed (${res.status}).` };
+    }
+  }
 
   // Auto-fill slug from title until the user edits the slug manually.
   let slugTouched = Boolean(initial.slug);
@@ -898,7 +910,7 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
       fd.append("file", file);
       try {
         const res = await fetch("/actions/upload", { method: "POST", body: fd });
-        const j = await res.json();
+        const j = await readJson(res);
         if (res.ok) {
           images.push({ url: j.asset.url, caption: "" });
           if (!$("f-cover-url").value.trim()) { $("f-cover-url").value = j.asset.url; setCover(j.asset.url); }
@@ -917,14 +929,14 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
 
   async function save(status, quiet = false) {
     const data = collect(status);
-    if (!data.title) { if (!quiet) showMsg("A title is required.", false); return null; }
+    if (!data.title) { if (!quiet) { showMsg("A title is required.", false); $("f-title").focus(); } return null; }
     if (!quiet) showMsg("Saving…");
     else showMsg("Saving…");
     const url = state.id ? `/actions/posts/${state.id}` : "/actions/posts";
     const method = state.id ? "PUT" : "POST";
     try {
       const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-      const json = await res.json();
+      const json = await readJson(res);
       if (!res.ok) throw new Error(json.error || "Save failed.");
       const post = json.post;
       if (!state.id) {
@@ -996,7 +1008,7 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     fd.append("file", file);
     try {
       const res = await fetch("/actions/upload", { method: "POST", body: fd });
-      const json = await res.json();
+      const json = await readJson(res);
       if (!res.ok) throw new Error(json.error || "Upload failed.");
       $("f-cover-url").value = json.asset.url;
       setCover(json.asset.url);
@@ -1014,7 +1026,7 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     const fd = new FormData();
     fd.append("file", file);
     const res = await fetch("/actions/upload", { method: "POST", body: fd });
-    const json = await res.json();
+    const json = await readJson(res);
     if (!res.ok) throw new Error(json.error || "Upload failed.");
     return json.asset.url;
   }
