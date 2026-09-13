@@ -102,23 +102,23 @@ h1, h2, h3, h4, h5, h6 {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 0.7rem;
-  border: 1px solid color-mix(in srgb, var(--color-mint) 35%, transparent);
-  background: color-mix(in srgb, var(--color-mint) 8%, transparent);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: #241d2f;
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 1.2rem;
   line-height: 1;
-  color: #fff;
+  color: #2dd4bf;
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
               border-color 0.35s, background-color 0.35s, box-shadow 0.35s;
 }
 .group:hover .logo-badge {
   transform: translateY(-1px) scale(1.05);
-  border-color: color-mix(in srgb, var(--color-mint) 70%, transparent);
-  background: color-mix(in srgb, var(--color-mint) 15%, transparent);
-  box-shadow: 0 8px 24px -10px color-mix(in srgb, var(--color-mint) 60%, transparent);
+  border-color: rgba(45, 212, 191, 0.5);
+  background: #2a2237;
+  box-shadow: 0 8px 24px -10px rgba(45, 212, 191, 0.55);
 }
-.logo-root { color: var(--color-mint); margin-right: -0.04em; }
+.logo-root { color: #2dd4bf; margin-right: -0.04em; }
 .logo-a { position: relative; padding-top: 3px; }
 /* radical vinculum (overline) sweeping over the "a" */
 .logo-a::before {
@@ -129,7 +129,7 @@ h1, h2, h3, h4, h5, h6 {
   right: -0.14em;
   height: 2px;
   border-radius: 2px;
-  background: var(--color-mint);
+  background: #2dd4bf;
 }
 
 /* ------------------------------------------------------------------ */
