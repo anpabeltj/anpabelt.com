@@ -79,6 +79,17 @@ const initialHtml = initial.content.trim() ? toEditableHtml(initial.content) : "
 
         <span class="rte-sep"></span>
 
+        <button type="button" class="rte-btn rte-color" data-color="text" title="Text color" data-testid="editor-text-color">
+          <span class="rte-color-glyph">A</span>
+          <span class="rte-color-bar" data-color-bar style="background:#6fe39a"></span>
+        </button>
+        <button type="button" class="rte-btn rte-color" data-color="highlight" title="Highlight" data-testid="editor-highlight-color">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l-6 6v3h3l6-6"/><path d="M14 6l4 4"/><path d="M20.5 8.5a2.12 2.12 0 0 0 0-3l-1-1a2.12 2.12 0 0 0-3 0L9 11l4 4 7.5-6.5z"/></svg>
+          <span class="rte-color-bar" data-color-bar style="background:#f6c453"></span>
+        </button>
+
+        <span class="rte-sep"></span>
+
         <button type="button" class="rte-btn" data-cmd="insertUnorderedList" title="Bullet list" data-testid="editor-ul-button">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3.5" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="3.5" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="3.5" cy="18" r="1.2" fill="currentColor" stroke="none"/></svg>
         </button>

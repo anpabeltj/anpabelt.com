@@ -28,7 +28,8 @@ const SANITIZE_OPTS: sanitizeHtml.IOptions = {
     "*": {
       "font-size": [/^\d+(?:\.\d+)?(?:px|em|rem|%)$/],
       "text-align": [/^(left|right|center|justify)$/],
-      "color": [/^#(?:[0-9a-fA-F]{3}){1,2}$/, /^rgb\([\d\s,]+\)$/],
+      "color": [/^#(?:[0-9a-fA-F]{3}){1,2}$/, /^rgba?\([\d\s.,%]+\)$/],
+      "background-color": [/^#(?:[0-9a-fA-F]{3}){1,2}$/, /^rgba?\([\d\s.,%]+\)$/],
     },
   },
   transformTags: {

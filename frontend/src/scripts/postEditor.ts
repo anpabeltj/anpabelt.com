@@ -195,6 +195,14 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     while (n && n !== editor) { if (n.style && n.style.fontSize) return n.style.fontSize; n = n.parentNode; }
     return "";
   }
+  function currentColor(prop) {
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return "";
+    let n: any = sel.anchorNode;
+    if (n && n.nodeType === 3) n = n.parentNode;
+    while (n && n !== editor) { if (n.style && n.style[prop]) return n.style[prop]; n = n.parentNode; }
+    return "";
+  }
   const STATE_CMDS = ["bold", "italic", "underline", "strikeThrough", "insertUnorderedList", "insertOrderedList"];
   function updateToolbarState() {
     const inEditor = selectionInEditor();
@@ -216,6 +224,14 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     }
     blockSelect.classList.toggle("is-set", blockSelect.value !== "p");
     sizeSelect.classList.toggle("is-set", !!sizeSelect.value);
+    // Reflect text / highlight colors on their swatch triggers.
+    document.querySelectorAll("#rte-toolbar .rte-color").forEach((btn: any) => {
+      const isText = btn.dataset.color === "text";
+      const cur = inEditor ? currentColor(isText ? "color" : "backgroundColor") : "";
+      const bar = btn.querySelector("[data-color-bar]");
+      if (bar) bar.style.background = cur || (isText ? "#6fe39a" : "#f6c453");
+      btn.classList.toggle("is-set", inEditor && !!cur);
+    });
   }
 
   // Nearest block element that is a direct-ish child of the editor and holds the caret.
@@ -280,6 +296,112 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
   editor.addEventListener("keyup", updateToolbarState);
   editor.addEventListener("mouseup", updateToolbarState);
   editor.addEventListener("focus", updateToolbarState);
+
+  // ---- Text color + highlight ----
+  function applyColor(kind, value) {
+    const prop = kind === "text" ? "color" : "backgroundColor";
+    const cssProp = kind === "text" ? "color" : "background-color";
+    editor.focus();
+    if (!selectionInEditor()) restoreSelection();
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount && !sel.isCollapsed) {
+      const style: any = {};
+      style[prop] = value || "inherit";
+      wrapSelection("span", style);
+    } else {
+      const block = getCurrentBlock();
+      if (block && block !== editor) {
+        if (value) block.style[prop] = value;
+        else block.style.removeProperty(cssProp);
+        scheduleAutosave();
+      }
+    }
+    updateToolbarState();
+  }
+
+  const TEXT_COLORS = ["#ffffff", "#6fe39a", "#5dd1c1", "#8ab4f8", "#c58af9", "#f6c453", "#f28b82", "#9aa0a6"];
+  const HL_COLORS = ["rgba(111,227,154,0.35)", "rgba(93,209,193,0.35)", "rgba(138,180,248,0.35)", "rgba(197,138,249,0.35)", "rgba(246,196,83,0.35)", "rgba(242,139,130,0.35)", "rgba(255,255,255,0.22)"];
+  let colorPop: any = null;
+  let colorPopKind: any = null;
+  function ensureColorPop() {
+    if (colorPop) return colorPop;
+    colorPop = document.createElement("div");
+    colorPop.className = "color-pop";
+    colorPop.dataset.testid = "color-pop";
+    document.body.appendChild(colorPop);
+    return colorPop;
+  }
+  function renderColorPop(kind) {
+    const pop = ensureColorPop();
+    pop.innerHTML = "";
+    (kind === "text" ? TEXT_COLORS : HL_COLORS).forEach((c) => {
+      const sw = document.createElement("button");
+      sw.type = "button";
+      sw.className = "color-swatch";
+      sw.style.background = c;
+      sw.title = c;
+      sw.dataset.testid = "color-swatch";
+      sw.addEventListener("mousedown", (e) => { e.preventDefault(); applyColor(kind, c); closeColorPop(); });
+      pop.appendChild(sw);
+    });
+    const clear = document.createElement("button");
+    clear.type = "button";
+    clear.className = "color-swatch is-clear";
+    clear.title = "Clear";
+    clear.dataset.testid = "color-clear";
+    clear.addEventListener("mousedown", (e) => { e.preventDefault(); applyColor(kind, ""); closeColorPop(); });
+    pop.appendChild(clear);
+  }
+  function openColorPop(kind, btn) {
+    colorPopKind = kind;
+    renderColorPop(kind);
+    const pop = ensureColorPop();
+    const r = btn.getBoundingClientRect();
+    pop.style.top = `${Math.min(r.bottom + 6, window.innerHeight - 140)}px`;
+    pop.style.left = `${Math.max(8, Math.min(r.left, window.innerWidth - 200))}px`;
+    pop.classList.add("open");
+  }
+  function closeColorPop() { if (colorPop) colorPop.classList.remove("open"); colorPopKind = null; }
+  document.querySelectorAll("#rte-toolbar .rte-color").forEach((btn: any) => {
+    btn.addEventListener("mousedown", (e) => { e.preventDefault(); saveSelection(); });
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const kind = btn.dataset.color;
+      if (colorPopKind === kind && colorPop && colorPop.classList.contains("open")) { closeColorPop(); return; }
+      openColorPop(kind, btn);
+    });
+  });
+  document.addEventListener("mousedown", (e: any) => {
+    if (colorPop && colorPop.classList.contains("open") && !colorPop.contains(e.target) && !(e.target.closest && e.target.closest(".rte-color"))) closeColorPop();
+  });
+  document.addEventListener("scroll", () => closeColorPop(), true);
+
+  // ---- Keyboard shortcut feedback (Ctrl/Cmd + B / I / U) ----
+  editor.addEventListener("keydown", (e) => {
+    if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
+    const cmd = ({ b: "bold", i: "italic", u: "underline" } as any)[e.key.toLowerCase()];
+    if (!cmd) return;
+    // Let the browser apply the native command, then reflect state + pulse the button.
+    requestAnimationFrame(() => {
+      saveSelection();
+      updateToolbarState();
+      const btn = document.querySelector(`#rte-toolbar [data-cmd="${cmd}"]`) as HTMLElement | null;
+      if (btn) { btn.classList.remove("rte-pulse"); void btn.offsetWidth; btn.classList.add("rte-pulse"); }
+    });
+  });
+
+  // ---- Sticky toolbar shadow when pinned ----
+  const toolbarEl = $("rte-toolbar");
+  if (toolbarEl && "IntersectionObserver" in window) {
+    const sentinel = document.createElement("div");
+    sentinel.setAttribute("aria-hidden", "true");
+    sentinel.style.cssText = "height:1px;width:100%;";
+    toolbarEl.parentElement.insertBefore(sentinel, toolbarEl);
+    new IntersectionObserver(
+      ([entry]) => toolbarEl.classList.toggle("is-stuck", entry.intersectionRatio === 0),
+      { threshold: [0, 1], rootMargin: "-56px 0px 0px 0px" }
+    ).observe(sentinel);
+  }
 
   // ---- Slash command menu ----
   function makeEl(html) {
