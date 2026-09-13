@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Anpabelt — Animated Background</title>
+<style>
+  :root{
+    --base:#05080a;      /* darker than the site base #0A100D */
+    --base2:#070d0b;
+    --mint:127,227,187;  /* #7FE3BB */
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;background:var(--base);overflow:hidden;}
+  .hero{
+    position:fixed;inset:0;
+    background:
+      radial-gradient(120% 90% at 8% 6%, rgba(var(--mint),0.10), transparent 42%),
+      radial-gradient(120% 90% at 96% 96%, rgba(var(--mint),0.07), transparent 44%),
+      radial-gradient(140% 120% at 50% 120%, rgba(10,20,16,0.9), transparent 60%),
+      linear-gradient(160deg,#05080a 0%, #070d0b 55%, #040706 100%);
+  }
+  /* drifting translucent glow blobs, kept to edges */
+  .blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;mix-blend-mode:screen;}
+  .b1{width:520px;height:520px;left:-160px;top:-160px;background:radial-gradient(circle,rgba(var(--mint),0.22),transparent 70%);animation:drift1 26s ease-in-out infinite;}
+  .b2{width:600px;height:600px;right:-200px;bottom:-220px;background:radial-gradient(circle,rgba(var(--mint),0.16),transparent 70%);animation:drift2 32s ease-in-out infinite;}
+  .b3{width:360px;height:360px;right:6%;top:-120px;background:radial-gradient(circle,rgba(120,200,220,0.12),transparent 70%);animation:drift3 30s ease-in-out infinite;}
+  @keyframes drift1{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,40px)}}
+  @keyframes drift2{0%,100%{transform:translate(0,0)}50%{transform:translate(-70px,-40px)}}
+  @keyframes drift3{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,50px)}}
+  /* dotted grid vignette in corners */
+  .grid{position:absolute;inset:0;
+    background-image:radial-gradient(rgba(var(--mint),0.14) 1px, transparent 1.4px);
+    background-size:26px 26px;
+    -webkit-mask-image:radial-gradient(120% 100% at 50% 45%, transparent 46%, #000 82%);
+    mask-image:radial-gradient(120% 100% at 50% 45%, transparent 46%, #000 82%);
+    opacity:.5;}
+  /* film grain */
+  .grain{position:absolute;inset:0;opacity:.05;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+  canvas{position:absolute;inset:0;display:block;}
+  /* soft center darkener to keep typography area clean */
+  .center-clear{position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(60% 46% at 42% 40%, rgba(4,7,9,0.9), transparent 70%);}
+  /* demo text to prove readability */
+  .demo{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+    padding-left:8%;pointer-events:none;font-family:Georgia,'Times New Roman',serif;color:#f2f5f3;}
+  .demo small{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.25em;
+    text-transform:uppercase;font-size:12px;color:rgb(140,155,148);}
+  .demo h1{font-size:clamp(40px,6vw,84px);line-height:1.02;margin-top:22px;font-weight:600;}
+  .demo h1 em{font-style:italic;color:rgb(var(--mint));}
+</style>
+</head>
+<body>
+  <div class="hero">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+    <div class="grid"></div>
+    <canvas id="c"></canvas>
+    <div class="center-clear"></div>
+    <div class="grain"></div>
+    <div class="demo">
+      <small>Personal site · Malaysia</small>
+      <h1>Hi there.<br>I'm <em>Anpabelt.</em></h1>
+    </div>
+  </div>
+
+<script>
+const cv=document.getElementById('c');const ctx=cv.getContext('2d');
+let W,H,DPR;
+function resize(){DPR=Math.min(window.devicePixelRatio||1,2);W=cv.width=innerWidth*DPR;H=cv.height=innerHeight*DPR;cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';build();}
+const MINT='127,227,187';
+let nodes=[],flows=[],points=[];
+
+// keep the bright center empty: bias elements toward edges
+function edgeBiased(){
+  // pick a position that avoids the central readable zone
+  let x,y,tries=0;
+  do{
+    x=Math.random();y=Math.random();
+    tries++;
+  }while(tries<20 && (x>0.22&&x<0.78&&y>0.15&&y<0.7));
+  return {x:x*W,y:y*H};
+}
+
+function build(){
+  nodes=[];flows=[];points=[];
+  const N=Math.round((innerWidth/1440)*16)+8;
+  for(let i=0;i<N;i++){
+    const p=edgeBiased();
+    nodes.push({x:p.x,y:p.y,vx:(Math.random()-.5)*0.12*DPR,vy:(Math.random()-.5)*0.12*DPR,r:(Math.random()*1.6+1.1)*DPR});
+  }
+  // flowing curved data lines drawn near edges
+  const F=6;
+  for(let i=0;i<F;i++){
+    const edge=Math.floor(Math.random()*4);
+    let sx,sy;
+    if(edge===0){sx=Math.random()*W;sy=0;}
+    else if(edge===1){sx=W;sy=Math.random()*H;}
+    else if(edge===2){sx=Math.random()*W;sy=H;}
+    else{sx=0;sy=Math.random()*H;}
+    flows.push({sx,sy,
+      c1x:sx+(Math.random()-.5)*W*0.5,c1y:sy+(Math.random()-.5)*H*0.5,
+      c2x:sx+(Math.random()-.5)*W*0.6,c2y:sy+(Math.random()-.5)*H*0.6,
+      ex:sx+(Math.random()-.5)*W*0.4,ey:sy+(Math.random()-.5)*H*0.4,
+      phase:Math.random()*Math.PI*2,speed:0.15+Math.random()*0.25});
+  }
+  // floating glowing points
+  const P=Math.round((innerWidth/1440)*22)+12;
+  for(let i=0;i<P;i++){
+    const p=edgeBiased();
+    points.push({x:p.x,y:p.y,r:(Math.random()*1.4+0.6)*DPR,a:Math.random(),sp:0.005+Math.random()*0.012,drift:(Math.random()-.5)*0.15*DPR});
+  }
+}
+
+let t=0;
+function draw(){
+  t+=0.006;
+  ctx.clearRect(0,0,W,H);
+
+  // moving flow lines with a travelling glow dot
+  flows.forEach(f=>{
+    ctx.beginPath();
+    ctx.moveTo(f.sx,f.sy);
+    ctx.bezierCurveTo(f.c1x,f.c1y,f.c2x,f.c2y,f.ex,f.ey);
+    ctx.strokeStyle='rgba('+MINT+',0.10)';
+    ctx.lineWidth=1.1*DPR;
+    ctx.stroke();
+    // travelling packet along the curve
+    const tt=(Math.sin(t*f.speed+f.phase)+1)/2;
+    const pos=bezier(f,tt);
+    const g=ctx.createRadialGradient(pos.x,pos.y,0,pos.x,pos.y,10*DPR);
+    g.addColorStop(0,'rgba('+MINT+',0.9)');
+    g.addColorStop(1,'rgba('+MINT+',0)');
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(pos.x,pos.y,10*DPR,0,7);ctx.fill();
+  });
+
+  // network nodes + connections
+  for(let i=0;i<nodes.length;i++){
+    const n=nodes[i];
+    n.x+=n.vx;n.y+=n.vy;
+    if(n.x<0||n.x>W)n.vx*=-1;
+    if(n.y<0||n.y>H)n.vy*=-1;
+    for(let j=i+1;j<nodes.length;j++){
+      const m=nodes[j];const dx=n.x-m.x,dy=n.y-m.y;const d=Math.hypot(dx,dy);
+      const max=150*DPR;
+      if(d<max){
+        ctx.beginPath();ctx.moveTo(n.x,n.y);ctx.lineTo(m.x,m.y);
+        ctx.strokeStyle='rgba('+MINT+','+(0.12*(1-d/max)).toFixed(3)+')';
+        ctx.lineWidth=0.8*DPR;ctx.stroke();
+      }
+    }
+  }
+  nodes.forEach(n=>{
+    const g=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r*4);
+    g.addColorStop(0,'rgba('+MINT+',0.85)');
+    g.addColorStop(1,'rgba('+MINT+',0)');
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(n.x,n.y,n.r*4,0,7);ctx.fill();
+    ctx.fillStyle='rgba('+MINT+',0.95)';ctx.beginPath();ctx.arc(n.x,n.y,n.r*0.9,0,7);ctx.fill();
+  });
+
+  // floating twinkling points
+  points.forEach(p=>{
+    p.a+=p.sp;p.y+=p.drift;
+    if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+    const alpha=(Math.sin(p.a)*0.5+0.5)*0.8;
+    ctx.fillStyle='rgba('+MINT+','+alpha.toFixed(3)+')';
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fill();
+  });
+
+  requestAnimationFrame(draw);
+}
+function bezier(f,u){
+  const mt=1-u;
+  const a=mt*mt*mt,b=3*mt*mt*u,c=3*mt*u*u,d=u*u*u;
+  return{x:a*f.sx+b*f.c1x+c*f.c2x+d*f.ex, y:a*f.sy+b*f.c1y+c*f.c2y+d*f.ey};
+}
+addEventListener('resize',resize);
+resize();draw();
+</script>
+</body>
+</html>
