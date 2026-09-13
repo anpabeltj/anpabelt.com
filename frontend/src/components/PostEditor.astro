@@ -135,10 +135,14 @@ const initialHtml = initial.content.trim() ? toEditableHtml(initial.content) : "
     <div id="gallery-manager" class={`rounded-xl border border-white/10 bg-card p-5 space-y-4 ${isGallery ? "" : "hidden"}`} data-testid="editor-gallery-manager">
       <div class="flex items-center justify-between">
         <h3 class="text-sm font-medium">Photos <span id="gallery-count" class="text-retro-400 font-mono">({initial.images.length})</span></h3>
-        <label class="cursor-pointer rounded-lg bg-teal-500 hover:bg-teal-400 text-canvas font-semibold px-3 py-1.5 text-sm transition-colors">
-          <span id="gallery-upload-label">+ Add photos</span>
-          <input id="f-gallery-files" type="file" accept="image/*" multiple class="hidden" data-testid="editor-gallery-upload" />
-        </label>
+        <div class="flex items-center gap-2">
+          <button type="button" id="btn-caption-all" data-testid="gallery-caption-all"
+            class="rounded-lg border border-white/15 px-3 py-1.5 text-sm hover:border-teal-500/40 hover:text-teal-300 transition-colors">Caption all</button>
+          <label class="cursor-pointer rounded-lg bg-teal-500 hover:bg-teal-400 text-canvas font-semibold px-3 py-1.5 text-sm transition-colors">
+            <span id="gallery-upload-label">+ Add photos</span>
+            <input id="f-gallery-files" type="file" accept="image/*" multiple class="hidden" data-testid="editor-gallery-upload" />
+          </label>
+        </div>
       </div>
       <p id="gallery-empty" class={`text-sm text-retro-400 text-center py-6 ${initial.images.length ? "hidden" : ""}`}>No photos yet — add some to build your gallery.</p>
       <div id="gallery-list" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>

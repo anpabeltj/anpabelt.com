@@ -1260,6 +1260,66 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     e.target.value = "";
   });
 
+  // Click an already-placed image to edit its description (alt) later.
+  async function editImageAlt(img) {
+    const current = img.getAttribute("alt") || "";
+    const alt = await askAltText(current);
+    img.setAttribute("alt", alt);
+    showMsg("Description updated \u2713");
+    scheduleAutosave();
+  }
+  editor.addEventListener("click", (e) => {
+    const t = e.target as HTMLElement;
+    if (!t || t.tagName !== "IMG" || t.classList.contains("link-card-thumb") || !editor.contains(t)) return;
+    e.preventDefault();
+    editImageAlt(t);
+  });
+
+  // ---- Bulk captioning: caption every gallery photo in one pass ----
+  function openBulkCaption() {
+    if (!images.length) { showMsg("Add photos first.", false); return; }
+    const modal = document.createElement("div");
+    modal.className = "bulkcap-modal";
+    modal.dataset.testid = "bulkcap-modal";
+    const rows = images.map((im, i) =>
+      `<div class="bulkcap-row">` +
+      `<img class="bulkcap-thumb" src="${escapeAttr(im.url)}" alt="" />` +
+      `<input class="bulkcap-input" data-testid="bulkcap-input" data-idx="${i}" type="text" value="${escapeAttr(im.caption || "")}" placeholder="Caption / alt for photo ${i + 1}" />` +
+      `</div>`).join("");
+    modal.innerHTML =
+      `<div class="bulkcap-backdrop" data-bulk-close></div>` +
+      `<div class="bulkcap-panel" role="dialog" aria-label="Caption all photos">` +
+      `<div class="bulkcap-head"><h3>Caption all photos</h3>` +
+      `<button type="button" class="bulkcap-x" data-bulk-close data-testid="bulkcap-close" title="Close">\u2715</button></div>` +
+      `<p class="bulkcap-help">Type a caption for each photo — press Enter to jump to the next. These double as alt text.</p>` +
+      `<div class="bulkcap-list">${rows}</div>` +
+      `<div class="bulkcap-actions"><button type="button" class="bulkcap-cancel" data-bulk-close>Cancel</button>` +
+      `<button type="button" class="bulkcap-save" data-testid="bulkcap-save">Save captions</button></div>` +
+      `</div>`;
+    document.body.appendChild(modal);
+    requestAnimationFrame(() => modal.classList.add("open"));
+    const inputs = Array.from(modal.querySelectorAll(".bulkcap-input")) as HTMLInputElement[];
+    if (inputs[0]) { inputs[0].focus(); inputs[0].select(); }
+    function commit() {
+      inputs.forEach((inp) => { const i = Number(inp.dataset.idx); if (!Number.isNaN(i) && images[i]) images[i].caption = inp.value.trim(); });
+      renderGallery();
+      scheduleAutosave();
+      showMsg("Captions saved \u2713");
+      close();
+    }
+    function close() { modal.classList.remove("open"); document.removeEventListener("keydown", onEsc); setTimeout(() => modal.remove(), 200); }
+    function onEsc(e) { if (e.key === "Escape") { e.preventDefault(); close(); } }
+    inputs.forEach((inp, idx) => {
+      inp.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { e.preventDefault(); const next = inputs[idx + 1]; if (next) { next.focus(); next.select(); } else commit(); }
+      });
+    });
+    modal.querySelectorAll("[data-bulk-close]").forEach((el) => el.addEventListener("click", close));
+    (modal.querySelector(".bulkcap-save") as HTMLElement).addEventListener("click", commit);
+    document.addEventListener("keydown", onEsc);
+  }
+  $("btn-caption-all").addEventListener("click", (e) => { e.preventDefault(); openBulkCaption(); });
+
   // ---- Rich link preview cards ----
   function buildLinkCard(data) {
     const title = escapeHtml(data.title || data.url);

@@ -893,3 +893,60 @@ kbd.rte-kbd {
 .gallery-cell.gallery-dragging { opacity: 0.4; }
 .gallery-cell.gallery-drop-target { outline: 2px solid rgba(111, 227, 154, 0.8); outline-offset: 2px; }
 
+
+/* ---- Click editor images to edit their description (alt) ---- */
+#f-content img:not(.link-card-thumb) {
+  cursor: pointer;
+  transition: outline-color 0.15s ease, box-shadow 0.15s ease;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+#f-content img:not(.link-card-thumb):hover {
+  outline-color: rgba(111, 227, 154, 0.7);
+  box-shadow: 0 0 0 4px rgba(111, 227, 154, 0.12);
+}
+
+/* ---- Bulk caption modal ---- */
+.bulkcap-modal {
+  position: fixed; inset: 0; z-index: 70;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+}
+.bulkcap-modal.open { opacity: 1; pointer-events: auto; }
+.bulkcap-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(2px); }
+.bulkcap-panel {
+  position: relative; width: 520px; max-width: calc(100vw - 2rem); max-height: 82vh;
+  display: flex; flex-direction: column;
+  padding: 1.25rem; border-radius: 1rem;
+  background: #131a19; border: 1px solid rgba(111,227,154,0.22);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  transform: translateY(8px) scale(0.98); transition: transform 0.2s ease;
+}
+.bulkcap-modal.open .bulkcap-panel { transform: translateY(0) scale(1); }
+.bulkcap-head { display: flex; align-items: center; justify-content: space-between; }
+.bulkcap-head h3 { font-size: 1rem; font-weight: 600; color: #e7f6ee; }
+.bulkcap-x { color: rgba(231,246,238,0.6); font-size: 0.9rem; padding: 0.2rem 0.45rem; border-radius: 0.4rem; }
+.bulkcap-x:hover { color: #e7f6ee; background: rgba(255,255,255,0.06); }
+.bulkcap-help { font-size: 0.78rem; color: rgba(231,246,238,0.6); margin: 0.35rem 0 0.9rem; }
+.bulkcap-list { overflow-y: auto; display: flex; flex-direction: column; gap: 0.6rem; padding-right: 0.25rem; }
+.bulkcap-row { display: flex; align-items: center; gap: 0.75rem; }
+.bulkcap-thumb { width: 48px; height: 48px; border-radius: 0.5rem; object-fit: cover; flex: 0 0 auto; background: rgba(255,255,255,0.05); }
+.bulkcap-input {
+  flex: 1 1 auto; background: #0d1211; border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 0.5rem; padding: 0.55rem 0.7rem; color: #e7f6ee; font-size: 0.88rem; outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.bulkcap-input:focus { border-color: rgba(111,227,154,0.6); box-shadow: 0 0 0 3px rgba(111,227,154,0.15); }
+.bulkcap-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem; }
+.bulkcap-cancel {
+  padding: 0.5rem 0.9rem; border-radius: 0.5rem; font-size: 0.85rem;
+  color: rgba(231,246,238,0.7); border: 1px solid rgba(255,255,255,0.12);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.bulkcap-cancel:hover { color: #e7f6ee; border-color: rgba(255,255,255,0.25); }
+.bulkcap-save {
+  padding: 0.5rem 0.9rem; border-radius: 0.5rem; font-size: 0.85rem; font-weight: 600;
+  color: #06231a; background: #2dd4bf; transition: background-color 0.15s ease;
+}
+.bulkcap-save:hover { background: #6fe39a; }
+

@@ -75,3 +75,13 @@ Emergent preview has no OIDC token and correctly still uses local disk).
   cell reorders `images`. Removed the ←/→ arrow buttons. Verified: first→last reorder
   (['first','second','third'] → ['second','third','first']).
 
+## Feature — 2026-09-13 (Inline Alt Editing + Bulk Captioning)
+- Inline alt editing (`postEditor.ts editImageAlt` + editor click handler + `global.css`):
+  clicking any already-placed content image (excludes link-card thumbs) reopens the
+  alt-text modal prefilled with the current alt and updates it; hover shows a mint
+  outline + pointer cursor. Verified: alt "cat" → edited to "A grey cat sleeping".
+- Bulk captioning (`PostEditor.astro` "Caption all" button + `postEditor.ts openBulkCaption`
+  + `global.css`): a modal lists every gallery photo with a caption input; Enter jumps to
+  the next, "Save captions" applies all at once (captions double as gallery alt). Verified:
+  two photos captioned in one pass, alts match.
+
