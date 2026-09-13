@@ -1,6 +1,5 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { socials } from "../lib/site";
 ---
 
 <BaseLayout title="Contact" description="Get in touch with Anpabelt — collaborations, ideas, feedback or just to say hello.">
@@ -38,16 +37,6 @@ import { socials } from "../lib/site";
       </button>
       <p id="contact-status" class="text-sm text-center hidden" data-testid="contact-status" role="status"></p>
     </form>
-
-    <div class="mt-10 flex items-center justify-center gap-8">
-      {socials.map((s) => (
-        <a href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}
-          data-testid={`contact-social-${s.label.toLowerCase()}`}
-          class="opacity-70 hover:opacity-100 transition-opacity">
-          <img src={s.icon} alt={s.label} class="w-6 h-6" />
-        </a>
-      ))}
-    </div>
   </section>
 </BaseLayout>
 
