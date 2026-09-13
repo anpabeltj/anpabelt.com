@@ -26,21 +26,26 @@ const isActive = (href: string) =>
 
     <button
       id="nav-toggle"
-      class="md:hidden text-white p-1"
+      class="ham md:hidden relative w-7 h-7 text-white"
       aria-label="Toggle menu"
       aria-expanded="false"
+      aria-controls="nav-mobile-menu"
       data-testid="nav-mobile-toggle"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16" />
-      </svg>
+      <span class="ham-bar ham-top"></span>
+      <span class="ham-bar ham-mid"></span>
+      <span class="ham-bar ham-bot"></span>
     </button>
   </div>
 
-  <div id="nav-mobile-menu" class="hidden md:hidden border-t border-white/10 bg-canvas/95 backdrop-blur-xl">
+  <div
+    id="nav-mobile-menu"
+    class="mobile-menu md:hidden border-t border-white/10 bg-canvas/95 backdrop-blur-xl"
+    data-testid="nav-mobile-menu"
+  >
     <ul class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex flex-col gap-1 text-base">
-      {navLinks.map((link) => (
-        <li>
+      {navLinks.map((link, i) => (
+        <li class="menu-item" style={`--i:${i}`}>
           <a
             href={link.href}
             data-testid={`nav-mobile-${link.label.toLowerCase()}-link`}
@@ -54,12 +59,74 @@ const isActive = (href: string) =>
   </div>
 </header>
 
+<style>
+  /* Animated hamburger -> X */
+  .ham-bar {
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease, top 0.3s ease;
+  }
+  .ham-top { top: 8px; }
+  .ham-mid { top: 13px; }
+  .ham-bot { top: 18px; }
+  .ham[aria-expanded="true"] .ham-top { top: 13px; transform: rotate(45deg); }
+  .ham[aria-expanded="true"] .ham-mid { opacity: 0; transform: scaleX(0.4); }
+  .ham[aria-expanded="true"] .ham-bot { top: 13px; transform: rotate(-45deg); }
+
+  /* Smooth slide/fade menu */
+  .mobile-menu {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+  }
+  .mobile-menu.open {
+    max-height: 22rem;
+    opacity: 1;
+  }
+
+  /* Staggered item reveal when the menu opens */
+  .menu-item {
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: calc(var(--i) * 45ms);
+  }
+  .mobile-menu.open .menu-item {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ham-bar, .mobile-menu, .menu-item { transition: none; }
+  }
+</style>
+
 <script>
   const toggle = document.getElementById("nav-toggle");
   const menu = document.getElementById("nav-mobile-menu");
+
+  const setOpen = (open: boolean) => {
+    toggle?.setAttribute("aria-expanded", String(open));
+    menu?.classList.toggle("open", open);
+  };
+
   toggle?.addEventListener("click", () => {
-    const open = menu?.classList.toggle("hidden");
-    toggle.setAttribute("aria-expanded", String(!open));
+    setOpen(toggle.getAttribute("aria-expanded") !== "true");
+  });
+
+  // close after tapping a link
+  menu?.querySelectorAll("a").forEach((a) =>
+    a.addEventListener("click", () => setOpen(false))
+  );
+
+  // close if resized up to desktop
+  window.addEventListener("resize", () => {
+    if (window.innerWidth >= 768) setOpen(false);
   });
 
   const header = document.getElementById("site-header");
