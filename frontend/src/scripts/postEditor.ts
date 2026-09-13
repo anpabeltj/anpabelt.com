@@ -1,5 +1,5 @@
 // Client logic for the admin Post editor (Article + Gallery).
-// Externalised from PostEditor.astro so it lints/bundles as a normal module.
+// Medium-style rich text editing on a contenteditable surface; content is saved as HTML.
 const dataEl = document.getElementById("editor-data");
 const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textContent) : {};
 
@@ -7,6 +7,7 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
   const $ = (id) => document.getElementById(id);
   const msg = $("editor-status-msg");
   const badge = $("status-badge");
+  const editor = $("f-content");
 
   function slugify(s) {
     return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 80);
@@ -29,12 +30,20 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     ? initial.images.map((im) => ({ url: im.url, caption: im.caption || "" }))
     : [];
 
+  // Read editor HTML; treat visually-empty content as an empty string.
+  function getContentHtml() {
+    const html = editor.innerHTML.trim();
+    const text = (editor.textContent || "").trim();
+    if (!text && !editor.querySelector("img")) return "";
+    return html;
+  }
+
   function collect(status) {
     return {
       title: $("f-title").value.trim(),
       slug: $("f-slug").value.trim() || undefined,
       excerpt: $("f-excerpt").value.trim(),
-      content: $("f-content").value,
+      content: getContentHtml(),
       coverImage: $("f-cover-url").value.trim() || null,
       type: currentType,
       images,
@@ -48,7 +57,8 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     const gallery = currentType === "gallery";
     $("gallery-manager").classList.toggle("hidden", !gallery);
     $("content-label").textContent = gallery ? "Intro text (optional)" : "Content";
-    $("f-content").rows = gallery ? 6 : 22;
+    editor.classList.toggle("min-h-[180px]", gallery);
+    editor.classList.toggle("min-h-[420px]", !gallery);
     document.querySelectorAll(".type-btn").forEach((b) => {
       const active = b.dataset.type === currentType;
       b.classList.toggle("bg-teal-500/20", active);
@@ -59,6 +69,81 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
   document.querySelectorAll(".type-btn").forEach((b) => {
     b.addEventListener("click", () => { currentType = b.dataset.type; applyType(); });
   });
+
+  // ---- Rich text toolbar ----
+  let savedRange = null;
+  function saveSelection() {
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount && editor.contains(sel.anchorNode)) savedRange = sel.getRangeAt(0);
+  }
+  function restoreSelection() {
+    const sel = window.getSelection();
+    if (savedRange && sel) { sel.removeAllRanges(); sel.addRange(savedRange); }
+  }
+  editor.addEventListener("keyup", saveSelection);
+  editor.addEventListener("mouseup", saveSelection);
+  editor.addEventListener("focus", saveSelection);
+
+  function exec(command, value = null) {
+    editor.focus();
+    restoreSelection();
+    document.execCommand(command, false, value);
+    saveSelection();
+  }
+
+  // Wrap the current selection in an element (for inline code + font size).
+  function wrapSelection(tagName, style) {
+    editor.focus();
+    restoreSelection();
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount || sel.isCollapsed) return;
+    const range = sel.getRangeAt(0);
+    const el = document.createElement(tagName);
+    if (style) Object.assign(el.style, style);
+    try {
+      el.appendChild(range.extractContents());
+      range.insertNode(el);
+      sel.removeAllRanges();
+      const r = document.createRange();
+      r.selectNodeContents(el);
+      sel.addRange(r);
+      savedRange = r;
+    } catch { /* selection spanned block boundaries; ignore */ }
+  }
+
+  // Toolbar buttons: keep focus/selection in the editor on mousedown.
+  document.querySelectorAll("#rte-toolbar [data-cmd]").forEach((btn) => {
+    btn.addEventListener("mousedown", (e) => { e.preventDefault(); saveSelection(); });
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const cmd = btn.dataset.cmd;
+      if (cmd === "createLink") {
+        const url = prompt("Link URL:", "https://");
+        if (url) exec("createLink", url);
+      } else if (cmd === "inlineCode") {
+        wrapSelection("code");
+      } else {
+        exec(cmd);
+      }
+    });
+  });
+
+  const blockSelect = $("rte-block");
+  blockSelect.addEventListener("mousedown", saveSelection);
+  blockSelect.addEventListener("change", () => {
+    const tag = blockSelect.value;
+    exec("formatBlock", tag === "p" ? "P" : tag.toUpperCase());
+    blockSelect.value = "p";
+  });
+
+  const sizeSelect = $("rte-size");
+  sizeSelect.addEventListener("mousedown", saveSelection);
+  sizeSelect.addEventListener("change", () => {
+    if (sizeSelect.value) wrapSelection("span", { fontSize: sizeSelect.value });
+    sizeSelect.value = "";
+  });
+
+  // Keyboard shortcuts are handled natively by contenteditable (Ctrl/Cmd + B/I/U).
 
   // ---- Gallery management ----
   function renderGallery() {
@@ -212,21 +297,28 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     return json.asset.url;
   }
 
-  function insertAtCursor(text) {
-    const ta = $("f-content");
-    const start = ta.selectionStart ?? ta.value.length;
-    const end = ta.selectionEnd ?? ta.value.length;
-    ta.value = ta.value.slice(0, start) + text + ta.value.slice(end);
-    const pos = start + text.length;
-    ta.selectionStart = ta.selectionEnd = pos;
-    ta.focus();
+  function escapeAttr(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function insertHtmlAtCursor(html) {
+    editor.focus();
+    restoreSelection();
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount || !editor.contains(sel.anchorNode)) {
+      // No caret inside the editor — append at the end.
+      editor.insertAdjacentHTML("beforeend", html);
+    } else {
+      document.execCommand("insertHTML", false, html);
+    }
+    saveSelection();
   }
 
   async function embedImage(file, alt) {
     try {
       const url = await uploadImage(file);
       const caption = (alt || file.name.replace(/\.[^.]+$/, "")).trim();
-      insertAtCursor(`\n\n![${caption}](${url})\n\n`);
+      insertHtmlAtCursor(`<img src="${escapeAttr(url)}" alt="${escapeAttr(caption)}" /><p><br></p>`);
       showMsg("Image inserted \u2713");
     } catch (err) {
       showMsg(err.message || "Upload failed.", false);
@@ -236,33 +328,31 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
   $("f-inline-image").addEventListener("change", async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const label = $("insert-image-label");
-    label.textContent = "Uploading…";
+    saveSelection();
     await embedImage(file);
-    label.textContent = "\uD83D\uDDBC Insert image";
     e.target.value = "";
   });
 
-  const contentEl = $("f-content");
   ["dragenter", "dragover"].forEach((ev) =>
-    contentEl.addEventListener(ev, (e) => { e.preventDefault(); contentEl.classList.add("ring-2", "ring-teal-400/60"); })
+    editor.addEventListener(ev, (e) => { e.preventDefault(); editor.classList.add("ring-2", "ring-teal-400/60"); })
   );
   ["dragleave", "drop"].forEach((ev) =>
-    contentEl.addEventListener(ev, () => contentEl.classList.remove("ring-2", "ring-teal-400/60"))
+    editor.addEventListener(ev, () => editor.classList.remove("ring-2", "ring-teal-400/60"))
   );
-  contentEl.addEventListener("drop", async (e) => {
+  editor.addEventListener("drop", async (e) => {
     const files = Array.from(e.dataTransfer?.files || []).filter((f) => f.type.startsWith("image/"));
     if (!files.length) return;
     e.preventDefault();
+    saveSelection();
     for (const f of files) await embedImage(f);
   });
-  contentEl.addEventListener("paste", async (e) => {
+  editor.addEventListener("paste", async (e) => {
     const items = Array.from(e.clipboardData?.items || []);
     const imgItem = items.find((it) => it.type.startsWith("image/"));
     if (!imgItem) return;
     const file = imgItem.getAsFile();
     if (!file) return;
     e.preventDefault();
+    saveSelection();
     await embedImage(file);
   });
-

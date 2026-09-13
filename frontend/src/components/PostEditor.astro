@@ -1,6 +1,7 @@
 ---
 declare const Astro: any;
 import type { Post } from "../lib/types";
+import { toEditableHtml } from "../lib/markdown";
 export interface Props {
   post?: Post | null;
 }
@@ -18,6 +19,8 @@ const initial = {
   tags: post?.tags ?? [],
 };
 const isGallery = initial.type === "gallery" || initial.type === "photo";
+// Seed the editable area with sanitized HTML (legacy Markdown is auto-converted).
+const initialHtml = initial.content.trim() ? toEditableHtml(initial.content) : "";
 ---
 
 <form id="post-editor" class="grid grid-cols-1 lg:grid-cols-3 gap-6" data-testid="post-editor">
@@ -43,16 +46,67 @@ const isGallery = initial.type === "gallery" || initial.type === "photo";
     </div>
 
     <div>
-      <div class="flex items-center justify-between gap-2 mb-2">
-        <label id="content-label" class="block text-sm font-medium">{isGallery ? "Intro text (optional)" : "Content"}</label>
-        <label class="cursor-pointer inline-flex items-center gap-1.5 rounded-md border border-white/15 px-2.5 py-1 text-xs hover:border-teal-500/40 hover:text-teal-300 transition-colors" data-testid="editor-insert-image">
-          <span id="insert-image-label">🖼 Insert image</span>
+      <label id="content-label" class="block text-sm font-medium mb-2">{isGallery ? "Intro text (optional)" : "Content"}</label>
+
+      <!-- Rich text toolbar (Medium style) -->
+      <div id="rte-toolbar" class="rte-toolbar flex flex-wrap items-center gap-1 rounded-t-xl border border-white/10 border-b-0 bg-elevated px-2 py-1.5" data-testid="editor-toolbar">
+        <select id="rte-block" title="Text style" data-testid="editor-block-select"
+          class="rte-select bg-card border border-white/10 rounded-md px-2 py-1 text-xs text-retro-50 focus:outline-none focus:ring-1 focus:ring-teal-400/60">
+          <option value="p">Paragraph</option>
+          <option value="h1">Heading 1</option>
+          <option value="h2">Heading 2</option>
+          <option value="h3">Heading 3</option>
+          <option value="blockquote">Quote</option>
+          <option value="pre">Code block</option>
+        </select>
+
+        <select id="rte-size" title="Font size" data-testid="editor-size-select"
+          class="rte-select bg-card border border-white/10 rounded-md px-2 py-1 text-xs text-retro-50 focus:outline-none focus:ring-1 focus:ring-teal-400/60">
+          <option value="">Size</option>
+          <option value="0.85em">Small</option>
+          <option value="1em">Normal</option>
+          <option value="1.35em">Large</option>
+          <option value="1.75em">Huge</option>
+        </select>
+
+        <span class="rte-sep"></span>
+
+        <button type="button" class="rte-btn font-bold" data-cmd="bold" title="Bold (Ctrl+B)" data-testid="editor-bold-button">B</button>
+        <button type="button" class="rte-btn italic" data-cmd="italic" title="Italic (Ctrl+I)" data-testid="editor-italic-button">I</button>
+        <button type="button" class="rte-btn underline" data-cmd="underline" title="Underline (Ctrl+U)" data-testid="editor-underline-button">U</button>
+        <button type="button" class="rte-btn line-through" data-cmd="strikeThrough" title="Strikethrough" data-testid="editor-strike-button">S</button>
+        <button type="button" class="rte-btn font-mono text-[13px]" data-cmd="inlineCode" title="Inline code" data-testid="editor-code-button">&lt;/&gt;</button>
+
+        <span class="rte-sep"></span>
+
+        <button type="button" class="rte-btn" data-cmd="insertUnorderedList" title="Bullet list" data-testid="editor-ul-button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3.5" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="3.5" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="3.5" cy="18" r="1.2" fill="currentColor" stroke="none"/></svg>
+        </button>
+        <button type="button" class="rte-btn" data-cmd="insertOrderedList" title="Numbered list" data-testid="editor-ol-button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><text x="2" y="8" font-size="7" fill="currentColor" stroke="none">1</text><text x="2" y="14" font-size="7" fill="currentColor" stroke="none">2</text><text x="2" y="20" font-size="7" fill="currentColor" stroke="none">3</text></svg>
+        </button>
+
+        <span class="rte-sep"></span>
+
+        <button type="button" class="rte-btn" data-cmd="createLink" title="Add link" data-testid="editor-link-button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </button>
+        <button type="button" class="rte-btn" data-cmd="unlink" title="Remove link" data-testid="editor-unlink-button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.84 12.25l1.72-1.71a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M5.17 11.75l-1.71 1.71a5 5 0 0 0 7.07 7.07l1.71-1.71"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+        </button>
+
+        <span class="rte-sep"></span>
+
+        <label class="rte-btn cursor-pointer" title="Insert image at cursor" data-testid="editor-insert-image">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
           <input id="f-inline-image" type="file" accept="image/*" class="hidden" />
         </label>
       </div>
-      <textarea id="f-content" rows={isGallery ? "6" : "22"} placeholder="Write in Markdown…  # Heading, **bold**, > quote, ```code```" data-testid="editor-content-input"
-        class="w-full bg-elevated border border-white/10 rounded-xl px-4 py-4 font-mono text-sm leading-relaxed text-retro-50 focus:outline-none focus:ring-2 focus:ring-teal-400/50 transition resize-y">{initial.content}</textarea>
-      <p class="mt-2 text-xs text-retro-400 font-mono">Markdown supported — or just drag &amp; drop / paste an image into the box to upload and embed it.</p>
+
+      <div id="f-content" contenteditable="true" role="textbox" aria-multiline="true" data-testid="editor-content-input"
+        data-placeholder="Tell your story…"
+        class="rte-editor article-content w-full bg-elevated border border-white/10 rounded-b-xl px-4 py-4 min-h-[420px] focus:outline-none focus:ring-2 focus:ring-teal-400/50 transition overflow-y-auto" set:html={initialHtml}></div>
+      <p class="mt-2 text-xs text-retro-400">Format with the toolbar above — or drag &amp; drop / paste an image straight into the editor to upload and embed it.</p>
     </div>
 
     <!-- Gallery manager -->

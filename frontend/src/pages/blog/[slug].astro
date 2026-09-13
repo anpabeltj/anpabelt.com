@@ -3,7 +3,7 @@ declare const Astro: any;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Gallery from "../../components/Gallery.astro";
 import { getPostBySlug, listPosts } from "../../lib/posts";
-import { renderMarkdown, readingTime, formatDate } from "../../lib/markdown";
+import { renderContent, readingTime, formatDate } from "../../lib/markdown";
 
 const { slug } = Astro.params;
 const post = slug ? await getPostBySlug(slug) : null;
@@ -14,7 +14,7 @@ if (!post || post.status !== "published") {
 }
 
 const isGallery = post.type === "gallery" || post.type === "photo";
-const html = post.content.trim() ? renderMarkdown(post.content) : "";
+const html = post.content.trim() ? renderContent(post.content) : "";
 const minutes = readingTime(post.content);
 
 const published = await listPosts({ status: "published" });

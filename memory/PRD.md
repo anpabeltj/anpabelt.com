@@ -25,3 +25,16 @@ Designed and integrated a custom animated site background:
 - Tune flash frequency/intensity or lit-area size.
 - Optional parallax second cloud layer.
 - Remove unused `.site-bg` rule from global.css if desired.
+
+## Task done (2026-09-13) — Medium-style rich text editor
+Replaced the admin Markdown textarea with a WYSIWYG rich text editor (contenteditable).
+- Toolbar (`PostEditor.astro` + `scripts/postEditor.ts`): text-style dropdown (Paragraph/H1/H2/H3/Quote/Code block),
+  font-size dropdown (Small/Normal/Large/Huge), Bold, Italic, Underline, Strikethrough, inline code,
+  bullet & numbered lists, link/unlink, insert-image-at-cursor. Image drag/drop/paste upload retained.
+- Content is now saved as sanitized HTML. Legacy Markdown posts auto-convert to HTML when opened/edited
+  (`toEditableHtml`) and are migrated on next save.
+- Render pipeline (`lib/markdown.ts`): new `renderContent()` sanitizes editor HTML or converts legacy
+  Markdown; allows u/s/mark/font-size/text-align. Used by `blog/[slug].astro` and `admin/preview/[id]`.
+- Styles (`global.css`): `.article-content h1/u/s/mark`, `.rte-toolbar`/`.rte-btn`, editor placeholder,
+  drop-cap disabled inside the editor.
+- Verified via browser: new post formatting, legacy-post auto-convert, save/publish, public render (desktop+mobile).
