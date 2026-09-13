@@ -2,9 +2,11 @@
 // Animated "dark green hour" storm-cloud background with light that
 // illuminates the cloud from within. Fixed, site-wide, behind all content.
 const CLOUD = "/assets/images/storm-clouds.jpg";
+const CLOUD_FAR = "/assets/images/storm-clouds-far.jpg";
 ---
 
 <div class="storm" aria-hidden="true">
+  <div class="storm-far" style={`background-image:url('${CLOUD_FAR}')`}></div>
   <div class="storm-clouds" style={`background-image:url('${CLOUD}')`}></div>
   <div class="storm-lit" id="storm-lit" style={`background-image:url('${CLOUD}')`}></div>
   <canvas id="storm-bolt"></canvas>
@@ -16,6 +18,12 @@ const CLOUD = "/assets/images/storm-clouds.jpg";
 <style>
   .storm { position: fixed; inset: 0; z-index: -10; overflow: hidden; pointer-events: none;
     background-color: #020a07; }
+
+  /* distant cloud layer — dimmer, lower contrast, drifts slower for parallax depth */
+  .storm-far { position: absolute; inset: -6%; background-size: cover; background-position: center;
+    filter: brightness(0.5) saturate(0.9) contrast(0.92) hue-rotate(-6deg);
+    opacity: 0.7; will-change: transform;
+    animation: storm-drift-far 82s ease-in-out infinite; }
 
   /* crisp, un-blurred HD cloud artwork (darker + greener), slowly drifting */
   .storm-clouds { position: absolute; inset: -4%; background-size: cover; background-position: center;
@@ -48,8 +56,15 @@ const CLOUD = "/assets/images/storm-clouds.jpg";
     100% { transform: scale(1.06) translate(0,0); }
   }
 
+  /* far layer moves less and in the opposite direction -> parallax */
+  @keyframes storm-drift-far {
+    0%   { transform: scale(1.12) translate(0,0); }
+    50%  { transform: scale(1.14) translate(1.4%, -0.7%); }
+    100% { transform: scale(1.12) translate(0,0); }
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .storm-clouds, .storm-lit { animation: none; }
+    .storm-clouds, .storm-lit, .storm-far { animation: none; }
   }
 </style>
 
