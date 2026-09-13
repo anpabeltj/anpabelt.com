@@ -306,6 +306,18 @@ h1, h2, h3, h4, h5, h6 {
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 .rte-btn:hover { background: rgba(111, 227, 154, 0.14); color: var(--color-mint-bright); }
+/* Active formatting indicator (bold / italic / underline / etc.) */
+.rte-btn.active {
+  background: rgba(111, 227, 154, 0.22);
+  color: var(--color-mint-bright);
+  box-shadow: inset 0 0 0 1px rgba(111, 227, 154, 0.55);
+}
+.rte-btn.active:hover { background: rgba(111, 227, 154, 0.3); }
+/* Dropdowns highlight when a non-default block / size is active */
+.rte-select.is-set {
+  border-color: rgba(111, 227, 154, 0.55);
+  color: var(--color-mint-bright);
+}
 .rte-sep { width: 1px; height: 1.3rem; background: rgba(255, 255, 255, 0.12); margin: 0 0.25rem; }
 
 /* The editable surface reuses article typography but stays comfortable to edit. */

@@ -214,6 +214,8 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
       const match = Array.from(sizeSelect.options).some((o: any) => o.value === fs);
       sizeSelect.value = match ? fs : "";
     }
+    blockSelect.classList.toggle("is-set", blockSelect.value !== "p");
+    sizeSelect.classList.toggle("is-set", !!sizeSelect.value);
   }
 
   // Nearest block element that is a direct-ish child of the editor and holds the caret.
@@ -253,10 +255,25 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
 
   const sizeSelect = $("rte-size");
   sizeSelect.addEventListener("mousedown", saveSelection);
-  sizeSelect.addEventListener("change", () => {
-    if (sizeSelect.value) wrapSelection("span", { fontSize: sizeSelect.value });
+  sizeSelect.addEventListener("change", () => { applyFontSize(sizeSelect.value); });
+
+  // Apply a font size to the current selection, or to the whole block when the caret is collapsed.
+  function applyFontSize(size) {
+    editor.focus();
+    if (!selectionInEditor()) restoreSelection();
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount && !sel.isCollapsed) {
+      if (size) wrapSelection("span", { fontSize: size });
+    } else {
+      const block = getCurrentBlock();
+      if (block && block !== editor) {
+        if (size) block.style.fontSize = size;
+        else block.style.removeProperty("font-size");
+        scheduleAutosave();
+      }
+    }
     updateToolbarState();
-  });
+  }
 
   // Reflect the caret's current formatting in the toolbar (active buttons + dropdown values).
   document.addEventListener("selectionchange", () => { if (selectionInEditor()) updateToolbarState(); });

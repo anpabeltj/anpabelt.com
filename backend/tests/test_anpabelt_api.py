@@ -10,7 +10,7 @@ import requests
 
 BASE_URL = os.environ.get(
     "SITE_URL",
-    "https://text-styler-35.preview.emergentagent.com",
+    "https://editor-ui-feedback.preview.emergentagent.com",
 ).rstrip("/")
 
 ADMIN_EMAIL = "ann@anpabelt.com"
