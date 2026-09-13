@@ -50,10 +50,8 @@ export const site = {
   shortName: "Anpabelt",
   role: "Information Systems Student · Developer · Data",
   email: "hello@anpabelt.com",
-  description:
-    "The personal digital home of Anpabelt Trah Javala — developer, data enthusiast and design tinkerer studying at UTP, Malaysia. Projects, writing and a little bit of everything.",
-  resumeUrl:
-    "https://drive.google.com/file/d/1EXi0a5DG2-Wbdv69avJUzTQPVtYM7wf8/view?usp=sharing",
+  description: "The personal digital home of Anpabelt Trah Javala — developer, data enthusiast and design tinkerer studying at UTP, Malaysia. Projects, writing and a little bit of everything.",
+  resumeUrl: "https://drive.google.com/file/d/1EXi0a5DG2-Wbdv69avJUzTQPVtYM7wf8/view?usp=sharing",
 };
 
 export const navLinks: NavLink[] = [
@@ -74,25 +72,39 @@ export const socials: SocialLink[] = [
 export const loves = [
   {
     title: "Building for the web",
-    body:
-      "There's something quietly satisfying about shipping something that works. I like the craft of it — the layout, the details, the late-night bug hunts, and the small wins that add up.",
+    body: "There's something quietly satisfying about shipping something that works. I like the craft of it — the layout, the details, the late-night bug hunts, and the small wins that add up.",
   },
   {
     title: "Working with data",
-    body:
-      "Python and I turn messy spreadsheets into things that actually mean something. Pipelines, dashboards, and the occasional graph that makes a room go \u201Chuh, interesting.\u201D",
+    body: "Python and I turn messy spreadsheets into things that actually mean something. Pipelines, dashboards, and the occasional graph that makes a room go \u201Chuh, interesting.\u201D",
   },
   {
     title: "Designing calmly",
-    body:
-      "I'm still learning design, but I care about how things feel — spacing, type, restraint. Trying to make things that are pleasant to sit with rather than loud.",
+    body: "I'm still learning design, but I care about how things feel — spacing, type, restraint. Trying to make things that are pleasant to sit with rather than loud.",
   },
 ];
 
 export const techStack: string[] = [
-  "html5", "css3", "tailwindcss", "javascript", "typescript", "python", "react",
-  "nodedotjs", "dbt", "mysql", "postgresql_color", "metabase", "looker",
-  "tableau-icon-svgrepo-com", "apacheairflow", "googlebigquery", "docker", "numpy", "pandas", "r",
+  "html5",
+  "css3",
+  "tailwindcss",
+  "javascript",
+  "typescript",
+  "python",
+  "react",
+  "nodedotjs",
+  "dbt",
+  "mysql",
+  "postgresql",
+  "metabase",
+  "looker",
+  "tableau-icon-svgrepo-com",
+  "apacheairflow",
+  "googlebigquery",
+  "docker",
+  "numpy",
+  "pandas",
+  "r",
 ];
 
 export const experiences: Experience[] = [
@@ -109,7 +121,7 @@ export const experiences: Experience[] = [
       "Delivered 50+ data service requests across 5+ departments — extraction, ad-hoc reports, SQL and dashboard work.",
       "Built an automated data-quality pipeline validating row counts across 50+ tables in MySQL, PostgreSQL and BigQuery using Airflow + Docker.",
     ],
-    tags: ["dbt", "apacheairflow", "looker", "mysql", "googlebigquery", "metabase", "python", "postgresql_color", "docker"],
+    tags: ["dbt", "apacheairflow", "looker", "mysql", "googlebigquery", "metabase", "python", "postgresql", "docker"],
   },
   {
     role: "Data Management Analyst Intern",
