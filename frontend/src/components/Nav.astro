@@ -7,13 +7,7 @@ const isActive = (href: string) =>
 ---
 
 <header id="site-header" class="fixed top-0 inset-x-0 z-50 transition-colors duration-300">
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
-    <a href="/" class="group shrink-0 flex items-center" data-testid="nav-brand" aria-label="Anpabelt — home">
-      <span class="logo-badge">
-        <span class="logo-root">√</span><span class="logo-a">a</span>
-      </span>
-    </a>
-
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-end gap-4">
     <nav class="hidden md:block" data-testid="main-nav">
       <ul class="flex items-center gap-8 text-sm">
         {navLinks.map((link) => (
