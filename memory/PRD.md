@@ -38,3 +38,17 @@ Replaced the admin Markdown textarea with a WYSIWYG rich text editor (contentedi
 - Styles (`global.css`): `.article-content h1/u/s/mark`, `.rte-toolbar`/`.rte-btn`, editor placeholder,
   drop-cap disabled inside the editor.
 - Verified via browser: new post formatting, legacy-post auto-convert, save/publish, public render (desktop+mobile).
+
+## Task done (2026-09-13) — Editor power features
+Added three enhancements to the rich text editor (`scripts/postEditor.ts`):
+- **Slash commands**: type "/" on a line for a filterable menu (Heading 1/2/3, Text, Quote,
+  Code block, Bullet/Numbered list, Divider, Image). Uses direct DOM block replacement (not
+  execCommand) for predictable structure. Keyboard nav + fuzzy keyword matching.
+- **Autosave**: quiet debounced save (~1.5s) that preserves the post's current status; shows
+  "Autosaved ✓". Creates the draft + switches to its edit URL on first save.
+- **Link preview cards**: pasting a bare URL onto an empty line inserts a Medium-style card
+  (title, description, thumbnail, domain). New endpoint `actions/link-preview.ts` fetches Open
+  Graph/meta tags server-side (auth-protected via middleware). Card markup whitelisted in
+  `lib/markdown.ts`; styles + `.slash-menu` in `global.css`.
+- Verified via browser: slash blocks produce clean HTML, autosave draft creation, link card
+  rendering on the public blog page (mobile). Test posts cleaned up.

@@ -14,12 +14,12 @@ const ALLOWED_TAGS = [
 const SANITIZE_OPTS: sanitizeHtml.IOptions = {
   allowedTags: ALLOWED_TAGS,
   allowedAttributes: {
-    a: ["href", "title", "target", "rel"],
-    img: ["src", "alt", "title", "loading", "width", "height"],
+    a: ["href", "title", "target", "rel", "class"],
+    img: ["src", "alt", "title", "loading", "width", "height", "class"],
     code: ["class"],
     span: ["class", "style"],
     p: ["style"],
-    div: ["style"],
+    div: ["style", "class"],
     li: ["style"],
     h1: ["style"], h2: ["style"], h3: ["style"], h4: ["style"], h5: ["style"], h6: ["style"],
     "*": ["id"],
