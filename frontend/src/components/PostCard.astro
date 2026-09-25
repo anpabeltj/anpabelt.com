@@ -1,5 +1,4 @@
 ---
-declare const Astro: any;
 import type { Post } from "../lib/types";
 import { formatDate, readingTime } from "../lib/markdown";
 export interface Props {
@@ -9,40 +8,51 @@ export interface Props {
 const { post, index = 0 } = Astro.props;
 const isGallery = post.type === "gallery" || post.type === "photo";
 const minutes = readingTime(post.content);
-const cover = post.coverImage || (isGallery ? post.images[0]?.url ?? null : null);
+const num = String(index + 1).padStart(2, "0");
 ---
 
 <article
-  class="reveal group grid grid-cols-1 md:grid-cols-12 gap-6 border-b border-white/10 pb-10"
-  style={`animation-delay:${index * 70}ms`}
+  class="reveal group grid grid-cols-1 md:grid-cols-[1fr_minmax(0,300px)] gap-6 lg:gap-10 py-7 border-l border-white/15 pl-5 sm:pl-6 hover:border-white transition-all duration-300"
+  style={`animation-delay:${index * 50}ms`}
   data-testid="post-card"
 >
-  {cover && (
-    <a href={`/blog/${post.slug}`} class="md:col-span-4 block overflow-hidden rounded-xl aspect-[16/10] bg-elevated relative" data-testid="post-card-cover-link">
-      <img src={cover} alt={post.title} loading="lazy" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+  <div class="flex flex-col justify-between min-w-0">
+    <div>
+      <div class="flex items-center space-x-2 italic text-xs tracking-[0.2em] text-white/40 mb-2 font-light font-serif">
+        <span>{num}</span>
+        <span class="text-white/20">/</span>
+        <span class="tracking-[0.16em] uppercase not-italic font-sans text-[8.5px]">{post.type.toUpperCase()}</span>
+      </div>
+      <h2 class="text-lg lg:text-xl text-white/95 group-hover:text-white transition-colors tracking-wide font-normal leading-snug font-display">
+        <a href={`/blog/${post.slug}`} data-testid="post-card-title-link">
+          {post.title}
+        </a>
+      </h2>
+      <p class="font-sans text-xs text-white/55 mt-2 font-light leading-relaxed max-w-xl">{post.excerpt}</p>
+    </div>
+
+    <div class="mt-5 pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2 font-mono text-[8.5px] tracking-[0.16em] text-white/40 group-hover:text-white/80 transition-colors uppercase">
+      <span class="flex flex-wrap items-center gap-x-3">
+        <time datetime={post.publishedAt ?? post.createdAt}>{formatDate(post.publishedAt ?? post.createdAt)}</time>
+        <span class="text-white/20">·</span>
+        {isGallery ? <span>{post.images.length} PHOTOS</span> : <span>{minutes} MIN READ</span>}
+        {post.tags.length > 0 && (
+          <span class="flex flex-wrap gap-3">
+            <span class="text-white/20">·</span>
+            {post.tags.map((t) => <span key={t}>#{t}</span>)}
+          </span>
+        )}
+      </span>
+      <a href={`/blog/${post.slug}`} class="transform group-hover:translate-x-1 transition-transform font-sans text-xs" data-testid="post-card-arrow">→</a>
+    </div>
+  </div>
+
+  {post.coverImage && (
+    <a href={`/blog/${post.slug}`} class="order-first md:order-none block overflow-hidden border border-white/10 aspect-[4/3] bg-black relative w-full max-w-[420px] md:max-w-none md:self-center" data-testid="post-card-cover-link">
+      <img src={post.coverImage} alt={post.title} loading="lazy" class="h-full w-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-500" />
       {isGallery && (
-        <span class="absolute top-2 right-2 rounded-full bg-black/60 backdrop-blur px-2 py-0.5 text-[10px] font-mono text-white">🖼 {post.images.length}</span>
+        <span class="absolute bottom-2 right-2 border border-white/20 bg-black/60 backdrop-blur px-2 py-0.5 text-[10px] font-mono text-white">◫ {post.images.length}</span>
       )}
     </a>
   )}
-  <div class={cover ? "md:col-span-8" : "md:col-span-12"}>
-    <div class="flex flex-wrap items-center gap-3 text-xs font-mono text-mint/80">
-      <time datetime={post.publishedAt ?? post.createdAt}>{formatDate(post.publishedAt ?? post.createdAt)}</time>
-      <span class="text-retro-400">•</span>
-      {isGallery ? <span>{post.images.length} photos</span> : <span>{minutes} min read</span>}
-    </div>
-    <h2 class="mt-2 font-display text-xl sm:text-2xl font-semibold leading-tight">
-      <a href={`/blog/${post.slug}`} class="text-white hover:text-mint transition-colors" data-testid="post-card-title-link">
-        {post.title}
-      </a>
-    </h2>
-    <p class="mt-3 text-retro-50/70 leading-relaxed">{post.excerpt}</p>
-    {post.tags.length > 0 && (
-      <ul class="mt-4 flex flex-wrap gap-2">
-        {post.tags.map((t) => (
-          <li class="rounded-full border border-white/5 bg-elevated px-2.5 py-0.5 text-xs font-mono text-retro-50/70">#{t}</li>
-        ))}
-      </ul>
-    )}
-  </div>
 </article>

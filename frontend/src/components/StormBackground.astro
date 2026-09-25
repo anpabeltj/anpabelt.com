@@ -1,170 +1,435 @@
 ---
-// Animated "dark green hour" storm-cloud background with light that
-// illuminates the cloud from within. Fixed, site-wide, behind all content.
-const CLOUD = "/assets/images/storm-clouds.jpg";
-const CLOUD_FAR = "/assets/images/storm-clouds-far.jpg";
+// Site-wide backdrop: "ARCHIVE 2025" architectural crosshair system —
+// corner crop marks, dashed guide frame, hairline axes with travelling laser
+// pulses, a rotating astrolabe emblem, micro telemetry labels and a
+// cursor-following ambient glow. Fully visible at the top of the page and
+// fading to barely visible once the user scrolls, so content stays the focus.
+// DOM elements replay their CSS entrance animations on every full navigation,
+// so no cache-busting is needed (no ViewTransitions in this project).
+//
+// The telemetry marker label (SEC 01 // REF.0x) follows the current page.
+
+const pageRefs = {
+  "/": "REF.00",
+  "/projects": "REF.01",
+  "/about": "REF.02",
+  "/blog": "REF.03",
+  "/contact": "REF.04",
+};
+const pathname = Astro.url.pathname;
+const pageRef = pageRefs[pathname] ?? "REF.--";
 ---
 
-<div class="storm" aria-hidden="true">
-  <div class="storm-far" style={`background-image:url('${CLOUD_FAR}')`}></div>
-  <div class="storm-clouds" style={`background-image:url('${CLOUD}')`}></div>
-  <div class="storm-lit" id="storm-lit" style={`background-image:url('${CLOUD}')`}></div>
-  <canvas id="storm-bolt"></canvas>
-  <div class="storm-tone"></div>
-  <div class="storm-vignette"></div>
-  <div class="storm-grain"></div>
+<div class="backdrop" aria-hidden="true">
+  <div class="bg-scene" id="bg-scene">
+    <!-- Architectural registration / crop marks -->
+    <div class="crop crop-tl"><span class="mark-v"></span><span class="mark-h"></span></div>
+    <div class="crop crop-tr"><span class="mark-v"></span><span class="mark-h"></span></div>
+    <div class="crop crop-bl"><span class="mark-v"></span><span class="mark-h"></span></div>
+    <div class="crop crop-br"><span class="mark-v"></span><span class="mark-h"></span></div>
+
+    <!-- Dashed guide frame bracketing the crosshair -->
+    <div class="frame-line fl-h1"></div>
+    <div class="frame-line fl-h2"></div>
+    <div class="frame-line fl-v1"></div>
+    <div class="frame-line fl-v2"></div>
+
+    <!-- Micro telemetry labels -->
+    <div class="b-label lbl-sec"><span class="plus">+</span>SEC 01 // {pageRef}</div>
+    <div class="b-label lbl-cal"><span class="rule"></span>CAL.35&deg;</div>
+    <div class="b-label lbl-deg">[ 00&deg; ]<span class="rule"></span></div>
+    <div class="plus-mark pm-1">+</div>
+    <div class="plus-mark pm-2">+</div>
+
+    <!-- Crosshair axes with travelling laser pulses -->
+    <div class="axis axis-h"><div class="pulse pulse-h"></div></div>
+    <div class="axis axis-v"><div class="pulse pulse-v"></div></div>
+
+    <!-- Astrolabe emblem sitting on the horizontal hairline -->
+    <div class="astrolabe" id="bg-astrolabe">
+      <div class="tg-outer">
+        <div class="tg-ring-dashed"></div>
+        <div class="tg-ring-partial"></div>
+        <div class="tg-ticks">
+          <span class="tick tick-n"></span>
+          <span class="tick tick-s"></span>
+          <span class="tick tick-e"></span>
+          <span class="tick tick-w"></span>
+        </div>
+        <div class="tg-ring-inner"></div>
+        <div class="tg-medallion">
+          <svg viewBox="0 0 32 32" fill="none" stroke="#000" stroke-width="1.3">
+            <circle cx="16" cy="16" r="12" stroke-dasharray="2 2"></circle>
+            <circle cx="16" cy="16" r="6"></circle>
+            <circle cx="16" cy="16" r="2" fill="#000"></circle>
+            <path d="M16 2v7M16 23v7M2 16h7M23 16h7"></path>
+            <path d="M6.5 6.5l4.5 4.5M21 21l4.5 4.5M25.5 6.5L21 11M11 21l-4.5 4.5" stroke-width="0.8"></path>
+          </svg>
+        </div>
+        <div class="tg-ping"></div>
+        <div class="tg-node"></div>
+      </div>
+    </div>
+
+    <!-- Cursor-following ambient glow -->
+    <div class="ambient-glow" id="bg-glow"></div>
+  </div>
 </div>
 
+<script>
+  (function () {
+    const scene = document.getElementById("bg-scene");
+    if (!scene) return;
+
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // ---- scroll-linked opacity: visible at the top, barely visible scrolled ----
+    const TOP_O = 1;    // full ARCHIVE_2025 stage at scrollY = 0
+    const DIM_O = 0.04; // barely visible while reading content
+    const RAMP_PX = 240;
+    let ticking = false;
+
+    function apply() {
+      ticking = false;
+      const y = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
+      const t = y <= 0 ? 0 : Math.min(1, y / RAMP_PX);
+      scene.style.opacity = (TOP_O + (DIM_O - TOP_O) * t).toFixed(3);
+    }
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(apply);
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    apply();
+
+    if (reduce) return;
+
+    // ---- ambient cursor glow + gentle astrolabe parallax ----
+    // Always initialized: on touch/coarse devices no pointer events fire, so
+    // the glow simply stays at its idle 0.35 — harmless. Fine pointers get
+    // the full follow + fade-on-idle behavior. (The (pointer: fine) media
+    // query is NOT used as a gate: headless browsers and some WebViews report
+    // pointer:none and would dead-code this block entirely.)
+    const glow = document.getElementById("bg-glow");
+
+    const astro = document.getElementById("bg-astrolabe");
+    let mx = window.innerWidth / 2;
+    let my = window.innerHeight / 2;
+    let cx = mx, cy = my;
+    let idle;
+
+    function frame() {
+      cx += (mx - cx) * 0.07;
+      cy += (my - cy) * 0.07;
+      glow.style.transform =
+        "translate(" + cx.toFixed(1) + "px, " + cy.toFixed(1) + "px) translate(-50%, -50%)";
+      if (astro) {
+        const nx = (cx / window.innerWidth - 0.5) * 2;
+        const ny = (cy / window.innerHeight - 0.5) * 2;
+        astro.style.transform =
+          "translate(" + (nx * 12).toFixed(2) + "px, " + (ny * 7).toFixed(2) + "px) translateY(-100%)";
+      }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+    window.addEventListener("mousemove", function (e) {
+      mx = e.clientX;
+      my = e.clientY;
+      glow.style.opacity = "1";
+      clearTimeout(idle);
+      idle = setTimeout(function () { glow.style.opacity = "0.35"; }, 2500);
+    }, { passive: true });
+    window.addEventListener("mouseleave", function () { glow.style.opacity = "0"; }, { passive: true });
+  })();
+</script>
+
 <style>
-  .storm { position: fixed; inset: 0; z-index: -10; overflow: hidden; pointer-events: none;
-    background-color: #020a07; }
-
-  /* distant cloud layer — dimmer, lower contrast, drifts slower for parallax depth */
-  .storm-far { position: absolute; inset: -6%; background-size: cover; background-position: center;
-    filter: brightness(0.5) saturate(0.9) contrast(0.92) hue-rotate(-6deg);
-    opacity: 0.7; will-change: transform;
-    animation: storm-drift-far 82s ease-in-out infinite; }
-
-  /* crisp, un-blurred HD cloud artwork (darker + greener), slowly drifting */
-  .storm-clouds { position: absolute; inset: -4%; background-size: cover; background-position: center;
-    filter: brightness(0.82) saturate(1.15) contrast(1.05) hue-rotate(-6deg);
-    will-change: transform; animation: storm-drift 46s ease-in-out infinite; }
-
-  /* bright copy of the SAME cloud, revealed only where a strike lights it,
-     so the real cloud texture appears illuminated from within */
-  .storm-lit { position: absolute; inset: -4%; background-size: cover; background-position: center;
-    mix-blend-mode: screen; filter: brightness(2.9) saturate(0.72) hue-rotate(-4deg);
-    opacity: 0; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
-    will-change: transform; animation: storm-drift 46s ease-in-out infinite; }
-
-  #storm-bolt { position: absolute; inset: 0; mix-blend-mode: screen; }
-
-  /* keep the storm dark, green & gloomy, protect the upper-left text pocket */
-  .storm-tone { position: absolute; inset: 0;
-    background:
-      radial-gradient(70% 55% at 33% 40%, rgba(2,10,7,0.78), transparent 70%),
-      linear-gradient(180deg, rgba(2,12,8,0.42), rgba(1,7,5,0.62)),
-      radial-gradient(120% 120% at 50% 120%, rgba(6,26,18,0.55), transparent 60%); }
-  .storm-vignette { position: absolute; inset: 0;
-    background: radial-gradient(120% 100% at 50% 44%, transparent 50%, rgba(0,4,3,0.85) 100%); }
-  .storm-grain { position: absolute; inset: 0; opacity: .05; mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
-
-  @keyframes storm-drift {
-    0%   { transform: scale(1.06) translate(0,0); }
-    50%  { transform: scale(1.09) translate(-1.6%, 0.9%); }
-    100% { transform: scale(1.06) translate(0,0); }
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -10;
+    overflow: hidden;
+    pointer-events: none;
+    background-color: #000;
   }
 
-  /* far layer moves less and in the opposite direction -> parallax */
-  @keyframes storm-drift-far {
-    0%   { transform: scale(1.12) translate(0,0); }
-    50%  { transform: scale(1.14) translate(1.4%, -0.7%); }
-    100% { transform: scale(1.12) translate(0,0); }
+  .bg-scene {
+    --axis-y: 260px; /* horizontal hairline; sits just below the fixed header */
+    position: absolute;
+    inset: 0;
+    opacity: 1; /* no-JS default; JS links it to scroll position */
   }
+
+  /* ---------- crop marks ---------- */
+  .crop { position: absolute; width: 32px; height: 32px; }
+  .crop span { position: absolute; background: #fff; }
+  .crop .mark-v { width: 2px; height: 32px; }
+  .crop .mark-h { width: 32px; height: 2px; }
+  .crop-tl { top: 104px; left: 24px; opacity: 0.85; }
+  .crop-tl .mark-v { left: 0; top: 0; }
+  .crop-tl .mark-h { left: 0; top: 0; }
+  .crop-tr { top: 104px; right: 24px; opacity: 0.85; }
+  .crop-tr .mark-v { right: 0; top: 0; }
+  .crop-tr .mark-h { right: 0; top: 0; }
+  .crop-bl { bottom: 24px; left: 24px; opacity: 0.5; }
+  .crop-bl .mark-v { left: 0; bottom: 0; }
+  .crop-bl .mark-h { left: 0; bottom: 0; }
+  .crop-br { bottom: 24px; right: 24px; opacity: 0.5; }
+  .crop-br .mark-v { right: 0; bottom: 0; }
+  .crop-br .mark-h { right: 0; bottom: 0; }
+
+  /* ---------- dashed guide frame ---------- */
+  .frame-line { position: absolute; }
+  .fl-h1 { left: 0; right: 0; top: calc(var(--axis-y) - 24px); border-bottom: 1px dashed rgba(255, 255, 255, 0.15); }
+  .fl-h2 { left: 0; right: 0; top: calc(var(--axis-y) + 24px); border-bottom: 1px dashed rgba(255, 255, 255, 0.10); }
+  .fl-v1 { top: 0; bottom: 0; left: calc(68% - 24px); border-right: 1px dashed rgba(255, 255, 255, 0.15); }
+  .fl-v2 { top: 0; bottom: 0; left: calc(68% + 24px); border-right: 1px dashed rgba(255, 255, 255, 0.10); }
+
+  /* ---------- micro telemetry labels ---------- */
+  .b-label {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 8px;
+    letter-spacing: 0.25em;
+    color: #888;
+    opacity: 0.4;
+    white-space: nowrap;
+  }
+  .b-label .plus { color: rgba(255, 255, 255, 0.7); }
+  .b-label .rule { width: 16px; height: 1px; background: rgba(255, 255, 255, 0.4); }
+  .lbl-sec { top: calc(var(--axis-y) - 44px); left: 48px; }
+  .lbl-cal { bottom: 64px; left: 25%; }
+  .lbl-deg { right: 32px; top: var(--axis-y); transform: translateY(-50%); }
+  @media (max-width: 639px) {
+    .lbl-cal, .lbl-deg { display: none; }
+  }
+  .plus-mark {
+    position: absolute;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.3);
+  }
+  .pm-1 { top: 33%; left: 33%; }
+  .pm-2 { bottom: 24%; right: 25%; }
+
+  /* ---------- crosshair axes ---------- */
+  .axis { position: absolute; pointer-events: none; }
+  .axis-h {
+    left: 0;
+    right: 0;
+    top: var(--axis-y);
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.75) 25%,
+      rgba(255, 255, 255, 0.95) 45%,
+      rgba(255, 255, 255, 0.6) 80%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+    transform-origin: 44% center;
+    animation: expandH 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .axis-v {
+    top: -100px;
+    bottom: -100px;
+    left: 68%;
+    width: 1px;
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.85) 30%,
+      rgba(255, 255, 255, 0.95) 48%,
+      rgba(255, 255, 255, 0.5) 85%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+    transform-origin: center 148px;
+    animation: expandV 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+  }
+
+  /* travelling laser pulses along the hairlines */
+  .pulse { position: absolute; pointer-events: none; }
+  .pulse-h {
+    top: -1px;
+    left: -140px;
+    width: 140px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.95), transparent);
+    filter: blur(0.5px);
+    animation: scanBeamH 7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+  .pulse-v {
+    left: -1px;
+    top: -140px;
+    width: 3px;
+    height: 140px;
+    background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.95), transparent);
+    filter: blur(0.5px);
+    animation: scanBeamV 8.5s cubic-bezier(0.4, 0, 0.2, 1) 1.2s infinite;
+  }
+
+  @keyframes scanBeamH {
+    0% { left: -140px; opacity: 0; }
+    15% { opacity: 0.9; }
+    85% { opacity: 0.9; }
+    100% { left: 100%; opacity: 0; }
+  }
+  @keyframes scanBeamV {
+    0% { top: -140px; opacity: 0; }
+    15% { opacity: 0.9; }
+    85% { opacity: 0.9; }
+    100% { top: 100%; opacity: 0; }
+  }
+  @keyframes expandH {
+    0% { transform: scaleX(0); opacity: 0; }
+    100% { transform: scaleX(1); opacity: 1; }
+  }
+  @keyframes expandV {
+    0% { transform: scaleY(0); opacity: 0; }
+    100% { transform: scaleY(1); opacity: 1; }
+  }
+
+  /* ---------- astrolabe emblem ---------- */
+  .astrolabe {
+    --tg: 96px;
+    position: absolute;
+    left: calc(68% + 12px);
+    top: var(--axis-y);
+    transform: translateY(-100%);
+  }
+  @media (min-width: 640px) { .astrolabe { --tg: 120px; left: calc(68% + 24px); } }
+  @media (min-width: 768px) { .astrolabe { --tg: 145px; left: calc(68% + 36px); } }
+
+  .tg-outer {
+    position: relative;
+    width: var(--tg);
+    height: var(--tg);
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: orbitRotate 45s linear infinite;
+  }
+  .tg-ring-dashed {
+    position: absolute;
+    inset: -16px;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+  }
+  .tg-ring-partial {
+    position: absolute;
+    inset: -32px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    opacity: 0.4;
+    clip-path: polygon(0 0, 60% 0, 60% 60%, 0 60%);
+  }
+  .tg-ticks {
+    position: absolute;
+    inset: 0;
+    animation: orbitRotate 90s linear infinite;
+  }
+  .tg-ticks .tick { position: absolute; width: 1px; height: 6px; background: rgba(255, 255, 255, 0.4); }
+  .tg-ticks .tick-n { left: 50%; top: 0; transform: translateX(-50%); }
+  .tg-ticks .tick-s { left: 50%; bottom: 0; transform: translateX(-50%); }
+  .tg-ticks .tick-e { top: 50%; right: 0; width: 6px; height: 1px; transform: translateY(-50%); }
+  .tg-ticks .tick-w { top: 50%; left: 0; width: 6px; height: 1px; transform: translateY(-50%); }
+  .tg-ring-inner {
+    position: absolute;
+    inset: 16px;
+    border: 1px dashed rgba(255, 255, 255, 0.35);
+    border-radius: 50%;
+    animation: counterRotate 30s linear infinite;
+  }
+  .tg-medallion {
+    position: relative;
+    z-index: 2;
+    width: 38px;
+    height: 38px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.92;
+  }
+  .tg-medallion svg { width: 22px; height: 22px; }
+  @media (min-width: 640px) {
+    .tg-medallion { width: 46px; height: 46px; }
+    .tg-medallion svg { width: 28px; height: 28px; }
+  }
+  @media (min-width: 768px) {
+    .tg-medallion { width: 56px; height: 56px; }
+    .tg-medallion svg { width: 32px; height: 32px; }
+  }
+  .tg-node {
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    animation: nodePulse 3.2s ease-in-out infinite;
+  }
+  .tg-ping {
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    animation: pingGlow 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
+  @keyframes orbitRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes counterRotate { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+  @keyframes nodePulse {
+    0%, 100% { transform: translate(-50%, 0) scale(1); box-shadow: 0 0 4px rgba(255, 255, 255, 0.6); }
+    50% { transform: translate(-50%, 0) scale(1.6); box-shadow: 0 0 12px rgba(255, 255, 255, 0.95); }
+  }
+  @keyframes pingGlow {
+    0% { transform: translate(-50%, 0) scale(1); opacity: 0.9; }
+    100% { transform: translate(-50%, 0) scale(3.5); opacity: 0; }
+  }
+
+  /* ---------- ambient glow ---------- */
+  .ambient-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 480px;
+    height: 480px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.035) 0%, rgba(255, 255, 255, 0) 70%);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    opacity: 0.35;
+    transition: opacity 0.6s ease;
+    z-index: 1;
+  }
+  @media (pointer: coarse) { .ambient-glow { display: none; } }
 
   @media (prefers-reduced-motion: reduce) {
-    .storm-clouds, .storm-lit, .storm-far { animation: none; }
+    .axis-h, .axis-v, .pulse-h, .pulse-v, .tg-outer, .tg-ring-inner, .tg-ticks,
+    .tg-node, .tg-ping, .ambient-glow {
+      animation: none !important;
+    }
+    .axis-h { transform: scaleX(1); opacity: 1; }
+    .axis-v { transform: scaleY(1); opacity: 1; }
+    .pulse-h, .pulse-v, .ambient-glow { opacity: 0 !important; }
+    .tg-outer, .tg-ring-inner, .tg-ticks { transform: none !important; }
+    .tg-node, .tg-ping { transform: translate(-50%, 0) !important; }
   }
 </style>
-
-<script>
-  const lit = document.getElementById("storm-lit") as HTMLElement | null;
-  const cv = document.getElementById("storm-bolt") as HTMLCanvasElement | null;
-  if (lit && cv) {
-    const ctx = cv.getContext("2d")!;
-    const MINT = [111, 227, 154] as const;
-    let W = 0, H = 0, DPR = 1;
-
-    // illumination origins hidden inside dense cloud masses (percent of viewport),
-    // kept away from the upper-left text pocket
-    const cores = [
-      { x: 82, y: 34 }, { x: 88, y: 56 }, { x: 74, y: 60 },
-      { x: 66, y: 72 }, { x: 85, y: 80 }, { x: 70, y: 24 },
-    ];
-
-    function resize() {
-      DPR = Math.min(window.devicePixelRatio || 1, 2);
-      W = cv!.width = innerWidth * DPR;
-      H = cv!.height = innerHeight * DPR;
-      cv!.style.width = innerWidth + "px";
-      cv!.style.height = innerHeight + "px";
-    }
-    addEventListener("resize", resize);
-    resize();
-
-    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    let anim = 0, target = 0;
-    let active = cores[0];
-    let bolt: any = null;
-    let flickerQueue: { t: number; v: number }[] = [];
-    let nextAt = performance.now() + 900;
-
-    function strike(now: number, forceIdx?: number) {
-      active = cores[forceIdx !== undefined ? forceIdx : Math.floor(Math.random() * cores.length)];
-      const ox = (active.x / 100) * W, oy = (active.y / 100) * H;
-      const blobs = [{ dx: 0, dy: 0, r: 30, a: 1 }];
-      const extra = 3 + Math.floor(Math.random() * 3);
-      for (let i = 0; i < extra; i++) {
-        blobs.push({
-          dx: (Math.random() - 0.5) * 26,
-          dy: (Math.random() - 0.5) * 22,
-          r: 12 + Math.random() * 16,
-          a: 0.55 + Math.random() * 0.35,
-        });
-      }
-      bolt = { ox, oy, blobs, r: (160 + Math.random() * 120) * DPR };
-      const peak = 0.8 + Math.random() * 0.2;
-      let t = now; const seq: { t: number; v: number }[] = [];
-      seq.push({ t, v: peak * 0.45 }); t += 45;
-      seq.push({ t, v: 0.06 });        t += 40;
-      seq.push({ t, v: peak });        t += 80;
-      seq.push({ t, v: 0.3 });         t += 55;
-      seq.push({ t, v: peak * 0.85 }); t += 110;
-      seq.push({ t, v: 0.0 });
-      flickerQueue = seq;
-      nextAt = now + 2600 + Math.random() * 4200;
-    }
-
-    function paintLit() {
-      if (!bolt) { lit!.style.opacity = "0"; return; }
-      const gx = (bolt.ox / W) * 100, gy = (bolt.oy / H) * 100;
-      const parts = bolt.blobs.map((b: any) => {
-        const cx = gx + b.dx, cy = gy + b.dy, a = anim * b.a;
-        return `radial-gradient(${b.r}% ${b.r}% at ${cx}% ${cy}%,`
-          + `rgba(0,0,0,${a}) 0%, rgba(0,0,0,${a * 0.6}) 42%, transparent 74%)`;
-      });
-      const m = parts.join(",");
-      lit!.style.webkitMaskImage = m;
-      lit!.style.maskImage = m;
-      lit!.style.opacity = "1";
-    }
-
-    function drawBolt() {
-      ctx.clearRect(0, 0, W, H);
-      if (!bolt || anim < 0.02) return;
-      const R = bolt.r * 1.9;
-      const g = ctx.createRadialGradient(bolt.ox, bolt.oy, 0, bolt.ox, bolt.oy, R);
-      g.addColorStop(0, `rgba(${MINT},${0.16 * anim})`);
-      g.addColorStop(0.45, `rgba(70,160,120,${0.09 * anim})`);
-      g.addColorStop(1, `rgba(${MINT},0)`);
-      ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(bolt.ox, bolt.oy, R, 0, 7); ctx.fill();
-    }
-
-    function tick(now: number) {
-      anim += (target - anim) * 0.3;
-      if (Math.abs(target - anim) < 0.003) anim = target;
-      paintLit();
-      drawBolt();
-      if (flickerQueue.length && now >= flickerQueue[0].t) target = flickerQueue.shift()!.v;
-      if (anim < 0.02 && target < 0.02 && flickerQueue.length === 0 && now > nextAt) strike(now);
-      requestAnimationFrame(tick);
-    }
-
-    if (!reduce) {
-      requestAnimationFrame(tick);
-    }
-  }
-</script>

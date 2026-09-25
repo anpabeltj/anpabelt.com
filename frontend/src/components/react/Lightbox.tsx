@@ -124,7 +124,7 @@ export default function Lightbox() {
                 rel="noopener noreferrer"
                 data-testid="lightbox-live-link"
                 onClick={(e) => e.stopPropagation()}
-                className="inline-flex items-center gap-1.5 rounded-full bg-mint px-4 py-1.5 text-sm font-semibold text-canvas hover:bg-mint-bright transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-black hover:bg-white-bright transition-colors"
               >
                 View Live
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M7 17L17 7M17 7H8M17 7V16" strokeLinecap="round" strokeLinejoin="round" /></svg>

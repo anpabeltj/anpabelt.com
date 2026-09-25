@@ -14,13 +14,13 @@ const counts = {
 };
 const canReorder = filter === "all" && projects.length > 1;
 const tab = (key: "all" | "published" | "draft", label: string) =>
-  `<a href="/admin/projects?status=${key}" data-testid="project-tab-${key}" class="px-3 py-1.5 rounded-lg text-sm transition-colors ${filter === key ? "bg-teal-500/15 text-teal-300" : "text-retro-50/70 hover:bg-white/5"}">${label} <span class="text-retro-400">${counts[key]}</span></a>`;
+  `<a href="/admin/projects?status=${key}" data-testid="project-tab-${key}" class="px-3 py-1.5 rounded-lg text-sm transition-colors ${filter === key ? "bg-white/15 text-white" : "text-retro-50/70 hover:bg-white/5"}">${label} <span class="text-retro-400">${counts[key]}</span></a>`;
 ---
 
 <AdminLayout title="Projects" active="projects">
   <div class="flex items-center justify-between gap-4 mb-6">
     <h1 class="font-display text-2xl font-bold">Projects</h1>
-    <a href="/admin/projects/new" data-testid="new-project-button" class="rounded-lg bg-teal-500 hover:bg-teal-400 text-canvas font-semibold px-4 py-2 text-sm transition-colors">+ New Project</a>
+    <a href="/admin/projects/new" data-testid="new-project-button" class="rounded-lg bg-white hover:bg-retro-100 text-black font-semibold px-4 py-2 text-sm transition-colors">+ New Project</a>
   </div>
 
   <div class="flex items-center justify-between gap-3 mb-6 flex-wrap">
@@ -35,14 +35,14 @@ const tab = (key: "all" | "published" | "draft", label: string) =>
   {projects.length === 0 ? (
     <div class="rounded-2xl border border-white/10 bg-card p-12 text-center">
       <p class="text-retro-400">No projects here yet.</p>
-      <a href="/admin/projects/new" class="mt-4 inline-flex text-teal-300 hover:text-teal-200">Add your first project →</a>
+      <a href="/admin/projects/new" class="mt-4 inline-flex text-white hover:text-white">Add your first project →</a>
     </div>
   ) : (
     <div class="rounded-2xl border border-white/10 bg-card overflow-hidden" data-testid="admin-project-list" data-reorder={canReorder ? "1" : "0"}>
       {projects.map((project) => (
         <div class="admin-project-row flex items-center gap-4 px-4 sm:px-6 py-4 border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-opacity" data-testid="admin-project-row" data-id={project.id} draggable={canReorder}>
           {canReorder && (
-            <span class="drag-handle shrink-0 cursor-grab text-retro-400 hover:text-teal-300 transition-colors" title="Drag to reorder" data-testid="project-drag-handle">
+            <span class="drag-handle shrink-0 cursor-grab text-retro-400 hover:text-white transition-colors" title="Drag to reorder" data-testid="project-drag-handle">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>
             </span>
           )}
@@ -51,8 +51,8 @@ const tab = (key: "all" | "published" | "draft", label: string) =>
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2">
-              <span class={`inline-block w-2 h-2 rounded-full ${project.status === "published" ? "bg-emerald-400" : "bg-amber-400"}`}></span>
-              <a href={`/admin/projects/${project.id}/edit`} class="font-medium text-white hover:text-teal-300 truncate" data-testid="admin-project-edit-link">{project.title}</a>
+              <span class={`inline-block w-2 h-2 rounded-full ${project.status === "published" ? "bg-white" : "bg-amber-400"}`}></span>
+              <a href={`/admin/projects/${project.id}/edit`} class="font-medium text-white hover:text-white truncate" data-testid="admin-project-edit-link">{project.title}</a>
             </div>
             <p class="mt-1 text-xs font-mono text-retro-400 truncate">
               {project.status === "published" ? "Published" : "Draft"} · updated {formatDate(project.updatedAt)}
@@ -63,14 +63,14 @@ const tab = (key: "all" | "published" | "draft", label: string) =>
             {project.liveUrl && (
               <a href={project.liveUrl} target="_blank" class="text-xs text-retro-50/60 hover:text-white px-2 py-1">Live ↗</a>
             )}
-            <a href={`/admin/projects/${project.id}/edit`} class="text-xs rounded-md border border-white/10 px-3 py-1.5 hover:border-teal-500/40 hover:text-teal-300 transition-colors">Edit</a>
+            <a href={`/admin/projects/${project.id}/edit`} class="text-xs rounded-md border border-white/10 px-3 py-1.5 hover:border-white/40 hover:text-white transition-colors">Edit</a>
             <button data-id={project.id} data-title={project.title} class="admin-project-delete-btn text-xs rounded-md border border-white/10 px-3 py-1.5 hover:border-red-500/40 hover:text-red-300 transition-colors" data-testid="admin-project-delete-button">Delete</button>
           </div>
         </div>
       ))}
     </div>
   )}
-  <p id="reorder-msg" class="mt-3 text-xs text-teal-300 hidden" role="status" data-testid="reorder-status"></p>
+  <p id="reorder-msg" class="mt-3 text-xs text-white hidden" role="status" data-testid="reorder-status"></p>
 </AdminLayout>
 
 <script>

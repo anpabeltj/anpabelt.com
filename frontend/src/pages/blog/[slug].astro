@@ -33,29 +33,29 @@ const next = idx > 0 ? published[idx - 1] : null;
 >
   <div class="reading-progress" id="reading-progress"></div>
 
-  <article class="max-w-2xl mx-auto px-4 sm:px-6">
-    <a href="/blog" data-testid="article-back-link" class="inline-flex items-center gap-2 text-sm text-retro-50/70 hover:text-mint transition-colors">
-      ← Back to blog
+  <article class="max-w-[820px] mx-auto px-6 sm:px-10 pt-28 sm:pt-32">
+    <a href="/blog" data-testid="article-back-link" class="inline-flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.16em] text-white/50 hover:text-white transition-colors">
+      ← Back to journal
     </a>
 
-    <header class="mt-8">
-      <div class="flex flex-wrap items-center gap-3 text-xs font-mono text-mint/80">
+    <header class="mt-10 pb-6 border-b border-white/10">
+      <div class="flex flex-wrap items-center gap-3 italic text-xs tracking-[0.2em] text-white/40 font-light font-serif">
         <time datetime={post.publishedAt ?? post.createdAt}>{formatDate(post.publishedAt ?? post.createdAt)}</time>
-        <span class="text-retro-400">•</span>
-        {isGallery ? <span>{post.images.length} photos</span> : <span>{minutes} min read</span>}
+        <span class="text-white/20 not-italic">/</span>
+        {isGallery ? <span class="not-italic font-sans text-[8.5px] uppercase tracking-[0.16em]">{post.images.length} photos</span> : <span class="not-italic font-sans text-[8.5px] uppercase tracking-[0.16em]">{minutes} min read</span>}
       </div>
-      <h1 class="mt-4 font-display text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.1]">{post.title}</h1>
+      <h1 class="mt-5 font-display text-3xl sm:text-4xl text-white/95 leading-[1.15] tracking-[0.02em] font-normal">{post.title}</h1>
       {post.tags.length > 0 && (
-        <ul class="mt-5 flex flex-wrap gap-2">
+        <ul class="mt-5 flex flex-wrap gap-x-4 gap-y-1.5">
           {post.tags.map((t) => (
-            <li><a href={`/blog?tag=${encodeURIComponent(t)}`} class="rounded-full border border-white/10 bg-elevated px-2.5 py-0.5 text-xs font-mono text-retro-50/70 hover:text-mint transition-colors">#{t}</a></li>
+            <li><a href={`/blog?tag=${encodeURIComponent(t)}`} class="font-mono text-[8.5px] uppercase tracking-[0.16em] text-white/40 hover:text-white transition-colors">#{t}</a></li>
           ))}
         </ul>
       )}
     </header>
 
     {post.coverImage && (
-      <img src={post.coverImage} alt={post.title} data-zoomable="true" data-gallery="article" data-caption={post.title} class="mt-8 w-full rounded-2xl border border-white/10 aspect-[16/9] object-cover cursor-zoom-in" />
+      <img src={post.coverImage} alt={post.title} data-zoomable="true" data-gallery="article" data-caption={post.title} class="mt-8 w-full border border-white/10 aspect-[16/9] object-cover cursor-zoom-in" />
     )}
 
     {isGallery ? (
@@ -67,17 +67,17 @@ const next = idx > 0 ? published[idx - 1] : null;
       <div class="article-content mt-10" data-testid="article-content" set:html={html}></div>
     )}
 
-    <nav class="mt-16 grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-white/10 pt-8">
-      {prev ? (
-        <a href={`/blog/${prev.slug}`} class="group rounded-xl border border-white/5 bg-card p-4 hover:border-mint/30 transition-colors" data-testid="article-prev-link">
-          <span class="text-xs font-mono text-retro-400">← Previous</span>
-          <p class="mt-1 font-display text-white group-hover:text-mint transition-colors">{prev.title}</p>
+    <nav class="mt-16 grid grid-cols-1 sm:grid-cols-2 gap-px bg-white/10 border border-white/10">
+      {prev && (
+        <a href={`/blog/${prev.slug}`} class={`group bg-black p-5 hover:bg-white/[0.03] transition-colors ${next ? "" : "sm:col-span-2"}`} data-testid="article-prev-link">
+          <span class="font-mono text-[8.5px] uppercase tracking-[0.16em] italic font-serif normal-case">← Previous</span>
+          <p class="mt-2 font-display text-base text-white/90 group-hover:text-white transition-colors leading-snug">{prev.title}</p>
         </a>
-      ) : <div></div>}
+      )}
       {next && (
-        <a href={`/blog/${next.slug}`} class="group rounded-xl border border-white/5 bg-card p-4 hover:border-mint/30 transition-colors sm:text-right" data-testid="article-next-link">
-          <span class="text-xs font-mono text-retro-400">Next →</span>
-          <p class="mt-1 font-display text-white group-hover:text-mint transition-colors">{next.title}</p>
+        <a href={`/blog/${next.slug}`} class="group bg-black p-5 hover:bg-white/[0.03] transition-colors sm:text-right" data-testid="article-next-link">
+          <span class="font-mono text-[8.5px] uppercase tracking-[0.16em] italic font-serif normal-case">Next →</span>
+          <p class="mt-2 font-display text-base text-white/90 group-hover:text-white transition-colors leading-snug">{next.title}</p>
         </a>
       )}
     </nav>

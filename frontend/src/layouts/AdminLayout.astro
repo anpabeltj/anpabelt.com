@@ -9,7 +9,7 @@ export interface Props {
 const { title = "Dashboard", active } = Astro.props;
 const user = Astro.locals.user;
 const linkCls = (key: string) =>
-  `px-3 py-1.5 rounded-lg text-sm transition-colors ${active === key ? "bg-teal-500/15 text-teal-300" : "text-retro-50/70 hover:text-white hover:bg-white/5"}`;
+  `px-3 py-1.5 rounded-none text-sm transition-colors border-b-2 ${active === key ? "border-white text-white" : "border-transparent text-retro-50/60 hover:text-white"}`;
 ---
 
 <!doctype html>
@@ -25,29 +25,29 @@ const linkCls = (key: string) =>
     <title>{title} — Admin · {site.shortName}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Lexend+Giga:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Space+Grotesk:wght@300;400;500&family=JetBrains+Mono:wght@200;300;400&display=swap" rel="stylesheet" />
   </head>
   <body class="min-h-screen bg-canvas text-retro-50">
     {user && (
       <header class="sticky top-0 z-40 border-b border-white/10 bg-canvas/90 backdrop-blur-xl">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-4">
-          <div class="flex items-center gap-1 sm:gap-3">
-            <a href="/admin" class="font-display font-bold text-sm mr-2">ann<span class="text-teal-400">.admin</span></a>
-            <nav class="flex items-center gap-1">
+        <div class="max-w-7xl mx-auto px-5 sm:px-8 h-14 flex items-center justify-between gap-4">
+          <div class="flex items-center gap-1 sm:gap-4">
+            <a href="/admin" class="font-display font-normal lowercase text-lg tracking-[0.18em] mr-2">ann<span class="text-mono-400">.admin</span></a>
+            <nav class="flex items-center gap-6 h-14">
               <a href="/admin" class={linkCls("posts")} data-testid="admin-nav-posts">Posts</a>
               <a href="/admin/projects" class={linkCls("projects")} data-testid="admin-nav-projects">Projects</a>
               <a href="/admin/media" class={linkCls("media")} data-testid="admin-nav-media">Media</a>
             </nav>
           </div>
           <div class="flex items-center gap-3">
-            <a href="/" target="_blank" class="text-sm text-retro-50/70 hover:text-white hidden sm:inline">View site ↗</a>
-            <button id="admin-logout" data-testid="admin-logout-button" class="text-sm rounded-lg border border-white/10 px-3 py-1.5 hover:border-red-500/40 hover:text-red-300 transition-colors">Log out</button>
+            <a href="/" target="_blank" class="text-xs font-mono uppercase tracking-[0.14em] text-retro-50/60 hover:text-white hidden sm:inline">View site ↗</a>
+            <button id="admin-logout" data-testid="admin-logout-button" class="text-xs font-mono uppercase tracking-[0.14em] rounded-none border border-white/20 px-3 py-1.5 hover:border-red-400/50 hover:text-red-300 transition-colors">Log out</button>
           </div>
         </div>
       </header>
     )}
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-7xl mx-auto px-5 sm:px-8 py-10">
       <slot />
     </main>
 

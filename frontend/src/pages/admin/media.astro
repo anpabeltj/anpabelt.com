@@ -25,7 +25,7 @@ const items = media.map((m) => ({ m, usage: usageFor(m.url) }));
 <AdminLayout title="Media" active="media">
   <div class="flex items-center justify-between gap-4 mb-6">
     <h1 class="font-display text-2xl font-bold">Media Library</h1>
-    <label class="cursor-pointer rounded-lg bg-teal-500 hover:bg-teal-400 text-canvas font-semibold px-4 py-2 text-sm transition-colors">
+    <label class="cursor-pointer rounded-lg bg-white hover:bg-retro-100 text-black font-semibold px-4 py-2 text-sm transition-colors">
       <span id="upload-label">+ Upload</span>
       <input id="media-upload" type="file" accept="image/*" class="hidden" data-testid="media-upload-input" />
     </label>
@@ -41,15 +41,15 @@ const items = media.map((m) => ({ m, usage: usageFor(m.url) }));
     <>
       <div class="flex flex-wrap items-center gap-3 mb-4">
         <input id="media-search" type="search" placeholder="Search images…" data-testid="media-search"
-          class="flex-1 min-w-[200px] bg-elevated border border-white/10 rounded-lg px-3 py-2 text-sm text-retro-50 focus:outline-none focus:ring-2 focus:ring-teal-400/60 transition" />
+          class="flex-1 min-w-[200px] bg-elevated border border-white/10 rounded-lg px-3 py-2 text-sm text-retro-50 focus:outline-none focus:ring-2 focus:ring-white/60 transition" />
         <select id="media-filter" data-testid="media-filter"
-          class="bg-elevated border border-white/10 rounded-lg px-3 py-2 text-sm text-retro-50 focus:outline-none focus:ring-2 focus:ring-teal-400/60 transition">
+          class="bg-elevated border border-white/10 rounded-lg px-3 py-2 text-sm text-retro-50 focus:outline-none focus:ring-2 focus:ring-white/60 transition">
           <option value="all">All images</option>
           <option value="used">Used</option>
           <option value="unused">Unused</option>
         </select>
         <select id="media-sort" data-testid="media-sort"
-          class="bg-elevated border border-white/10 rounded-lg px-3 py-2 text-sm text-retro-50 focus:outline-none focus:ring-2 focus:ring-teal-400/60 transition">
+          class="bg-elevated border border-white/10 rounded-lg px-3 py-2 text-sm text-retro-50 focus:outline-none focus:ring-2 focus:ring-white/60 transition">
           <option value="newest">Newest</option>
           <option value="name">Name (A–Z)</option>
           <option value="size">Size (largest)</option>
@@ -89,8 +89,8 @@ const items = media.map((m) => ({ m, usage: usageFor(m.url) }));
                 <p class="text-[10px] text-retro-400/60" data-testid="media-usage">Not used</p>
               )}
               <div class="flex gap-2">
-                <button data-url={m.url} class="copy-url-btn flex-1 text-xs rounded-md border border-white/10 py-1.5 hover:border-teal-500/40 hover:text-teal-300 transition-colors" data-testid="media-copy-button">Copy URL</button>
-                <label class="replace-btn cursor-pointer text-xs rounded-md border border-white/15 px-2.5 py-1.5 hover:border-teal-500/40 hover:text-teal-300 transition-colors" title="Replace file (keeps the same link)">
+                <button data-url={m.url} class="copy-url-btn flex-1 text-xs rounded-md border border-white/10 py-1.5 hover:border-white/40 hover:text-white transition-colors" data-testid="media-copy-button">Copy URL</button>
+                <label class="replace-btn cursor-pointer text-xs rounded-md border border-white/15 px-2.5 py-1.5 hover:border-white/40 hover:text-white transition-colors" title="Replace file (keeps the same link)">
                   Replace
                   <input type="file" accept="image/*" class="replace-input hidden" data-id={m.id} data-testid="media-replace-input" />
                 </label>
@@ -108,7 +108,7 @@ const items = media.map((m) => ({ m, usage: usageFor(m.url) }));
   const msg = document.getElementById("media-msg") as HTMLElement;
   function show(text: string, ok = true) {
     msg.textContent = text;
-    msg.className = `text-sm mb-4 ${ok ? "text-teal-300" : "text-red-400"}`;
+    msg.className = `text-sm mb-4 ${ok ? "text-white" : "text-red-400"}`;
   }
 
   document.getElementById("media-upload")?.addEventListener("change", async (e) => {

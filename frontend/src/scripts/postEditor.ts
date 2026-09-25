@@ -130,7 +130,7 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
 
   function showMsg(text, ok = true) {
     msg.textContent = text;
-    msg.className = `text-xs text-center ${ok ? "text-teal-300" : "text-red-400"}`;
+    msg.className = `text-xs text-center ${ok ? "text-white" : "text-red-400"}`;
   }
 
   let currentType = initial.type === "gallery" || initial.type === "photo" ? "gallery" : "article";
@@ -187,8 +187,8 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
     editor.classList.toggle("min-h-[420px]", !gallery);
     document.querySelectorAll(".type-btn").forEach((b) => {
       const active = b.dataset.type === currentType;
-      b.classList.toggle("bg-teal-500/20", active);
-      b.classList.toggle("text-teal-200", active);
+      b.classList.toggle("bg-white/20", active);
+      b.classList.toggle("text-white", active);
       b.classList.toggle("text-retro-50/70", !active);
     });
   }
@@ -1045,7 +1045,7 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
         $("btn-delete")?.classList.remove("hidden");
       }
       badge.textContent = post.status;
-      badge.className = `text-xs font-mono px-2 py-1 rounded-full ${post.status === "published" ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/15 text-amber-300"}`;
+      badge.className = `text-xs font-mono px-2 py-1 rounded-full ${post.status === "published" ? "bg-white/10 text-white" : "bg-amber-500/15 text-amber-300"}`;
       $("btn-unpublish").classList.toggle("hidden", post.status !== "published");
       $("f-slug").value = post.slug;
       showMsg(quiet ? "Autosaved \u2713" : (status === "published" ? "Published \u2713" : "Saved \u2713"));
@@ -1344,10 +1344,10 @@ const initial: any = dataEl && dataEl.textContent ? JSON.parse(dataEl.textConten
   }
 
   ["dragenter", "dragover"].forEach((ev) =>
-    editor.addEventListener(ev, (e) => { e.preventDefault(); editor.classList.add("ring-2", "ring-teal-400/60"); })
+    editor.addEventListener(ev, (e) => { e.preventDefault(); editor.classList.add("ring-2", "ring-white/60"); })
   );
   ["dragleave", "drop"].forEach((ev) =>
-    editor.addEventListener(ev, () => editor.classList.remove("ring-2", "ring-teal-400/60"))
+    editor.addEventListener(ev, () => editor.classList.remove("ring-2", "ring-white/60"))
   );
   editor.addEventListener("drop", async (e) => {
     const files = Array.from(e.dataTransfer?.files || []).filter((f) => f.type.startsWith("image/"));

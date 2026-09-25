@@ -1,63 +1,68 @@
 ---
 declare const Astro: any;
-import { navLinks } from "../lib/site";
 const { pathname } = Astro.url;
-const isActive = (href: string) =>
-  href === "/" ? pathname === "/" : pathname.startsWith(href);
+const links = [
+  { label: "works", href: "/projects" },
+  { label: "about", href: "/about" },
+  { label: "journal", href: "/blog" },
+  { label: "contact", href: "/contact" },
+];
+const isActive = (href: string) => pathname.startsWith(href);
+const year = new Date().getFullYear();
 ---
 
-<header id="site-header" class="fixed top-0 inset-x-0 z-50 transition-colors duration-300">
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-end gap-4">
+<header id="site-header" class="fixed top-0 inset-x-0 z-50 transition-colors duration-300 border-b border-transparent">
+  <div class="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 h-20 sm:h-24 flex items-center justify-between">
+    <div class="flex items-baseline">
+      <a
+        href="/"
+        class="font-display lowercase text-2xl md:text-3xl tracking-[0.25em] text-white/95 hover:text-white transition-colors leading-none relative"
+        data-text="a n p a b e l t"
+        data-testid="nav-logo"
+      >
+        a&nbsp;n&nbsp;p&nbsp;a&nbsp;b&nbsp;e&nbsp;l&nbsp;t
+        <span class="glitch-lines" aria-hidden="true"><canvas class="glitch-lines-canvas"></canvas></span>
+      </a>
+    </div>
+
     <nav class="hidden md:block" data-testid="main-nav">
-      <ul class="flex items-center gap-8 text-sm">
-        {navLinks.map((link) => (
+      <ul class="flex items-center space-x-7 lg:space-x-10 font-display tracking-[0.2em]">
+        {links.map((link) => (
           <li>
             <a
               href={link.href}
-              data-testid={`nav-${link.label.toLowerCase()}-link`}
-              class={`transition-colors duration-300 ${isActive(link.href) ? "text-mint" : "text-retro-50/70 hover:text-white"}`}
+              data-testid={`nav-${link.label}-link`}
+              data-active={isActive(link.href) ? "true" : "false"}
+              class={`text-xs sm:text-sm lowercase transition-colors duration-200 relative ${
+                isActive(link.href) ? "text-white" : "text-white/70 hover:text-white"
+              }`}
             >
               {link.label}
+              <span class="glitch-lines" aria-hidden="true"><canvas class="glitch-lines-canvas"></canvas></span>
             </a>
           </li>
         ))}
+        <li class="relative inline-flex items-center justify-center ml-2" aria-hidden="true" title="system live">
+          <span class="absolute inline-flex h-2 w-2 rounded-full bg-white/25 animate-ping-slow"></span>
+          <span class="relative inline-block w-1.5 h-1.5 rounded-full bg-white/70"></span>
+        </li>
       </ul>
     </nav>
 
-    <button
-      type="button"
-      data-command-open
-      data-testid="nav-search-button"
-      aria-label="Open quick search"
-      class="hidden md:inline-flex items-center gap-2 rounded-full border border-white/10 bg-card/60 px-3 py-1.5 text-xs text-retro-50/60 hover:text-white hover:border-mint/30 transition-colors"
-    >
-      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
-      Search
-      <kbd class="font-mono border border-white/10 rounded px-1 py-0.5 text-[10px]">⌘K</kbd>
-    </button>
-
-    <button
-      type="button"
-      data-command-open
-      data-testid="nav-search-button-mobile"
-      aria-label="Open quick search"
-      class="md:hidden text-white/80 hover:text-white"
-    >
-      <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
-    </button>
-
-    <button
-      id="nav-toggle"
-      class="ham md:hidden relative w-7 h-7 text-white"
-      aria-label="Toggle menu"
-      aria-expanded="false"
-      aria-controls="nav-mobile-menu"
-      data-testid="nav-mobile-toggle"
-    >
-      <span class="ham-bar ham-top"></span>
-      <span class="ham-bar ham-mid"></span>
-      <span class="ham-bar ham-bot"></span>
-    </button>
+    <div class="flex items-center gap-3">
+      <button
+        id="nav-toggle"
+        class="ham md:hidden relative w-7 h-7 text-white"
+        aria-label="Toggle menu"
+        aria-expanded="false"
+        aria-controls="nav-mobile-menu"
+        data-testid="nav-mobile-toggle"
+      >
+        <span class="ham-bar ham-top"></span>
+        <span class="ham-bar ham-mid"></span>
+        <span class="ham-bar ham-bot"></span>
+      </button>
+    </div>
   </div>
 
   <div
@@ -65,15 +70,19 @@ const isActive = (href: string) =>
     class="mobile-menu md:hidden border-t border-white/10 bg-canvas/95 backdrop-blur-xl"
     data-testid="nav-mobile-menu"
   >
-    <ul class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex flex-col gap-1 text-base">
-      {navLinks.map((link, i) => (
+    <ul class="max-w-[1440px] mx-auto px-6 sm:px-10 py-4 flex flex-col gap-1">
+      {links.map((link, i) => (
         <li class="menu-item" style={`--i:${i}`}>
           <a
             href={link.href}
-            data-testid={`nav-mobile-${link.label.toLowerCase()}-link`}
-            class={`block py-2.5 transition-colors ${isActive(link.href) ? "text-mint" : "text-retro-50/80 hover:text-white"}`}
+            data-testid={`nav-mobile-${link.label}-link`}
+            data-active={isActive(link.href) ? "true" : "false"}
+            class={`block py-2.5 relative font-display lowercase text-lg tracking-[0.2em] transition-colors ${
+              isActive(link.href) ? "text-white" : "text-white/70 hover:text-white"
+            }`}
           >
             {link.label}
+            <span class="glitch-lines" aria-hidden="true"><canvas class="glitch-lines-canvas"></canvas></span>
           </a>
         </li>
       ))}
@@ -82,12 +91,134 @@ const isActive = (href: string) =>
 </header>
 
 <style>
+  /* Line glitch: only on the logo text + the ACTIVE nav link */
+  #site-header { position: relative; }
+
+  /* slow, gentle "system live" pulse for the nav status dot */
+  @keyframes ping-slow {
+    0% { transform: scale(1); opacity: 0.7; }
+    75%, 100% { transform: scale(2.4); opacity: 0; }
+  }
+  .animate-ping-slow {
+    animation: ping-slow 2.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-ping-slow { animation: none; opacity: 0; }
+  }
+
+  .glitch-lines {
+    position: absolute;
+    inset: 0;
+    overflow: visible;
+    pointer-events: none;
+    z-index: 3;
+    background-repeat: no-repeat;
+    opacity: 0;
+  }
+
+  /* Mobile menu links are full-width (display:block) — constrain the glitch
+     layer to the TEXT footprint, not the whole row. JS measures the label
+     text and sets the span's width/height; the canvas inside fills it. */
+  #nav-mobile-menu .glitch-lines {
+    left: 0;
+    right: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    width: auto;
+    height: auto;
+  }
+
+  /* ===== Per-link patterns ===== */
+  /* works: A — short horizontal breaks */
+  a[data-testid="nav-works-link"] .glitch-lines,
+  a[data-testid="nav-mobile-works-link"] .glitch-lines {
+    background-image:
+      linear-gradient(to bottom, transparent 0px, rgba(255,255,255,0.38) 0.7px, transparent 1.4px),
+      linear-gradient(to bottom, transparent 0px, rgba(255,255,255,0.30) 0.7px, transparent 1.4px),
+      linear-gradient(to bottom, transparent 0px, rgba(255,255,255,0.34) 0.7px, transparent 1.4px);
+    background-size: 55% 40%, 40% 55%, 50% 70%;
+    background-position: 6% 30%, 60% 50%, 30% 80%;
+  }
+  /* about: B — diagonal slants (kiri-bawah ke kanan-atas) */
+  a[data-testid="nav-about-link"] .glitch-lines,
+  a[data-testid="nav-mobile-about-link"] .glitch-lines {
+    background-image:
+      linear-gradient(115deg, transparent 0px, rgba(255,255,255,0.40) 1.2px, transparent 3px),
+      linear-gradient(115deg, transparent 0px, rgba(255,255,255,0.28) 1.2px, transparent 3px),
+      linear-gradient(115deg, transparent 0px, rgba(255,255,255,0.34) 1.2px, transparent 3px);
+    background-size: 20% 60%, 14% 45%, 17% 52%;
+    background-position: 8% 25%, 55% 55%, 80% 75%;
+  }
+  /* journal: C — reverse diagonal (kanan-atas ke kiri-bawah) */
+  a[data-testid="nav-journal-link"] .glitch-lines,
+  a[data-testid="nav-mobile-journal-link"] .glitch-lines {
+    background-image:
+      linear-gradient(65deg, transparent 0px, rgba(255,255,255,0.36) 1.2px, transparent 3px),
+      linear-gradient(65deg, transparent 0px, rgba(255,255,255,0.26) 1.2px, transparent 3px),
+      linear-gradient(65deg, transparent 0px, rgba(255,255,255,0.32) 1.2px, transparent 3px);
+    background-size: 22% 55%, 15% 42%, 18% 60%;
+    background-position: 12% 30%, 60% 60%, 75% 20%;
+  }
+  /* contact: D — vertical micro-columns */
+  a[data-testid="nav-contact-link"] .glitch-lines,
+  a[data-testid="nav-mobile-contact-link"] .glitch-lines {
+    background-image:
+      linear-gradient(to right, transparent 0px, rgba(255,255,255,0.32) 0.8px, transparent 2px),
+      linear-gradient(to right, transparent 0px, rgba(255,255,255,0.24) 0.8px, transparent 2px),
+      linear-gradient(to right, transparent 0px, rgba(255,255,255,0.28) 0.8px, transparent 2px);
+    background-size: 6% 55%, 4% 70%, 5% 45%;
+    background-position: 20% 15%, 55% 40%, 85% 60%;
+  }
+  /* Logo: long horizontal streaks */
+  .glitch-lines-logo > .glitch-lines,
+  a[data-testid="nav-logo"] .glitch-lines {
+    background-image:
+      linear-gradient(to bottom, transparent 0px, rgba(255,255,255,0.36) 0.7px, transparent 1.5px),
+      linear-gradient(to bottom, transparent 0px, rgba(255,255,255,0.26) 0.7px, transparent 1.5px),
+      linear-gradient(to bottom, transparent 0px, rgba(255,255,255,0.32) 0.7px, transparent 1.5px),
+      linear-gradient(to bottom, transparent 0px, rgba(255,255,255,0.20) 0.7px, transparent 1.5px),
+      linear-gradient(to bottom, transparent 0px, rgba(255,255,255,0.28) 0.7px, transparent 1.5px);
+    background-size: 72% 55%, 45% 45%, 60% 65%, 35% 50%, 50% 75%;
+    background-position: 5% 20%, 55% 40%, 12% 60%, 65% 70%, 35% 85%;
+  }
+  /* Both: glitch visible per state */
+  .glitch-lines-logo > .glitch-lines,
+  a[data-testid="nav-logo"] .glitch-lines { opacity: 0.75; }
+  a[data-testid^="nav-"][data-active="true"] .glitch-lines,
+  a[data-testid^="nav-mobile-"][data-active="true"] .glitch-lines { opacity: 0.8; }
+  a[data-testid^="nav-"]:hover .glitch-lines { opacity: 0.8; }
+
+  .glitch-lines-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  /* WebGL canvas: alpha composited over the CSS fallback; only visible when it has content */
+  .glitch-lines-logo > .glitch-lines .glitch-lines-canvas,
+  a[data-testid="nav-logo"] .glitch-lines .glitch-lines-canvas { opacity: 0.5; }
+  a[data-testid^="nav-"][data-active="true"] .glitch-lines .glitch-lines-canvas { opacity: 0.6; }
+  a[data-testid^="nav-"]:hover .glitch-lines .glitch-lines-canvas { opacity: 0.6; }
+
+  @keyframes glitch-fallback-x {
+    /* static: no left-right movement — glitch stays put */
+    0%, 100% { transform: translateX(0px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .glitch-lines { animation: none !important; }
+  }
+
   /* Animated hamburger -> X */
   .ham-bar {
     position: absolute;
     left: 3px;
     right: 3px;
-    height: 2px;
+    height: 1.5px;
     border-radius: 2px;
     background: currentColor;
     transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease, top 0.3s ease;
@@ -129,12 +260,267 @@ const isActive = (href: string) =>
 </style>
 
 <script>
+  // ===== VHS line-glitch shader (per-element: logo + active nav link) =====
+  (function () {
+    // Which elements the glitch applies to (static, no intersection observer needed)
+    // On mobile the active link lives in the mobile menu, on desktop in the top nav —
+    // target the VISIBLE one(s). Desktop links are display:none < md, mobile menu is
+    // hidden >= md, so only one set can be visible at a time.
+    const logoLink = document.querySelector("a[data-testid='nav-logo']");
+    const logoCanvas = logoLink?.querySelector(".glitch-lines-canvas");
+    const logoWrap = logoLink?.querySelector(".glitch-lines");
+    logoLink?.classList.add("glitch-lines-logo");
+
+    const visible = (el) => {
+      const r = el.getBoundingClientRect();
+      const cs = getComputedStyle(el);
+      return r.width > 0 && r.height > 0 && cs.display !== "none" && cs.visibility !== "hidden";
+    };
+
+    const allLinks = Array.from(
+      document.querySelectorAll("a[data-testid^='nav-'][data-active='true']")
+    );
+    const activeLink = allLinks.find(visible) || allLinks[0];
+    const activeCanvas = activeLink?.querySelector(".glitch-lines-canvas");
+    const activeWrap = activeLink?.querySelector(".glitch-lines");
+
+    // Mobile menu links are full-width rows — shrink their glitch layer to the
+    // text footprint (measure the raw label text, not the link box).
+    const mobileMenu = document.getElementById("nav-mobile-menu");
+    if (mobileMenu) {
+      const measure = () => {
+        mobileMenu.querySelectorAll("a[data-testid^='nav-mobile-']").forEach((a) => {
+          const text = a.childNodes[0]?.textContent || "";
+          const probe = document.createElement("span");
+          const cs = getComputedStyle(a);
+          probe.style.cssText =
+            "position:absolute;visibility:hidden;left:-9999px;white-space:nowrap;" +
+            "font-family:" + cs.fontFamily + ";font-size:" + cs.fontSize + ";" +
+            "font-weight:" + cs.fontWeight + ";letter-spacing:" + cs.letterSpacing;
+          probe.textContent = text;
+          document.body.appendChild(probe);
+          const tw = probe.getBoundingClientRect().width;
+          const th = probe.getBoundingClientRect().height;
+          probe.remove();
+          if (tw > 0 && th > 0) {
+            const gl = a.querySelector(".glitch-lines");
+            if (gl) {
+              gl.style.width = tw + "px";
+              gl.style.height = th + "px";
+            }
+          }
+        });
+      };
+      measure();
+      window.addEventListener("resize", measure);
+    }
+
+    const canvases = [logoCanvas, activeCanvas].filter(Boolean);
+
+    if (!canvases.length) return;
+
+    const gls = canvases.map((canvas) => {
+      const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+      // style: 0 = logo (horizontal streaks)
+      //        1 = works (horizontal breaks), 2 = about (diag /), 3 = journal (diag \), 4 = contact (vertical)
+      const linkEl = canvas.closest("a[data-testid^='nav-']");
+      let style = 0;
+      if (linkEl) {
+        const tid = linkEl.getAttribute("data-testid") || "";
+        if (tid.includes("works")) style = 1;
+        else if (tid.includes("about")) style = 2;
+        else if (tid.includes("journal")) style = 3;
+        else if (tid.includes("contact")) style = 4;
+      }
+      return gl ? { canvas, gl, style } : null;
+    }).filter(Boolean);
+    if (!gls.length) return;
+
+    function syncSize() {
+      for (const { canvas } of gls) {
+        const r = canvas.getBoundingClientRect();
+        const w = Math.max(1, Math.round(r.width || 0));
+        const h = Math.max(1, Math.round(r.height || 0));
+        if (canvas.width !== w || canvas.height !== h) {
+          canvas.width = w;
+          canvas.height = h;
+        }
+      }
+    }
+    syncSize();
+    window.addEventListener("resize", syncSize);
+
+    const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+
+    const fs = `precision highp float;
+uniform float u_time;
+uniform vec2 u_resolution;
+uniform float u_style; // 0 = logo, 1 = nav link
+
+float hash11(float p) {
+    p = fract(p * 0.1031);
+    p *= p + 33.33;
+    p *= p + p;
+    return fract(p);
+}
+
+float hash21(vec2 p) {
+    vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
+}
+
+void main() {
+    vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+
+    float t = u_time * 8.0;
+    float timeSlot = floor(t);
+    float slotSub = fract(t);
+
+    float burst = step(0.82, hash11(floor(u_time * 4.5)));
+
+    float totalLines = 0.0;
+    vec3 glitchColor = vec3(0.0);
+
+    // Layer 1: Sparse fine hairline streaks (sub-pixel, broken) — thin lines only
+    // Styles: 0 logo=horizontal, 1 works=horizontal-break, 2 about=diag /, 3 journal=diag \, 4 contact=vertical
+    float rows1 = 26.0;
+    float rowId1 = floor(uv.y * rows1);
+    float rowFract1 = fract(uv.y * rows1);
+    float yCoord = uv.y;
+    float xCoord = uv.x;
+    float angle = 0.0;
+    if (u_style > 0.5) {
+        if (u_style < 1.5) {
+            // works: horizontal breaks (same as logo but shorter)
+            angle = 0.0;
+        } else if (u_style < 2.5) {
+            // about: diagonal /
+            angle = 0.7;
+        } else if (u_style < 3.5) {
+            // journal: diagonal \
+            angle = -0.7;
+        } else {
+            // contact: vertical columns
+            angle = 1.57;
+        }
+        float d = uv.x * cos(angle) + uv.y * sin(angle) + (u_style * 3.7);
+        yCoord = fract(d);
+        xCoord = fract(d * 0.6 + 0.3);
+        rowId1 = floor(d * rows1);
+        rowFract1 = fract(d * rows1);
+    }
+    float seed1 = hash21(vec2(rowId1, timeSlot));
+    if (seed1 > 0.92 || (burst > 0.5 && seed1 > 0.82)) {
+        float xStart = hash11(seed1 * 19.3);
+        float xLength = mix(0.2, 0.55, hash11(seed1 * 43.1));
+        if (xCoord >= xStart && xCoord <= xStart + xLength) {
+            float lineMask = smoothstep(0.0, 0.35, rowFract1) * smoothstep(1.0, 0.65, rowFract1);
+            float intensity = mix(0.35, 0.65, hash11(seed1 * 71.7));
+            float hNoise = step(0.28, hash11(floor(xCoord * 60.0) + seed1));
+            lineMask *= hNoise;
+            totalLines += lineMask * intensity;
+            glitchColor += vec3(lineMask * intensity * 0.98, lineMask * intensity * 1.0, lineMask * intensity * 1.05);
+        }
+    }
+
+    // Layer 2: Occasional short segmented bars — very rare, thin
+    float rows2 = 12.0;
+    float rowId2 = floor(uv.y * rows2);
+    float rowFract2 = fract(uv.y * rows2);
+    float seed2 = hash21(vec2(rowId2, floor(u_time * 12.0)));
+    if (seed2 > 0.95 || (burst > 0.5 && seed2 > 0.88)) {
+        float xPos = hash11(seed2 * 27.7);
+        float xSpan = mix(0.1, 0.35, hash11(seed2 * 13.9));
+        if (uv.x >= xPos && uv.x <= xPos + xSpan) {
+            float lineMask2 = smoothstep(0.1, 0.3, rowFract2) * smoothstep(0.9, 0.7, rowFract2);
+            float segmentNoise = step(0.35, hash11(floor(uv.x * 25.0) + seed2 * 100.0));
+            float bright = lineMask2 * segmentNoise;
+            glitchColor.r += bright * 0.9;
+            glitchColor.g += bright * 0.95;
+            glitchColor.b += bright * 1.0;
+            totalLines += bright;
+        }
+    }
+
+    // Composite: only lines, nothing else — no persistent background layer
+    float alpha = clamp(totalLines, 0.0, 0.85);
+    vec3 col = mix(vec3(0.0), vec3(1.0), clamp(glitchColor, 0.0, 1.0));
+    gl_FragColor = vec4(col, alpha);
+}`;
+
+    function cs(gl, type, src) {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      return s;
+    }
+
+    const programs = gls.map(({ gl }) => {
+      const prog = gl.createProgram();
+      gl.attachShader(prog, cs(gl, gl.VERTEX_SHADER, vs));
+      gl.attachShader(prog, cs(gl, gl.FRAGMENT_SHADER, fs));
+      gl.linkProgram(prog);
+      gl.useProgram(prog);
+
+      const buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+      const pos = gl.getAttribLocation(prog, "a_position");
+      gl.enableVertexAttribArray(pos);
+      gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+
+      return {
+        prog,
+        uTime: gl.getUniformLocation(prog, "u_time"),
+        uRes: gl.getUniformLocation(prog, "u_resolution"),
+        uStyle: gl.getUniformLocation(prog, "u_style"),
+      };
+    });
+
+    function render(t) {
+      for (let i = 0; i < gls.length; i++) {
+        const { canvas, gl, style } = gls[i];
+        const p = programs[i];
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        if (p.uTime) gl.uniform1f(p.uTime, t * 0.001);
+        if (p.uRes) gl.uniform2f(p.uRes, canvas.width, canvas.height);
+        if (p.uStyle) gl.uniform1f(p.uStyle, style);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      }
+      requestAnimationFrame(render);
+    }
+    render(0);
+
+    // Safety: keep animating even if rAF is throttled (background tab, some devices)
+    setInterval(() => {
+      const t = performance.now();
+      for (let i = 0; i < gls.length; i++) {
+        const { canvas, gl, style } = gls[i];
+        const p = programs[i];
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        if (p.uTime) gl.uniform1f(p.uTime, t * 0.001);
+        if (p.uRes) gl.uniform2f(p.uRes, canvas.width, canvas.height);
+        if (p.uStyle) gl.uniform1f(p.uStyle, style);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      }
+    }, 250);
+  })();
+
   const toggle = document.getElementById("nav-toggle");
   const menu = document.getElementById("nav-mobile-menu");
 
   const setOpen = (open: boolean) => {
     toggle?.setAttribute("aria-expanded", String(open));
     menu?.classList.toggle("open", open);
+    // Resize glitch canvases after the menu finishes sliding open — canvases are
+    // sized while the menu is collapsed (0-height) so they'd stay 1x1 otherwise.
+    if (open) setTimeout(() => window.dispatchEvent(new Event("resize")), 450);
   };
 
   toggle?.addEventListener("click", () => {
@@ -158,12 +544,8 @@ const isActive = (href: string) =>
     header.classList.toggle("bg-canvas/80", scrolled);
     header.classList.toggle("backdrop-blur-xl", scrolled);
     header.classList.toggle("border-b", scrolled);
-    header.classList.toggle("border-white/5", scrolled);
+    header.classList.toggle("border-white/10", scrolled);
   };
   document.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
-
-  document.querySelectorAll("[data-command-open]").forEach((btn) =>
-    btn.addEventListener("click", () => window.dispatchEvent(new CustomEvent("open-command-palette")))
-  );
 </script>

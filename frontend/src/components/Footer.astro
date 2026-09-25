@@ -1,15 +1,18 @@
 ---
-import { socials, site } from "../lib/site";
+import { socials } from "../lib/site";
 const year = new Date().getFullYear();
 ---
 
-<footer class="relative mt-24 border-t border-white/10">
-  <div class="absolute inset-0 -z-10 bg-gradient-to-t from-retro-550/25 to-transparent"></div>
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col items-center gap-6 text-center">
-    <a href="/" class="font-display font-bold text-lg text-white">
-      anpabelt<span class="text-mint">.com</span>
-    </a>
-    <ul class="flex items-center gap-8" data-testid="footer-socials">
+<footer class="relative mt-16 border-t border-white/10">
+  <div class="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="flex items-center space-x-5 text-xs text-white/60 font-light">
+      <span class="lowercase font-normal tracking-[0.25em] text-white/90 font-display">anpabelt</span>
+      <span class="hidden md:inline text-white/20">·</span>
+      <span class="hidden md:inline text-[9px] font-sans tracking-[0.16em] text-white/40 uppercase">Nurture Editorial Direction</span>
+      <span class="hidden md:inline text-white/20">·</span>
+      <span class="text-[9px] font-sans tracking-[0.16em] text-white/40 uppercase">© {year}</span>
+    </div>
+    <ul class="flex items-center space-x-6 text-xs tracking-[0.2em] lowercase font-light text-white/70 font-display" data-testid="footer-socials">
       {socials.map((s) => (
         <li>
           <a
@@ -18,15 +21,12 @@ const year = new Date().getFullYear();
             rel="noopener noreferrer"
             aria-label={s.label}
             data-testid={`footer-social-${s.label.toLowerCase()}`}
-            class="opacity-70 hover:opacity-100 transition-opacity"
+            class="hover:text-white transition-colors duration-200"
           >
-            <img src={s.icon} alt={s.label} class="w-5 h-5" width="20" height="20" />
+            {s.label}
           </a>
         </li>
       ))}
     </ul>
-    <p class="text-xs font-mono text-retro-400">
-      © {year} {site.shortName}. Built with Astro, TypeScript &amp; a lot of coffee.
-    </p>
   </div>
 </footer>

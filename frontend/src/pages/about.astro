@@ -1,137 +1,213 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { experiences, education, techStack, site } from "../lib/site";
+
+const skills = [
+  {
+    n: "01",
+    title: "Web Development",
+    body: "I build intuitive websites that (mostly) don't break — from portfolios to complex projects.",
+  },
+  {
+    n: "02",
+    title: "Data Science",
+    body: "I dive into datasets with Python, turning raw numbers into stories and visualisations.",
+  },
+  {
+    n: "03",
+    title: "Design",
+    body: "I explore modern aesthetics, balancing function and creativity to craft designs that feel right.",
+  },
+];
 ---
 
 <BaseLayout title="About" description="Anpabelt Trah Javala — developer, data enthusiast and design tinkerer. Experience, education and the tech I love.">
-  <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-    <p class="reveal font-mono text-xs uppercase tracking-widest text-mint/80">About</p>
-    <h1 class="reveal mt-3 font-display text-4xl sm:text-5xl font-bold" style="animation-delay:60ms">
-      About <span class="text-retro-400">Me</span>
-    </h1>
-
-    <div class="reveal mt-12 flex flex-col sm:flex-row items-center sm:items-start gap-8 sm:gap-12" style="animation-delay:100ms">
-      <div class="profile-wrap shrink-0">
-        <img src="/assets/images/profile-image-3.webp" alt="Anpabelt Trah Javala" width="176" height="176" decoding="async" fetchpriority="high" class="profile-img w-32 h-32 sm:w-44 sm:h-44 rounded-full object-cover border border-white/10" />
-      </div>
-      <div class="io-reveal text-center sm:text-left">
-        <h2 class="font-display text-2xl sm:text-3xl font-bold text-white">Anpabelt Trah Javala</h2>
-        <p class="mt-4 text-retro-50/80 leading-relaxed max-w-xl">
-          Hi, I'm Anpabelt — you can call me <span class="name-accent">Ann</span>. I'm a full-time
-          student at Universiti Teknologi Petronas (UTP), Malaysia, with a passion for blending
-          creativity and technology. My journey revolves around web development, data science and design.
-        </p>
-      </div>
+  <!-- Header -->
+  <section class="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 pt-24 sm:pt-28 lg:pt-32 pb-10 z-10">
+    <div class="flex justify-between items-baseline pb-6 border-b border-white/10">
+      <p class="text-xs tracking-[0.2em] text-white/60 uppercase font-light font-display">// About &amp; Disciplines</p>
+      <span class="italic text-xs tracking-[0.2em] text-white/40 font-light font-serif">[ PROFILE ]</span>
     </div>
 
-    <!-- What I do — animated skill cards -->
-    <div class="mt-14 grid grid-cols-1 md:grid-cols-3 gap-5">
-      {[
-        {
-          n: "01",
-          title: "Web Development",
-          body: "I build intuitive websites that (mostly) don't break — from portfolios to complex projects.",
-          icon: `<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>`,
-        },
-        {
-          n: "02",
-          title: "Data Science",
-          body: "I dive into datasets with Python, turning raw numbers into stories and visualisations.",
-          icon: `<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>`,
-        },
-        {
-          n: "03",
-          title: "Design",
-          body: "I explore modern aesthetics, balancing function and creativity to craft designs that feel right.",
-          icon: `<path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/>`,
-        },
-      ].map((s, i) => (
-        <article
-          class="skill-card io-reveal group relative rounded-2xl border border-white/5 bg-card/50 backdrop-blur-sm p-6 transition-all duration-500 hover:-translate-y-1.5 hover:border-mint/40 hover:shadow-[0_28px_55px_-28px_rgba(0,0,0,0.75)]"
-          style={`transition-delay:${i * 110}ms`}
-          data-testid={`skill-card-${i}`}
-        >
-          <div class="flex items-center justify-between">
-            <div class="w-12 h-12 rounded-xl grid place-items-center bg-mint/10 text-mint transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" set:html={s.icon} />
-            </div>
-            <span class="font-mono text-xs text-retro-400 group-hover:text-mint transition-colors">{s.n}</span>
+    <!-- Record sheet: name-led hero (distinct composition from home) -->
+    <div class="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+      <!-- Portrait plate -->
+      <div class="lg:col-span-4" data-purpose="portrait-plate">
+        <div class="relative border border-white/10 bg-black">
+          <span class="absolute -top-px -left-px w-3 h-3 border-t border-l border-white/40 pointer-events-none"></span>
+          <span class="absolute -top-px -right-px w-3 h-3 border-t border-r border-white/40 pointer-events-none"></span>
+          <span class="absolute -bottom-px -left-px w-3 h-3 border-b border-l border-white/40 pointer-events-none"></span>
+          <span class="absolute -bottom-px -right-px w-3 h-3 border-b border-r border-white/40 pointer-events-none"></span>
+          <div class="relative aspect-[3/4] w-full overflow-hidden">
+            <img
+              src="/assets/images/profile-image-3.webp"
+              alt="Anpabelt Trah Javala"
+              width="600"
+              height="800"
+              decoding="async"
+              fetchpriority="high"
+              class="w-full h-full object-cover object-center saturate-105 contrast-105"
+            />
+            <div class="absolute inset-0 pointer-events-none shadow-[inset_0_0_80px_rgba(0,0,0,0.65)]"></div>
           </div>
-          <h3 class="mt-5 font-display text-lg font-semibold text-white">{s.title}</h3>
-          <p class="mt-2 text-sm text-retro-50/70 leading-relaxed">{s.body}</p>
-          <span class="skill-glow" aria-hidden="true"></span>
+        </div>
+        <div class="mt-3 flex items-baseline justify-between font-mono text-[8.5px] uppercase tracking-[0.14em] text-white/45">
+          <span>Fig. 01 — ann, in frame</span>
+          <span class="italic font-serif normal-case tracking-[0.1em] text-white/40">portrait plate</span>
+        </div>
+        <div class="mt-4 grid grid-cols-3 border-t border-l border-white/10 font-mono text-[8.5px] uppercase tracking-[0.14em]">
+          <div class="py-2.5 px-3 border-r border-b border-white/10"><span class="block text-white/35">Lens</span><span class="block mt-1 text-white/75">28.00mm</span></div>
+          <div class="py-2.5 px-3 border-r border-b border-white/10"><span class="block text-white/35">Aperture</span><span class="block mt-1 text-white/75">F/2.0</span></div>
+          <div class="py-2.5 px-3 border-r border-b border-white/10"><span class="block text-white/35">Exposure</span><span class="block mt-1 text-white/75">1/125s</span></div>
+        </div>
+      </div>
+
+      <!-- Bio zone: name-led record sheet -->
+      <div class="lg:col-span-8 relative flex flex-col justify-between h-full min-h-[320px]">
+        <div>
+          <p class="font-mono text-[8.5px] uppercase tracking-[0.18em] text-white/40 mb-5">Profile // Anpabelt Trah Javala — Entry 01</p>
+          <h1 class="font-display font-light text-5xl sm:text-6xl lg:text-7xl tracking-[0.01em] text-white/95 leading-[0.98]">
+            Anpabelt<br />Trah Javala<span class="text-white/35">.</span>
+          </h1>
+          <p class="mt-7 text-sm sm:text-base text-white/70 leading-relaxed max-w-2xl font-sans font-light">
+            Hi, I'm Anpabelt — you can call me <span class="text-white">Ann</span>. I'm a full-time
+            student at Universiti Teknologi Petronas (UTP), Malaysia, with a passion for blending
+            creativity and technology. My journey revolves around web development, data science and design.
+          </p>
+        </div>
+        <div class="mt-10 border-t border-white/10">
+          <dl class="grid grid-cols-2 sm:grid-cols-4 border-l border-white/10">
+            <div class="py-4 px-4 border-r border-b border-white/10">
+              <dt class="font-mono text-[8.5px] uppercase tracking-[0.16em] text-white/35">Status</dt>
+              <dd class="mt-1.5 font-mono text-[9px] uppercase tracking-[0.14em] text-white/80">Fresh grad · open for work</dd>
+            </div>
+            <div class="py-4 px-4 border-r border-b border-white/10">
+              <dt class="font-mono text-[8.5px] uppercase tracking-[0.16em] text-white/35">Base</dt>
+              <dd class="mt-1.5 font-mono text-[9px] uppercase tracking-[0.14em] text-white/80">Malaysia</dd>
+            </div>
+            <div class="py-4 px-4 border-r border-b border-white/10">
+              <dt class="font-mono text-[8.5px] uppercase tracking-[0.16em] text-white/35">Focus</dt>
+              <dd class="mt-1.5 font-mono text-[9px] uppercase tracking-[0.14em] text-white/80">Data engineering</dd>
+            </div>
+            <div class="py-4 px-4 border-r border-b border-white/10">
+              <dt class="font-mono text-[8.5px] uppercase tracking-[0.16em] text-white/35">Edition</dt>
+              <dd class="mt-1.5 font-mono text-[9px] uppercase tracking-[0.14em] text-white/80">01 / 25</dd>
+            </div>
+          </dl>
+          <div class="mt-6 pb-1 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            <p class="font-mono text-[9px] text-white/40 tracking-[0.16em] uppercase">Available on request — full record &amp; references</p>
+            <a href={site.resumeUrl} target="_blank" rel="noopener noreferrer" data-testid="about-resume-link"
+              class="inline-flex items-center gap-3 border border-white/30 hover:bg-white hover:text-black hover:border-white px-6 py-3 text-xs font-mono uppercase tracking-[0.18em] transition-colors shrink-0">
+              See Full Résumé →
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Disciplines (editorial cards like home works) -->
+  <section class="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 pt-8 pb-6 border-t border-white/10 z-20">
+    <div class="flex justify-between items-baseline mb-6 font-mono">
+      <span class="text-xs tracking-[0.2em] text-white/60 uppercase font-light font-display">// Disciplines</span>
+      <span class="italic text-xs tracking-[0.2em] text-white/40 font-light font-serif">[ 01 — 03 ]</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+      {skills.map((s, i) => (
+        <article class="group flex flex-col justify-between py-1 border-l border-white/15 pl-5 hover:border-white transition-all duration-300" data-testid={`skill-card-${i}`}>
+          <div>
+            <div class="flex items-center space-x-2 italic text-xs tracking-[0.2em] text-white/40 mb-2 font-light font-serif">
+              <span>{s.n}</span><span class="text-white/20">/</span>
+              <span class="tracking-[0.16em] uppercase not-italic font-sans text-[8.5px]">PRACTICE</span>
+            </div>
+            <h3 class="text-xl lg:text-2xl text-white/95 group-hover:text-white transition-colors tracking-wide font-normal leading-tight font-display">{s.title}</h3>
+            <p class="font-sans text-xs text-white/55 mt-2.5 font-light leading-relaxed">{s.body}</p>
+          </div>
+          <div class="mt-6 pt-3 border-t border-white/5 flex items-center justify-between font-mono text-[8.5px] tracking-[0.16em] text-white/40 group-hover:text-white/80 transition-colors uppercase">
+            <span>ONGOING</span>
+            <span class="transform group-hover:translate-x-1 transition-transform font-sans text-xs">↗</span>
+          </div>
         </article>
       ))}
     </div>
+  </section>
 
-    <!-- Tech marquee -->
-    <div class="mt-14">
-      <p class="text-center sm:text-left text-retro-50/80">I enjoy diving into these tech stacks ✨</p>
-      <div class="mt-6 w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_80px,black_calc(100%-80px),transparent)]">
-        <ul class="flex items-center gap-10 w-max animate-[marquee_28s_linear_infinite]">
-          {[...techStack, ...techStack].map((icon) => (
-            <li class="shrink-0"><img src={`/assets/icons/${icon}.svg`} alt="" class="w-9 h-9 sm:w-11 sm:h-11 opacity-90" loading="lazy" /></li>
-          ))}
-        </ul>
-      </div>
+  <!-- Tech stack strip -->
+  <section class="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 pt-8 pb-8 border-t border-white/10">
+    <div class="flex justify-between items-baseline mb-6 font-mono">
+      <span class="text-xs tracking-[0.2em] text-white/60 uppercase font-light font-display">// Toolchain</span>
+      <span class="italic text-xs tracking-[0.2em] text-white/40 font-light font-serif">in rotation</span>
     </div>
+    <div class="w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_80px,black_calc(100%-80px),transparent)]">
+      <ul class="flex items-center gap-10 w-max animate-[marquee_28s_linear_infinite]">
+        {[...techStack, ...techStack].map((icon) => (
+          <li class="shrink-0"><img src={`/assets/icons/${icon}.svg`} alt="" class="w-8 h-8 sm:w-10 sm:h-10 opacity-80" loading="lazy" /></li>
+        ))}
+      </ul>
+    </div>
+  </section>
 
-    <!-- Experience -->
-    <h2 class="mt-20 font-display text-2xl sm:text-3xl font-semibold">Work Experience</h2>
-    <div class="mt-8 space-y-6">
-      {experiences.map((exp) => (
-        <article class="reveal rounded-2xl border border-white/5 bg-card p-6 sm:p-7 transition-all duration-300 hover:border-mint/25">
-          <div class="flex items-start gap-4">
-            <img src={exp.logo} alt={exp.org} class="w-12 h-12 rounded-lg object-cover shrink-0" />
-            <div class="flex-1 min-w-0">
-              <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
-                <h3 class="font-display text-lg font-semibold text-white">{exp.role}</h3>
-                <p class="text-xs font-mono text-mint/80 shrink-0">{exp.period}</p>
-              </div>
-              <p class="text-sm text-retro-400">{exp.org}</p>
-              <p class="text-sm text-retro-400">{exp.location}</p>
-              <ul class="mt-4 space-y-2 list-disc pl-5 text-sm text-retro-50/80 leading-relaxed">
-                {exp.bullets.map((b) => <li>{b}</li>)}
-              </ul>
-              {exp.tags && (
-                <ul class="mt-4 flex flex-wrap gap-1.5">
-                  {exp.tags.map((t) => (
-                    <li class="inline-flex items-center gap-1.5 rounded-full bg-elevated border border-white/5 px-2.5 py-1 text-xs font-mono text-retro-50/80">
-                      <img src={`/assets/icons/${t}.svg`} alt="" class="w-3.5 h-3.5" /> {t}
-                    </li>
-                  ))}
+  <!-- Experience -->
+  <section class="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 pt-8 pb-6 border-t border-white/10">
+    <div class="flex justify-between items-baseline mb-6 font-mono">
+      <span class="text-xs tracking-[0.2em] text-white/60 uppercase font-light font-display">// Work Experience</span>
+      <span class="italic text-xs tracking-[0.2em] text-white/40 font-light font-serif">[ {String(experiences.length).padStart(2, "0")} RECORDS ]</span>
+    </div>
+    <div class="grid grid-cols-1 gap-6 lg:gap-8">
+      {experiences.map((exp, i) => (
+        <article class="group flex flex-col justify-between py-4 border-l border-white/15 pl-5 hover:border-white transition-all duration-300">
+          <div>
+            <div class="flex items-center space-x-2 italic text-xs tracking-[0.2em] text-white/40 mb-2 font-light font-serif">
+              <span>{String(i + 1).padStart(2, "0")}</span><span class="text-white/20">/</span>
+              <span class="tracking-[0.16em] uppercase not-italic font-sans text-[8.5px]">{exp.period}</span>
+            </div>
+            <div class="flex items-start gap-4">
+              <img src={exp.logo} alt={exp.org} class="w-10 h-10 rounded-none object-cover shrink-0 border border-white/10" />
+              <div class="flex-1 min-w-0">
+                <h3 class="text-xl lg:text-2xl text-white/95 group-hover:text-white transition-colors tracking-wide font-normal leading-tight font-display">{exp.role}</h3>
+                <p class="font-sans text-xs text-white/55 mt-1.5 font-light">{exp.org} · {exp.location}</p>
+                <ul class="mt-4 space-y-2 text-sm text-white/60 leading-relaxed font-sans font-light list-disc pl-4">
+                  {exp.bullets.map((b) => <li>{b}</li>)}
                 </ul>
-              )}
-            </div>
-          </div>
-        </article>
-      ))}
-    </div>
-
-    <!-- Education -->
-    <h2 class="mt-16 font-display text-2xl sm:text-3xl font-semibold">Education</h2>
-    <div class="mt-8 space-y-6">
-      {education.map((ed) => (
-        <article class="reveal rounded-2xl border border-white/5 bg-card p-6 sm:p-7 transition-all duration-300 hover:border-mint/25">
-          <div class="flex items-start gap-4">
-            <img src={ed.logo} alt={ed.school} class="w-12 h-12 rounded-lg object-cover shrink-0" />
-            <div class="flex-1">
-              <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
-                <h3 class="font-display text-lg font-semibold text-white">{ed.school}</h3>
-                <p class="text-xs font-mono text-mint/80 shrink-0">{ed.period}</p>
+                {exp.tags && (
+                  <ul class="mt-4 flex flex-wrap gap-x-3 gap-y-1">
+                    {exp.tags.map((t) => (
+                      <li class="font-mono text-[8.5px] uppercase tracking-[0.16em] text-white/40">{t}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
-              <p class="text-sm text-retro-400">{ed.degree}</p>
-              <p class="text-sm text-retro-400">{ed.location}</p>
             </div>
           </div>
         </article>
       ))}
     </div>
+  </section>
 
-    <div class="mt-12 flex justify-center">
-      <a href={site.resumeUrl} target="_blank" rel="noopener noreferrer" data-testid="about-resume-link" class="inline-flex items-center gap-3 rounded-full border border-white/15 hover:border-mint/50 hover:text-mint px-6 py-3 transition-colors">
-        See Full Résumé →
-      </a>
+  <!-- Education -->
+  <section class="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 pt-8 pb-6 border-t border-white/10">
+    <div class="flex justify-between items-baseline mb-6 font-mono">
+      <span class="text-xs tracking-[0.2em] text-white/60 uppercase font-light font-display">// Education</span>
+      <span class="italic text-xs tracking-[0.2em] text-white/40 font-light font-serif">[ {String(education.length).padStart(2, "0")} RECORDS ]</span>
+    </div>
+    <div class="grid grid-cols-1 gap-6 lg:gap-8">
+      {education.map((ed, i) => (
+        <article class="group flex flex-col justify-between py-4 border-l border-white/15 pl-5 hover:border-white transition-all duration-300">
+          <div>
+            <div class="flex items-center space-x-2 italic text-xs tracking-[0.2em] text-white/40 mb-2 font-light font-serif">
+              <span>{String(i + 1).padStart(2, "0")}</span><span class="text-white/20">/</span>
+              <span class="tracking-[0.16em] uppercase not-italic font-sans text-[8.5px]">{ed.period}</span>
+            </div>
+            <div class="flex items-start gap-4">
+              <img src={ed.logo} alt={ed.school} class="w-10 h-10 rounded-none object-cover shrink-0 border border-white/10" />
+              <div class="flex-1">
+                <h3 class="text-xl lg:text-2xl text-white/95 group-hover:text-white transition-colors tracking-wide font-normal leading-tight font-display">{ed.school}</h3>
+                <p class="font-sans text-xs text-white/55 mt-1.5 font-light">{ed.degree} · {ed.location}</p>
+              </div>
+            </div>
+          </div>
+        </article>
+      ))}
     </div>
   </section>
 </BaseLayout>

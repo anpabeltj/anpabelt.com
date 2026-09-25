@@ -1,119 +1,148 @@
 ---
 declare const Astro: any;
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { projects, loves } from "../lib/site";
+import { projects } from "../lib/site";
 import { listPosts } from "../lib/posts";
 import { formatDate, readingTime } from "../lib/markdown";
 
-const featured = projects.slice(0, 2);
 const latestPosts = (await listPosts({ status: "published" })).slice(0, 3);
+const works = projects.slice(0, 3);
+const heroImg = "/assets/images/hero-blue-hour.jpg";
+const year = new Date().getFullYear();
 const n2 = (i: number) => String(i + 1).padStart(2, "0");
 ---
 
 <BaseLayout>
-  <!-- Hero -->
-  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-16 pb-16">
-    <p class="reveal font-mono text-xs uppercase tracking-[0.25em] text-retro-400">Personal site · Malaysia</p>
-
-    <h1 class="reveal mt-7 font-display font-semibold text-5xl sm:text-7xl leading-[1.02]" style="animation-delay:80ms">
-      Hi there.<br />
-      I'm <em class="italic text-mint">Anpabelt</em><span class="text-mint">.</span>
-    </h1>
-    <p class="reveal mt-4 font-mono text-sm text-retro-400" style="animation-delay:120ms">
-      (An-Pa-Belt — like a belt, but cooler.)
-    </p>
-
-    <p class="reveal mt-8 max-w-2xl text-lg sm:text-xl text-retro-50/75 leading-relaxed" style="animation-delay:160ms">
-      I'm a student at Universiti Teknologi Petronas, Malaysia, working somewhere between web
-      development, data, and design. This is my corner of the internet — a place for my work,
-      my writing, and the things I'm still figuring out.
-    </p>
-
-    <div class="reveal mt-10 flex flex-wrap items-center gap-6" style="animation-delay:200ms">
-      <a href="/about" data-testid="hero-about" class="rounded-full bg-mint hover:bg-mint-bright text-canvas font-medium px-6 py-3 transition-colors">
-        More about me
-      </a>
-      <a href="/projects" data-testid="hero-work" class="text-retro-50/80 hover:text-mint transition-colors">
-        See my work <span aria-hidden="true">→</span>
-      </a>
-    </div>
-  </section>
-
-  <!-- Three things -->
-  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <div class="rule"></div>
-    <h2 class="mt-12 font-display text-3xl sm:text-4xl font-semibold max-w-md leading-tight">
-      Three things I keep coming back to
-    </h2>
-    <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
-      {loves.map((item, i) => (
-        <div class="reveal" style={`animation-delay:${i * 90}ms`}>
-          <p class="font-mono text-sm text-mint">{n2(i)}</p>
-          <h3 class="mt-3 font-display text-xl font-semibold text-white">{item.title}</h3>
-          <p class="mt-3 text-retro-50/70 leading-relaxed">{item.body}</p>
-        </div>
-      ))}
-    </div>
-  </section>
-
-  <!-- Selected work -->
-  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    <div class="rule"></div>
-    <div class="mt-12 flex items-end justify-between gap-4">
-      <h2 class="font-display text-3xl sm:text-4xl font-semibold">Selected work</h2>
-      <a href="/projects" data-testid="home-all-projects-link" class="text-sm text-retro-50/70 hover:text-mint transition-colors shrink-0">All projects →</a>
-    </div>
-
-    <div class="mt-14 space-y-20">
-      {featured.map((p, i) => (
-        <article class="reveal grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-center" style={`animation-delay:${i * 90}ms`} data-testid="project-card">
-          <div class="md:col-span-6">
-            <p class="font-mono text-sm text-mint">{n2(i)}</p>
-            <h3 class="mt-3 font-display text-2xl font-semibold text-white">{p.title}</h3>
-            <p class="mt-4 text-retro-50/70 leading-relaxed">{p.description}</p>
-            <ul class="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-retro-400">
-              {p.tags.map((tag) => (
-                <li class="inline-flex items-center gap-1.5">
-                  {tag.icon && <img src={tag.icon} alt="" class="w-4 h-4 opacity-80" width="16" height="16" />}
-                  <span>{tag.name}</span>
-                </li>
-              ))}
-            </ul>
-            <div class="mt-6 flex flex-wrap gap-6">
-              {p.links.map((link) => (
-                <a href={link.href} target="_blank" rel="noopener noreferrer" data-testid="project-link"
-                  class="text-sm text-white hover:text-mint transition-colors border-b border-white/20 hover:border-mint pb-0.5">
-                  {link.label} →
-                </a>
-              ))}
+  <!-- Editorial split: artwork frame (left) + scribble & spec (right) -->
+  <section class="relative max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 pt-20 sm:pt-24 lg:pt-28 pb-2 z-10">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+      <!-- Artwork frame -->
+      <div class="lg:col-span-6 relative flex flex-col" data-purpose="artwork-frame">
+        <div class="relative flex items-stretch">
+          <div class="hidden sm:flex flex-col justify-between items-center py-3 pr-4 border-r border-white/10 text-white/50 font-mono text-[8.5px] tracking-[0.12em] uppercase vertical-text-lr select-none">
+            <span class="tracking-widest">φ 03° 31' 2.016" (N)</span>
+            <span class="my-4 text-white/20 tracking-widest">············</span>
+            <span class="tracking-widest">λ 02° 11' 20.20" (W)</span>
+            <span class="my-4 text-white/20 tracking-widest">············</span>
+            <span class="text-white/40 tracking-wider">Colour space: RGB · Display P3 · F/1.8 · ISO 32</span>
+          </div>
+          <div class="relative overflow-hidden bg-black flex-1 max-w-full border border-white/10">
+            <div class="relative aspect-[4/3] w-full overflow-hidden">
+              <img
+                src={heroImg}
+                alt="Atmospheric photographic frame — dusk horizon"
+                data-zoomable="true"
+                data-gallery="hero"
+                class="w-full h-full object-cover object-center saturate-110 contrast-105 hover:scale-[1.02] transition-transform duration-1000 ease-out"
+              />
+              <div class="absolute inset-0 pointer-events-none shadow-[inset_0_0_80px_rgba(0,0,0,0.7)]"></div>
+              <div class="absolute bottom-4 left-5 text-left pointer-events-none z-20">
+                <p class="text-sm sm:text-base text-white/90 tracking-[0.2em] font-light leading-snug font-serif italic">
+                  <span class="typing-caption"></span><span class="typing-cursor" aria-hidden="true"></span>
+                </p>
+                <p class="text-[8.5px] font-mono text-white/60 tracking-widest mt-1 uppercase">anpabelt / digital system release</p>
+              </div>
+              <div class="absolute top-3.5 right-4 text-white/50 text-[9px] font-mono tracking-[0.16em] uppercase pointer-events-none">+35.6762°N, 139.6503°E</div>
+            </div>
+            <div class="w-full py-2.5 px-4 border-t border-white/10 bg-black/50 backdrop-blur-sm flex justify-between items-center text-white/60 font-mono text-[8.5px] uppercase">
+              <span class="tracking-[0.14em]">Focal Length: 28.00mm</span>
+              <span class="hidden sm:inline tracking-[0.14em]">Metering Mode: Spot</span>
+              <span class="tracking-[0.14em]">Exp: 1/80s</span>
+              <span class="tracking-[0.14em]">EV: -0.67</span>
             </div>
           </div>
-          <div class="md:col-span-6">
-            <div class="overflow-hidden rounded-xl border border-white/10 aspect-[16/11] bg-elevated">
-              <img src={p.image} alt={p.title} loading="lazy" class="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.03]" />
+        </div>
+      </div>
+
+      <!-- Scribble & typography zone -->
+      <div class="lg:col-span-6 relative flex flex-col justify-between h-full min-h-[380px] lg:min-h-[440px] lg:pl-4" data-purpose="scribble-and-typography-zone">
+        <div class="relative w-full h-[320px] sm:h-[380px] flex items-center justify-center overflow-hidden" id="doodle-stage">
+          <canvas id="doodle-canvas" class="absolute inset-0 w-full h-full touch-none cursor-crosshair" aria-label="Freehand doodle area — move your cursor to draw"></canvas>
+          <svg class="absolute inset-0 w-full h-full pointer-events-none z-0" fill="none" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+            <g class="nurture-stroke-subtle" opacity="0.18">
+              <circle cx="300" cy="300" r="180" stroke-dasharray="2 4"></circle>
+              <circle cx="300" cy="300" r="260" stroke-dasharray="1 8"></circle>
+              <line stroke-dasharray="4 6" x1="300" x2="300" y1="20" y2="580"></line>
+              <line stroke-dasharray="4 6" x1="40" x2="560" y1="300" y2="300"></line>
+            </g>
+          </svg>
+          <div class="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 z-20 flex items-center space-x-3.5 bg-black/40 backdrop-blur-sm px-3 py-2 border border-white/10" data-purpose="nurture-emblem">
+            <div class="relative w-12 h-12 flex items-center justify-center">
+              <svg class="absolute inset-0 w-full h-full text-white/50" fill="none" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="38" stroke="currentColor" stroke-dasharray="60 10" stroke-width="0.8"></circle>
+                <path d="M 12 50 L 88 50" stroke="currentColor" stroke-width="0.75"></path>
+                <path d="M 50 12 L 50 88" stroke="currentColor" stroke-width="0.75"></path>
+              </svg>
+              <svg class="w-5 h-5 text-white relative z-10" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C9.5 2 7.5 4 7.5 6.5c0 .7.1 1.4.4 2C6.4 9 5 10.6 5 12.5c0 2.2 1.6 4 3.7 4.4L8 21h2v-4h4v4h2l-.7-4.1c2.1-.4 3.7-2.2 3.7-4.4 0-1.9-1.4-3.5-2.9-4 .3-.6.4-1.3.4-2C16.5 4 14.5 2 12 2z"></path>
+              </svg>
             </div>
+            <div class="flex flex-col text-left">
+              <span class="font-display text-[10px] tracking-[0.25em] uppercase text-white/80 font-light">COLOPHON</span>
+              <span class="font-mono text-[8px] text-white/40 tracking-[0.14em] uppercase mt-0.5">PERSONAL SYSTEM · BUILD 4.2.0 / REV 2026</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Editorial bio / status -->
+    <div class="mt-10 pt-6 border-t border-white/10 grid grid-cols-1 md:grid-cols-12 gap-6 items-end" data-purpose="editorial-bio-status">
+      <div class="md:col-span-8 sm:pl-2">
+        <p class="typing-line-bio font-sans font-light text-sm sm:text-base text-white/70 leading-relaxed max-w-xl tracking-normal">
+          <span class="typing-text-bio"></span><span class="typing-cursor" aria-hidden="true"></span>
+        </p>
+      </div>
+      <div class="md:col-span-4 text-left md:text-right font-mono text-[9px] text-white/45 tracking-[0.16em] uppercase space-y-1.5">
+        <p>BUILD_VERSION // 4.2.0</p>
+        <p>STATUS // <span class="typing-line text-white/80" data-words='["READY TO CREATE","OPEN FOR WORK","BUILDING THE WEB","LEARNING EVERY DAY"]'><span class="typing-text"></span><span class="typing-cursor" aria-hidden="true"></span></span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Selected works list (editorial, no cards) -->
+  <section class="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 pt-8 pb-6 border-t border-white/10 z-20" data-purpose="selected-works">
+    <div class="flex justify-between items-baseline mb-6 font-mono">
+      <span class="text-xs tracking-[0.2em] text-white/60 uppercase font-light font-display">// Selected Works &amp; Disciplines</span>
+      <span class="italic text-xs tracking-[0.2em] text-white/40 font-light font-serif">[ 01 — {n2(works.length)} ]</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+      {works.map((p, i) => (
+        <article class="group flex flex-col justify-between py-1 border-l border-white/15 pl-5 hover:border-white transition-all duration-300" data-testid="project-card">
+          <div>
+            <div class="flex items-center space-x-2 italic text-xs tracking-[0.2em] text-white/40 mb-2 font-light font-serif">
+              <span>{n2(i)}</span><span class="text-white/20">/</span>
+              <span class="tracking-[0.16em] uppercase not-italic font-sans text-[8.5px]">{(p.tags[0]?.name ?? "PROJECT").toUpperCase()}</span>
+            </div>
+            <h3 class="text-xl lg:text-2xl text-white/95 group-hover:text-white transition-colors tracking-wide font-normal leading-tight font-display">{p.title}</h3>
+            <p class="font-sans text-xs text-white/55 mt-2.5 font-light leading-relaxed">{p.description}</p>
+          </div>
+          <div class="mt-6 pt-3 border-t border-white/5 flex items-center justify-between font-mono text-[8.5px] tracking-[0.16em] text-white/40 group-hover:text-white/80 transition-colors uppercase">
+            <span>{p.tags.map((t) => t.name.toUpperCase()).join(" · ")}</span>
+            <a href={p.links[0]?.href ?? "/projects"} class="transform group-hover:translate-x-1 transition-transform font-sans text-xs" data-testid="project-link">↗</a>
           </div>
         </article>
       ))}
     </div>
   </section>
 
-  <!-- From the journal -->
+  <!-- From the journal (editorial list) -->
   {latestPosts.length > 0 && (
-    <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div class="rule"></div>
-      <div class="mt-12 flex items-end justify-between gap-4">
-        <h2 class="font-display text-3xl sm:text-4xl font-semibold">From the journal</h2>
-        <a href="/blog" data-testid="home-all-posts-link" class="text-sm text-retro-50/70 hover:text-mint transition-colors shrink-0">All writing →</a>
+    <section class="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 pt-8 pb-6 border-t border-white/10">
+      <div class="flex justify-between items-baseline mb-6 font-mono">
+        <span class="text-xs tracking-[0.2em] text-white/60 uppercase font-light font-display">// Journal &amp; Field Notes</span>
+        <a href="/blog" class="italic text-xs tracking-[0.2em] text-white/40 font-light font-serif hover:text-white transition-colors">all entries →</a>
       </div>
-      <ul class="mt-10 divide-y divide-white/10 border-t border-white/10">
-        {latestPosts.map((post) => (
+      <ul class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+        {latestPosts.map((post, i) => (
           <li>
-            <a href={`/blog/${post.slug}`} data-testid="journal-post-link" class="group flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-6 py-5 hover:pl-2 transition-all duration-300">
-              <span class="font-mono text-xs text-retro-400 shrink-0 sm:w-48">
-                {formatDate(post.publishedAt ?? post.createdAt)} · {readingTime(post.content)} min
-              </span>
-              <span class="font-display text-lg text-white group-hover:text-mint transition-colors">{post.title}</span>
+            <a href={`/blog/${post.slug}`} class="group flex flex-col justify-between py-1 border-l border-white/15 pl-5 hover:border-white transition-all duration-300 h-full" data-testid="journal-post-link">
+              <div>
+                <p class="font-mono text-[8.5px] tracking-[0.16em] text-white/40 uppercase">{formatDate(post.publishedAt ?? post.createdAt)} · {readingTime(post.content)} MIN</p>
+                <h3 class="mt-3 text-xl lg:text-2xl text-white/95 group-hover:text-white transition-colors tracking-wide font-normal leading-tight font-display">{post.title}</h3>
+                <p class="font-sans text-xs text-white/55 mt-2.5 font-light leading-relaxed line-clamp-2">{post.excerpt}</p>
+              </div>
+              <span class="mt-6 pt-3 border-t border-white/5 font-sans text-xs text-white/40 group-hover:text-white/80 font-mono uppercase tracking-[0.16em]">Read →</span>
             </a>
           </li>
         ))}
@@ -121,3 +150,263 @@ const n2 = (i: number) => String(i + 1).padStart(2, "0");
     </section>
   )}
 </BaseLayout>
+
+<style>
+  .vertical-text-lr {
+    writing-mode: vertical-lr;
+    transform: rotate(180deg);
+  }
+
+  /* Typing line */
+  .typing-cursor {
+    display: inline-block;
+    width: 0.55em;
+    height: 1em;
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    background: currentColor;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .typing-cursor { animation: none; }
+  }
+  .nurture-stroke {
+    stroke: rgba(255, 255, 255, 0.88);
+    stroke-width: 1.15;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.35));
+  }
+  .nurture-stroke-subtle {
+    stroke: rgba(255, 255, 255, 0.45);
+    stroke-width: 0.85;
+    fill: none;
+  }
+  .interactive-line {
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), stroke-dashoffset 0.8s ease;
+  }
+</style>
+
+<script>
+  // ----- Typing caption (hero photo, always in viewport) -----
+  (() => {
+    const el = document.querySelector(".typing-caption");
+    if (!el) return;
+    const words: string[] = [
+      "look at the sky",
+      "the horizon knows",
+      "blue hour, every time",
+      "still, then moving",
+    ];
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) {
+      el.textContent = words[0];
+      return;
+    }
+    let wi = 0;
+    let ci = 0;
+    let deleting = false;
+    const TYPE_MS = 65;
+    const DELETE_MS = 30;
+    const HOLD_MS = 2200;
+    const tick = () => {
+      const word = words[wi];
+      if (!deleting) {
+        ci++;
+        el.textContent = word.slice(0, ci);
+        if (ci === word.length) {
+          deleting = true;
+          setTimeout(tick, HOLD_MS);
+          return;
+        }
+        setTimeout(tick, TYPE_MS);
+      } else {
+        ci--;
+        el.textContent = word.slice(0, ci);
+        if (ci === 0) {
+          deleting = false;
+          wi = (wi + 1) % words.length;
+          setTimeout(tick, 350);
+          return;
+        }
+        setTimeout(tick, DELETE_MS);
+      }
+    };
+    setTimeout(tick, 600);
+  })();
+
+  // ----- Typing line (bio, prominent): cycles through taglines -----
+  (() => {
+    const el = document.querySelector(".typing-line-bio");
+    if (!el) return;
+    const words: string[] = [
+      "Computer Science student exploring web development, data engineering, AI, and digital systems.",
+      "Building calm, editorial digital spaces — one detail at a time.",
+      "Currently: data pipelines, clean type, and late-night commits.",
+    ];
+    const textEl = el.querySelector(".typing-text-bio") as HTMLElement | null;
+    if (!textEl) return;
+
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) {
+      textEl.textContent = words[0];
+      return;
+    }
+
+    let wi = 0;
+    let ci = 0;
+    let deleting = false;
+    const TYPE_MS = 34;
+    const DELETE_MS = 16;
+    const HOLD_MS = 2600;
+
+    const tick = () => {
+      const word = words[wi];
+      if (!deleting) {
+        ci++;
+        textEl.textContent = word.slice(0, ci);
+        if (ci === word.length) {
+          deleting = true;
+          setTimeout(tick, HOLD_MS);
+          return;
+        }
+        setTimeout(tick, TYPE_MS);
+      } else {
+        ci--;
+        textEl.textContent = word.slice(0, ci);
+        if (ci === 0) {
+          deleting = false;
+          wi = (wi + 1) % words.length;
+          setTimeout(tick, 300);
+          return;
+        }
+        setTimeout(tick, DELETE_MS);
+      }
+    };
+    setTimeout(tick, 400);
+  })();
+
+  // ----- Typing line (status, small): cycles through status phrases -----
+  (() => {
+    const el = document.querySelector(".typing-line");
+    if (!el) return;
+    const words: string[] = JSON.parse(el.getAttribute("data-words") || "[]");
+    const textEl = el.querySelector(".typing-text") as HTMLElement | null;
+    if (!textEl || words.length === 0) return;
+
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) {
+      textEl.textContent = words[0];
+      return;
+    }
+
+    let wi = 0;
+    let ci = 0;
+    let deleting = false;
+    const TYPE_MS = 55;
+    const DELETE_MS = 28;
+    const HOLD_MS = 1800;
+
+    const tick = () => {
+      const word = words[wi];
+      if (!deleting) {
+        ci++;
+        textEl.textContent = word.slice(0, ci);
+        if (ci === word.length) {
+          deleting = true;
+          setTimeout(tick, HOLD_MS);
+          return;
+        }
+        setTimeout(tick, TYPE_MS);
+      } else {
+        ci--;
+        textEl.textContent = word.slice(0, ci);
+        if (ci === 0) {
+          deleting = false;
+          wi = (wi + 1) % words.length;
+          setTimeout(tick, 400);
+          return;
+        }
+        setTimeout(tick, DELETE_MS);
+      }
+    };
+    setTimeout(tick, 1200);
+  })();
+
+  // ----- Doodle canvas: draw with cursor movement (no click needed) -----
+  (() => {
+    const canvas = document.getElementById("doodle-canvas") as HTMLCanvasElement | null;
+    const stage = document.getElementById("doodle-stage");
+    if (!canvas || !stage) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let lastX = 0;
+    let lastY = 0;
+    let hasLast = false;
+    let dpr = 1;
+
+    const resize = () => {
+      const rect = stage.getBoundingClientRect();
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      // preserve existing drawing
+      const prev = document.createElement("canvas");
+      prev.width = canvas.width;
+      prev.height = canvas.height;
+      if (canvas.width && canvas.height) prev.getContext("2d")?.drawImage(canvas, 0, 0);
+      canvas.width = Math.max(1, Math.round(rect.width * dpr));
+      canvas.height = Math.max(1, Math.round(rect.height * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      if (prev.width && prev.height) ctx.drawImage(prev, 0, 0, prev.width / dpr, prev.height / dpr);
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    const fadeAll = () => {
+      // slow fade so the doodle area stays alive but never gets cluttered
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.fillStyle = "rgba(0, 0, 0, 0.012)";
+      ctx.fillRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+      ctx.globalCompositeOperation = "source-over";
+    };
+    setInterval(fadeAll, 60);
+
+    const draw = (x: number, y: number) => {
+      if (!hasLast) {
+        lastX = x;
+        lastY = y;
+        hasLast = true;
+        return;
+      }
+      // thin white stroke, subtle glow like the reference linework
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
+      ctx.lineWidth = 1.15;
+      ctx.shadowColor = "rgba(255, 255, 255, 0.35)";
+      ctx.shadowBlur = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      lastX = x;
+      lastY = y;
+    };
+
+    stage.addEventListener("pointermove", (e: PointerEvent) => {
+      const rect = stage.getBoundingClientRect();
+      draw(e.clientX - rect.left, e.clientY - rect.top);
+    });
+
+    stage.addEventListener("pointerleave", () => {
+      hasLast = false; // lift the pen when leaving the area
+    });
+
+    // click = clear the doodle (nice touch, optional)
+    stage.addEventListener("dblclick", () => ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr));
+  })();
+</script>

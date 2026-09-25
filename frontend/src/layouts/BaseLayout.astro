@@ -3,7 +3,6 @@ declare const Astro: any;
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import StormBackground from "../components/StormBackground.astro";
-import CommandPalette from "../components/react/CommandPalette.tsx";
 import Lightbox from "../components/react/Lightbox.tsx";
 import AIAssistant from "../components/react/AIAssistant.tsx";
 import { site, socials, navLinks } from "../lib/site";
@@ -55,10 +54,6 @@ const websiteLd = {
 };
 
 const publishedPosts = await listPosts({ status: "published" });
-const commandItems = [
-  ...navLinks.map((l) => ({ label: l.label, href: l.href, group: "Pages", hint: "Page" })),
-  ...publishedPosts.map((p) => ({ label: p.title, href: `/blog/${p.slug}`, group: "Writing", hint: "Post" })),
-];
 ---
 
 <!doctype html>
@@ -73,7 +68,7 @@ const commandItems = [
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <meta name="author" content={site.name} />
-    <meta name="theme-color" content="#05140f" />
+    <meta name="theme-color" content="#0a0a0a" />
     <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow"} />
     <link rel="canonical" href={canonical} />
 
@@ -102,14 +97,14 @@ const commandItems = [
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Space+Grotesk:wght@300;400;500&family=JetBrains+Mono:wght@200;300;400&display=swap"
       rel="stylesheet"
     />
   </head>
   <body class="min-h-screen flex flex-col">
     <StormBackground />
     <Nav />
-    <main class="flex-1 pt-24 sm:pt-28">
+    <main class="flex-1 pt-20 sm:pt-24">
       <slot />
     </main>
     <Footer />
@@ -127,7 +122,6 @@ const commandItems = [
       );
       document.querySelectorAll(".io-reveal").forEach((el) => io.observe(el));
     </script>
-    <CommandPalette client:idle items={commandItems} />
     <Lightbox client:idle />
     <AIAssistant client:idle />
   </body>

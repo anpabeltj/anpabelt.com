@@ -14,16 +14,13 @@ const projects = records.map((p) => ({
 }));
 ---
 
-<BaseLayout title="Projects" description="A curated selection of things Anpabelt has designed, built and analysed — web, data and everything between.">
-  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-    <p class="reveal font-mono text-xs uppercase tracking-widest text-mint/80">Work</p>
-    <h1 class="reveal mt-3 font-display text-4xl sm:text-5xl font-bold" style="animation-delay:60ms">
-      Curated <span class="text-retro-400">Projects</span>
-    </h1>
-    <p class="reveal mt-5 max-w-2xl text-retro-50/80 leading-relaxed" style="animation-delay:100ms">
-      A mix of web builds, data analyses and experiments. Each one taught me something —
-      usually the hard way.
-    </p>
+<BaseLayout title="Works" description="Selected works & disciplines — web, data and everything between.">
+  <section class="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 pt-28 sm:pt-32 pb-6">
+    <!-- Header -->
+    <div class="flex justify-between items-baseline pb-6 border-b border-white/10">
+      <p class="text-xs tracking-[0.2em] text-white/60 uppercase font-light font-display">// Selected Works &amp; Disciplines</p>
+      <span class="italic text-xs tracking-[0.2em] text-white/40 font-light font-serif">[ 01 — {String(projects.length).padStart(2, "0")} ]</span>
+    </div>
 
     <ProjectsExplorer client:load projects={projects} />
   </section>
