@@ -12,7 +12,7 @@ const allTags = [...new Set(posts.flatMap((p) => p.tags))].sort();
 ---
 
 <BaseLayout title="Journal" description="Personal writing by Anpabelt — notes on building for the web, working with data, student life and whatever else is on my mind." type="website">
-  <section class="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 pt-28 sm:pt-32 pb-6">
+  <section class="relative max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 pt-28 sm:pt-32 pb-6 z-10">
     <!-- Header -->
     <div class="flex justify-between items-baseline pb-6 border-b border-white/10">
       <p class="text-xs tracking-[0.2em] text-white/60 uppercase font-light font-display">// Journal &amp; Field Notes</p>
@@ -33,7 +33,7 @@ const allTags = [...new Set(posts.flatMap((p) => p.tags))].sort();
       </div>
     )}
 
-    <div class="mt-6 space-y-0" data-testid="blog-post-list">
+    <div class="relative mt-6 space-y-0 z-10" data-testid="blog-post-list">
       {filtered.length === 0 ? (
         <p class="text-white/40 py-20 text-center font-mono text-sm">No entries yet. Come back soon.</p>
       ) : (

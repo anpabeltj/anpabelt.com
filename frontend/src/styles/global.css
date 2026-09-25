@@ -46,6 +46,12 @@ body {
   overflow-x: hidden;
 }
 
+/* Ensure content sections stack above decorative background */
+main, section, article {
+  position: relative;
+  z-index: 1;
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
   letter-spacing: 0.02em;
