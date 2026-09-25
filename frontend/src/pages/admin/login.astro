@@ -33,3 +33,41 @@ if (Astro.locals.user) return Astro.redirect("/admin");
     </div>
   </div>
 </AdminLayout>
+
+<script>
+  const form = document.getElementById('login-form') as HTMLFormElement;
+  const errorEl = document.getElementById('login-error') as HTMLElement;
+  const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorEl.classList.add('hidden');
+    submitBtn.disabled = true;
+
+    const formData = new FormData(form);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    try {
+      const res = await fetch('/actions/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.user) {
+        window.location.href = '/admin';
+      } else {
+        errorEl.textContent = data.error || 'Login failed.';
+        errorEl.classList.remove('hidden');
+        submitBtn.disabled = false;
+      }
+    } catch (err) {
+      errorEl.textContent = 'Network error. Please try again.';
+      errorEl.classList.remove('hidden');
+      submitBtn.disabled = false;
+    }
+  });
+</script>
