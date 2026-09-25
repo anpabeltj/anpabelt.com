@@ -78,7 +78,7 @@ export default function AIAssistant() {
         onClick={() => setOpen(true)}
         data-testid="ai-assistant-launcher"
         aria-label="Ask my AI assistant"
-        className="group fixed bottom-6 left-6 z-[70] inline-flex items-center gap-2.5 rounded-none border border-white/30 bg-canvas/80 backdrop-blur-md px-4 py-2.5 font-mono text-xs uppercase tracking-[0.16em] text-white shadow-2xl hover:bg-white hover:text-black hover:border-white transition-all"
+        className="group fixed bottom-6 left-6 z-[70] inline-flex items-center gap-2.5 rounded-none border border-white/30 bg-canvas/80 backdrop-blur-md px-4 py-3.5 sm:py-2.5 font-mono text-xs uppercase tracking-[0.16em] text-white shadow-2xl hover:bg-white hover:text-black hover:border-white transition-all min-h-[48px]"
       >
         <span className="relative flex h-5 w-5 items-center justify-center">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/40" />
