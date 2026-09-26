@@ -84,7 +84,7 @@ const pageRef = pageRefs[pathname] ?? "REF.--";
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     // ---- scroll-linked opacity: visible at the top, barely visible scrolled ----
-    const TOP_O = 1;    // full ARCHIVE_2025 stage at scrollY = 0
+    const TOP_O = window.innerWidth < 1024 ? 0.3 : 1;    // mobile dimmer, desktop full ARCHIVE_2025 stage at scrollY = 0
     const DIM_O = 0.04; // barely visible while reading content
     const RAMP_PX = 240;
     let ticking = false;
@@ -170,18 +170,23 @@ const pageRef = pageRefs[pathname] ?? "REF.--";
   .crop span { position: absolute; background: #fff; }
   .crop .mark-v { width: 2px; height: 32px; }
   .crop .mark-h { width: 32px; height: 2px; }
-  .crop-tl { top: 104px; left: 24px; opacity: 0.85; }
+  /* Mobile: move crop marks inward to avoid content collision */
+  .crop-tl { top: 104px; left: 8px; opacity: 0.4; }
   .crop-tl .mark-v { left: 0; top: 0; }
   .crop-tl .mark-h { left: 0; top: 0; }
-  .crop-tr { top: 104px; right: 24px; opacity: 0.85; }
+  .crop-tr { top: 104px; right: 8px; opacity: 0.4; }
   .crop-tr .mark-v { right: 0; top: 0; }
   .crop-tr .mark-h { right: 0; top: 0; }
-  .crop-bl { bottom: 24px; left: 24px; opacity: 0.5; }
+  .crop-bl { bottom: 24px; left: 8px; opacity: 0.3; }
   .crop-bl .mark-v { left: 0; bottom: 0; }
   .crop-bl .mark-h { left: 0; bottom: 0; }
-  .crop-br { bottom: 24px; right: 24px; opacity: 0.5; }
+  .crop-br { bottom: 24px; right: 8px; opacity: 0.3; }
   .crop-br .mark-v { right: 0; bottom: 0; }
   .crop-br .mark-h { right: 0; bottom: 0; }
+  @media (min-width: 640px) {
+    .crop-tl, .crop-tr { left: 24px; right: 24px; opacity: 0.85; }
+    .crop-bl, .crop-br { left: 24px; right: 24px; opacity: 0.5; }
+  }
 
   /* ---------- dashed guide frame ---------- */
   .frame-line { position: absolute; }
@@ -244,6 +249,8 @@ const pageRef = pageRefs[pathname] ?? "REF.--";
     transform-origin: 44% center;
     --axis-final: 1;
     animation: expandH 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    /* Mobile: reduce opacity to minimize content collision */
+    opacity: 0.25;
   }
   @media (max-width: 1023px) { .axis-h { --axis-final: 0.5; } }
   .axis-v {
@@ -262,6 +269,8 @@ const pageRef = pageRefs[pathname] ?? "REF.--";
     transform-origin: center 148px;
     --axis-final: 1;
     animation: expandV 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+    /* Mobile: hide vertical axis to prevent cutting through content */
+    opacity: 0;
   }
   @media (max-width: 639px) { .axis-v { --axis-final: 0.12; } }
   @media (min-width: 640px) and (max-width: 1023px) { .axis-v { --axis-final: 0.25; } }
