@@ -79,6 +79,11 @@ export default function ProjectsExplorer({ projects }: { projects: ExplorerProje
             data-tech={p.tech.map((t) => t.toLowerCase()).join("|")}
           >
             <div>
+              {p.image && (
+                <div className="overflow-hidden mb-4 aspect-[16/10] bg-white/5 border border-white/5">
+                  <img src={encodeURI(p.image)} alt={p.title} width="640" height="400" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                </div>
+              )}
               <div className="flex items-center space-x-2 italic text-xs tracking-[0.2em] text-white/40 mb-2 font-light font-serif">
                 <span>{num(i)}</span>
                 <span className="text-white/20">/</span>
