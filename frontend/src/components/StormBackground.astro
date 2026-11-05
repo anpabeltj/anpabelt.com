@@ -25,7 +25,6 @@ const pageRef = pageRefs[pathname] ?? "REF.--";
     <!-- Architectural registration / crop marks -->
     <div class="crop crop-tl"><span class="mark-v"></span><span class="mark-h"></span></div>
     <div class="crop crop-tr"><span class="mark-v"></span><span class="mark-h"></span></div>
-    <div class="crop crop-bl"><span class="mark-v"></span><span class="mark-h"></span></div>
     <div class="crop crop-br"><span class="mark-v"></span><span class="mark-h"></span></div>
 
     <!-- Dashed guide frame bracketing the crosshair -->
@@ -177,15 +176,12 @@ const pageRef = pageRefs[pathname] ?? "REF.--";
   .crop-tr { top: 104px; right: 8px; opacity: 0.4; }
   .crop-tr .mark-v { right: 0; top: 0; }
   .crop-tr .mark-h { right: 0; top: 0; }
-  .crop-bl { bottom: 24px; left: 8px; opacity: 0.3; }
-  .crop-bl .mark-v { left: 0; bottom: 0; }
-  .crop-bl .mark-h { left: 0; bottom: 0; }
   .crop-br { bottom: 24px; right: 8px; opacity: 0.3; }
   .crop-br .mark-v { right: 0; bottom: 0; }
   .crop-br .mark-h { right: 0; bottom: 0; }
   @media (min-width: 640px) {
     .crop-tl, .crop-tr { left: 24px; right: 24px; opacity: 0.85; }
-    .crop-bl, .crop-br { left: 24px; right: 24px; opacity: 0.5; }
+    .crop-br { left: 24px; right: 24px; opacity: 0.5; }
   }
 
   /* ---------- dashed guide frame ---------- */
