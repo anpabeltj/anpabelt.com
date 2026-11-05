@@ -23,7 +23,6 @@ const pageRef = pageRefs[pathname] ?? "REF.--";
 <div class="backdrop" aria-hidden="true">
   <div class="bg-scene" id="bg-scene">
     <!-- Architectural registration / crop marks -->
-    <div class="crop crop-tr"><span class="mark-v"></span><span class="mark-h"></span></div>
 
     <!-- Dashed guide frame bracketing the crosshair -->
     <div class="frame-line fl-h1"></div>
@@ -168,12 +167,8 @@ const pageRef = pageRefs[pathname] ?? "REF.--";
   .crop .mark-v { width: 2px; height: 32px; }
   .crop .mark-h { width: 32px; height: 2px; }
   /* Mobile: move crop marks inward to avoid content collision */
-  .crop-tr { top: 104px; right: 8px; opacity: 0.4; }
-  .crop-tr .mark-v { right: 0; top: 0; }
-  .crop-tr .mark-h { right: 0; top: 0; }
   @media (min-width: 640px) {
-    .crop-tr { left: 24px; right: 24px; opacity: 0.85; }
-    }
+      }
 
   /* ---------- dashed guide frame ---------- */
   .frame-line { position: absolute; }
